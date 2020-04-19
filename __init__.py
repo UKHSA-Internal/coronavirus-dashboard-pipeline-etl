@@ -12,7 +12,7 @@ ETL service to create consumer-ready CSV and JSON files for download.
 The service is dispatched by an event that is triggered every time
 a new data file is deployed to the ``publicdata`` blob storage.
 
-Data are identical the original source, but enjoys a different structure.
+Data are identical to the original source, but enjoys a different structure.
 
 .. Note::
     There are missing values in the data. The approach is to leave them
