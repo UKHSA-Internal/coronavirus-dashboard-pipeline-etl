@@ -38,7 +38,7 @@ from sys import exit as sys_exit
 import logging
 
 # 3rd party:
-from azure.functions import Out, InputStream, Context
+from azure.functions import Out, Context
 
 from pandas import DataFrame, to_datetime
 from pandas import json_normalize
@@ -527,11 +527,11 @@ def local_test(original_filepath: str) -> NoReturn:
         print(deaths.json, file=file)
 
 
-def main(new_data: InputStream,
-         cases_csv_out: Out[str], cases_json_out: Out[str],
-         cases_csv_out_latest: Out[str], cases_json_out_latest: Out[str],
-         deaths_csv_out: Out[str], deaths_json_out: Out[str],
-         deaths_csv_out_latest: Out[str], deaths_json_out_latest: Out[str],
+def main(newData: str,
+         casesCsvOut: Out[str], casesJsonOut: Out[str],
+         casesCsvOutLatest: Out[str], casesJsonOutLatest: Out[str],
+         deathsCsvOut: Out[str], deathsJsonOut: Out[str],
+         deathsCsvOutLatest: Out[str], deathsJsonOutLatest: Out[str],
          context: Context) -> NoReturn:
     """
     Reads the data from the blob that has been updated, then runs it
@@ -544,44 +544,40 @@ def main(new_data: InputStream,
 
     Parameters
     ----------
-    new_data: InputStream
+    newData: str
         JSON data for the new file that has been uploaded.
 
-    cases_csv_out: Out[str]
+    casesCsvOut: Out[str]
         Dated CSV file setter for cases.
 
-    cases_json_out: Out[str]
+    casesJsonOut: Out[str]
         Dated JSON file setter for cases.
 
-    cases_csv_out_latest: Out[str]
+    casesCsvOutLatest: Out[str]
         CSV file setter for cases.
 
-    cases_json_out_latest: Out[str]
+    casesJsonOutLatest: Out[str]
         JSON file setter for cases.
 
-    deaths_csv_out: Out[str]
+    deathsCsvOut: Out[str]
         Dated CSV file setter for deaths.
 
-    deaths_json_out: Out[str]
+    deathsJsonOut: Out[str]
         Dated JSON file setter for deaths.
 
-    deaths_csv_out_latest: Out[str]
+    deathsCsvOutLatest: Out[str]
         CSV file setter for deaths.
 
-    deaths_json_out_latest: Out[str]
+    deathsJsonOutLatest: Out[str]
         JSON file setter for deaths.
 
     context: Context
         Function triggering context.
     """
 
-    logging.info(
-        f"-- Python blob trigger function processed blob \n"
-        f"----- Name: {new_data.name}\n"
-        f"----- Blob Size: {new_data.length / 1024:.2f} KB"
-    )
+    logging.info(f"-- Python blob trigger function processed blob")
 
-    json_data = loads(new_data)
+    json_data = loads(newData)
 
     try:
         processed = process(json_data)
@@ -592,16 +588,16 @@ def main(new_data: InputStream,
         sys_exit(255)
         return
 
-    cases_csv_out.set(cases.csv)
-    cases_csv_out_latest.set(cases.csv)
+    casesCsvOut.set(cases.csv)
+    casesCsvOutLatest.set(cases.csv)
 
-    cases_json_out.set(cases.json)
-    cases_json_out_latest.set(cases.json)
+    casesJsonOut.set(cases.json)
+    casesJsonOutLatest.set(cases.json)
 
-    deaths_csv_out.set(deaths.csv)
-    deaths_csv_out_latest.set(deaths.csv)
+    deathsCsvOut.set(deaths.csv)
+    deathsCsvOutLatest.set(deaths.csv)
 
-    deaths_json_out.set(deaths.json)
-    deaths_json_out_latest.set(deaths.json)
+    deathsJsonOut.set(deaths.json)
+    deathsJsonOutLatest.set(deaths.json)
 
     logging.info(f"----- Files were successfully created and stored.")

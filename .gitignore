@@ -1255,3 +1255,6 @@ dmypy.json
 *.scss.map
 !/downloads/
 !/original.json
+
+.python_packages
+!/BlobTrigger_new_data/downloads/
