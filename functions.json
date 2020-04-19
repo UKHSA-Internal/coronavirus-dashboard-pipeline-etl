@@ -1,0 +1,68 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "new_date",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "publicdata/{blobname}_{blobdate}.json",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "cases_csv_out",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/csv/coronavirus-cases_{blobdate}.csv",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "cases_json_out",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/json/coronavirus-cases_{blobdate}.json",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "cases_csv_out_latest",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/csv/coronavirus-cases_latest.csv",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "cases_json_out_latest",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/json/coronavirus-cases_latest.json",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "deaths_csv_out",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/csv/coronavirus-deaths_{blobdate}.csv",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "deaths_json_out",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/json/coronavirus-deaths_{blobdate}.json",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "deaths_csv_out_latest",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/csv/coronavirus-deaths_latest.csv",
+      "connection": "MyStorageConnectionString"
+    },
+    {
+      "name": "deaths_json_out_latest",
+      "type": "blob",
+      "direction": "out",
+      "path": "downloads/json/coronavirus-deaths_latest.json",
+      "connection": "MyStorageConnectionString"
+    }
+  ]
+}
