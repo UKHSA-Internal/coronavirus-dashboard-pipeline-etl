@@ -31,7 +31,7 @@ Contributors:  Pouria Hadjibagheri
 # Python:
 from typing import (
     NoReturn, Tuple, Optional, TypedDict,
-    NamedTuple, Iterable
+    NamedTuple, Iterable, Union
 )
 from json import loads, dumps
 from sys import exit as sys_exit
@@ -74,6 +74,12 @@ DEATHS = "deaths"
 DATE_COLUMN = "date"
 
 SORT_OUTPUT_BY = ["date", "Area name"]
+
+DAILY_RECORD_LABELS = {
+    "totalCases": "totalLabConfirmedCases",
+    "newCases": "dailyLabConfirmedCases",
+    "deaths": "totalHospitalDeaths"
+}
 
 REPLACEMENT_COLUMNS = {
     "csv": {
@@ -127,13 +133,13 @@ CRITERIA = {
         dict(
             by="countries",
             numeric_columns=['dailyDeaths', 'dailyTotalDeaths'],
-            area_type="Country",
+            area_type="Nation",
             area_names_included=["England", "Scotland", "Northern Ireland", "Wales"]
         ),
         dict(
             by="overview",
             numeric_columns=['dailyDeaths', 'dailyTotalDeaths'],
-            area_type="Country - UK",
+            area_type="UK",
             area_names_included=["United Kingdom",]
         )
     ]
@@ -163,8 +169,8 @@ COLUMNS_BY_OUTPUT = {
 }
 
 JSON_GROUP_NAME_REPLACEMENTS = {
-    "Country": "countries",
-    "Country - UK": "overview",
+    "Nation": "countries",
+    "UK": "overview",
     "Region": "regions",
     "Upper tier local authority": "utlas"
 }
@@ -175,17 +181,29 @@ class Metadata(TypedDict):
     disclaimer: str
 
 
+class DailyRecords(TypedDict):
+    areaName: str
+    totalLabConfirmedCases: Union[None, str]
+    dailyLabConfirmedCases: Union[None, str]
+    totalHospitalDeaths: Union[None, str]
+
+
 class InternalProcessor(NamedTuple):
     csv: str
     json: str
 
 
+class ExtraJsonData(TypedDict):
+    metadata: Metadata
+    dailyRecords: DailyRecords
+
+
 class GeneralProcessor(NamedTuple):
     data: DataFrame
-    metadata: Metadata
+    json_extras: ExtraJsonData
 
 
-def produce_json(data: DataFrame, metadata: Metadata,
+def produce_json(data: DataFrame, json_extras: ExtraJsonData,
                  numeric_columns: Iterable[str], included_columns: Iterable[str]) -> str:
     """
     Produces a JSON output from the structured data.
@@ -209,8 +227,8 @@ def produce_json(data: DataFrame, metadata: Metadata,
         Structured data that is both sorted and filtered to include only
         the data that is needed in the output.
 
-    metadata: Metadata
-        Metadata to be included in the JSON output.
+    json_extras: ExtraJsonData
+        Extra data to be included in the JSON file.
 
     numeric_columns: Iterable[str]
         Numeric columns.
@@ -231,7 +249,7 @@ def produce_json(data: DataFrame, metadata: Metadata,
     df_by_area = data.groupby("areaType")
 
     js = dict()
-    js['metadata'] = metadata
+    js.update(json_extras)
 
     # Adding items by groups (categories, defined as `areaType`):
     for group in df_by_area.groups:
@@ -252,7 +270,11 @@ def produce_json(data: DataFrame, metadata: Metadata,
             JSON_GROUP_NAME_REPLACEMENTS[group]: group_values
         })
 
-    return dumps(js)
+    json_file = dumps(js)
+
+    logging.info(">> JSON file generated.")
+
+    return json_file
 
 
 def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_type: str,
@@ -342,10 +364,13 @@ def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_typ
         *numeric_columns
     ]].reset_index(drop=True)
 
+    logging.info(
+        f'>> Extracted data based on "{by}" - numeric columns: {numeric_columns}.'
+    )
     return result
 
 
-def generate_output_data(data: DataFrame, metadata: Metadata,
+def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
                          output_cat: str) -> InternalProcessor:
     """
     Applies the necessary rules to generate CSV and JSON data
@@ -356,8 +381,8 @@ def generate_output_data(data: DataFrame, metadata: Metadata,
     data: DataFrame
         Processed data.
 
-    metadata: Metadata
-        Metadata to be included in the JSON file.
+    json_extras: ExtraJsonData
+        Extra data to be included in the JSON file.
 
     output_cat: str
         Category name. Must be included in ``COLUMNS_BY_OUTPUT``.
@@ -400,13 +425,15 @@ def generate_output_data(data: DataFrame, metadata: Metadata,
         float_format="%d"
     )
 
+    logging.info(">> CSV file generated.")
+
     # Converting column names as required for JSON output.
     d = d.rename(columns=REPLACEMENT_COLUMNS['json'][output_cat])
 
     # Create JSON output.
     json = produce_json(
         data=d,
-        metadata=metadata,
+        json_extras=json_extras,
         numeric_columns=column_data['numeric_cols'],
         included_columns=column_data["included_cols"]
     )
@@ -462,9 +489,11 @@ def process(data: DataFrame) -> GeneralProcessor:
 
     # Reset index to appear incrementally.
     dt_final = dt_final.reset_index()[columns]
+    logging.info(">> Data was successfully processed.")
 
     # Convert date strings to timestamp objects (needed for sorting).
     dt_final[DATE_COLUMN] = to_datetime(dt_final[DATE_COLUMN])
+    logging.info(">> Dates were successfully converted to datetime object.")
 
     # Create a hierarchy that allows aggregation as required
     # in output data.
@@ -483,13 +512,45 @@ def process(data: DataFrame) -> GeneralProcessor:
         ["date", "areaName"],
         ascending=False
     ).reset_index()
+    logging.info(">> Data was successfully sorted by date and area name - descending.")
 
     metadata = Metadata(
         lastUpdatedAt=data['lastUpdatedAt'],
         disclaimer=data['disclaimer']
     )
+    logging.info(">> Metadata extracted.")
 
-    return GeneralProcessor(data=dt_final, metadata=metadata)
+    daily_records = DailyRecords(
+        areaName="United Kingdom",
+        totalLabConfirmedCases=None,
+        dailyLabConfirmedCases=None,
+        totalHospitalDeaths=None
+    )
+
+    if (overview := data.get("overview")) is None:
+        logging.warning(f'Missing data - Key: overview')
+
+    elif (uk_cases := overview.get("K02000001")) is None:
+        logging.warning(f'Missing data - Keys: overview > K02000001')
+    else:
+        for record_name, record_name_repl in DAILY_RECORD_LABELS.items():
+            if (daily_record_item := uk_cases.get(record_name)) is not None:
+                if (value := daily_record_item.get("value")) is not None:
+                    daily_records[record_name_repl] = value
+                    continue
+
+            logging.warning(
+                f'Missing data - Keys: overview > K02000001 > {record_name}'
+            )
+
+    logging.info(">> Daily records extracted.")
+
+    extras = ExtraJsonData(
+        metadata=metadata,
+        dailyRecords=daily_records
+    )
+
+    return GeneralProcessor(data=dt_final, json_extras=extras)
 
 
 def local_test(original_filepath: str) -> NoReturn:
@@ -511,8 +572,8 @@ def local_test(original_filepath: str) -> NoReturn:
 
     processed = process(json_data)
 
-    cases = generate_output_data(processed.data, processed.metadata, CASES)
-    deaths = generate_output_data(processed.data, processed.metadata, DEATHS)
+    cases = generate_output_data(processed.data, processed.json_extras, CASES)
+    deaths = generate_output_data(processed.data, processed.json_extras, DEATHS)
 
     with open("downloads/csv/coronavirus-cases.csv", "w") as file:
         print(cases.csv, file=file)
@@ -575,29 +636,48 @@ def main(newData: str,
         Function triggering context.
     """
 
-    logging.info(f"-- Python blob trigger function processed blob")
+    logging.info(f"--- Blob update has triggered the function. Starting the process.")
 
     json_data = loads(newData)
+    logging.info(f"> Loaded and parsed JSON data.")
 
     try:
         processed = process(json_data)
-        cases = generate_output_data(processed.data, processed.metadata, CASES)
-        deaths = generate_output_data(processed.data, processed.metadata, DEATHS)
+        logging.info(f"> Finished processing the data.")
+
+        cases = generate_output_data(processed.data, processed.json_extras, CASES)
+        logging.info(f'> Finished generating output data for "cases".')
+
+        deaths = generate_output_data(processed.data, processed.json_extras, DEATHS)
+        logging.info(f'> Finished generating output data for "deaths".')
+
     except Exception as e:
         print(f'EXCEPTION: {e}')
         sys_exit(255)
         return
 
     casesCsvOut.set(cases.csv)
+    logging.info(f'> Stored dated "cases" as CSV.')
+
     casesCsvOutLatest.set(cases.csv)
+    logging.info(f'> Stored latest "cases" as CSV.')
 
     casesJsonOut.set(cases.json)
+    logging.info(f'> Stored dated "cases" as JSON.')
+
     casesJsonOutLatest.set(cases.json)
+    logging.info(f'> Stored latest "cases" as JSON.')
 
     deathsCsvOut.set(deaths.csv)
+    logging.info(f'> Stored dated "deaths" as CSV.')
+
     deathsCsvOutLatest.set(deaths.csv)
+    logging.info(f'> Stored latest "deaths" as CSV.')
 
     deathsJsonOut.set(deaths.json)
-    deathsJsonOutLatest.set(deaths.json)
+    logging.info(f'> Stored dated "deaths" as CSV.')
 
-    logging.info(f"----- Files were successfully created and stored.")
+    deathsJsonOutLatest.set(deaths.json)
+    logging.info(f'> Stored latest "deaths" as JSON.')
+
+    logging.info(f"--- Process complete: exiting with code 0")
