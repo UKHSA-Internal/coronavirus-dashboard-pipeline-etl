@@ -502,19 +502,15 @@ def process(data: DataFrame) -> GeneralProcessor:
     dt_final = dt_final.groupby(
         ["areaType", "category", "date", "areaName", "areaCode"]
     )
+    logging.info(">> Data has been grouped.")
+
     # Given that the aggregation grouping produces rows with unique
     # value, the `sum()` function will produce the original value
     # or `NaN`.
     dt_final = dt_final.sum().unstack(
         ["areaType", "category"]
     )
-
-    # Sort the data
-    dt_final = dt_final.sort_values(
-        ["date", "areaName"],
-        ascending=False
-    ).reset_index()
-    logging.info(">> Data was successfully sorted by date and area name - descending.")
+    logging.info(">> Data groups were stacked.")
 
     metadata = Metadata(
         lastUpdatedAt=data['lastUpdatedAt'],
