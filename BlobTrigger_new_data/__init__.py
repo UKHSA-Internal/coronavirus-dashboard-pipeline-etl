@@ -75,7 +75,7 @@ DEATHS = "deaths"
 
 DATE_COLUMN = "date"
 
-SORT_OUTPUT_BY = ["date", "Area name"]
+SORT_OUTPUT_BY = ["date", "Area type", "Area name"]
 
 DAILY_RECORD_LABELS = {
     "totalCases": "totalLabConfirmedCases",
@@ -127,9 +127,14 @@ CRITERIA = {
         dict(
             by="utlas",
             numeric_columns=['dailyConfirmedCases', 'dailyTotalConfirmedCases'],
-            area_type="Upper tier local authority",
+            area_type="Upper tier local authority"
+        ),
+        dict(
+            by="countries",
+            numeric_columns=['dailyConfirmedCases', 'dailyTotalConfirmedCases'],
+            area_type="Nation",
             area_names_excluded=["Scotland", "Wales", "Northern Ireland", "United Kingdom"]
-        )
+        ),
     ],
     DEATHS: [
         dict(
@@ -510,7 +515,13 @@ def process(data: DataFrame) -> GeneralProcessor:
     dt_final = dt_final.sum().unstack(
         ["areaType", "category"]
     )
-    logging.info(">> Data groups were stacked.")
+
+    # Sort the data
+    dt_final = dt_final.sort_values(
+        ["date", "areaName"],
+        ascending=False
+    ).reset_index()
+    logging.info(">> Data was successfully sorted by date and area name - descending.")
 
     metadata = Metadata(
         lastUpdatedAt=data['lastUpdatedAt'],
@@ -655,7 +666,7 @@ def main(newData: str,
         logging.info(f'> Finished generating output data for "deaths".')
 
     except Exception as e:
-        print(f'EXCEPTION: {e}')
+        logging.error(f'EXCEPTION: {e}')
         sys_exit(255)
         return
 
@@ -687,3 +698,6 @@ def main(newData: str,
     logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
+
+
+local_test("/Users/pouria/Desktop/test_20200418.json")
