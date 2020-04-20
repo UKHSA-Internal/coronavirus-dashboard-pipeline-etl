@@ -62,6 +62,13 @@
             "direction": "out",
             "path": "downloads/json/coronavirus-deaths_latest.json",
             "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "lastedJsonData",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/data_latest.json",
+            "connection": "DeploymentBlobStorage"
         }
     ]
 }

@@ -43,6 +43,8 @@ from azure.functions import Out, Context
 from pandas import DataFrame, to_datetime
 from pandas import json_normalize
 
+from datetime import datetime
+
 # Internal:
 # None
 
@@ -593,6 +595,7 @@ def main(newData: str,
          casesCsvOutLatest: Out[str], casesJsonOutLatest: Out[str],
          deathsCsvOut: Out[str], deathsJsonOut: Out[str],
          deathsCsvOutLatest: Out[str], deathsJsonOutLatest: Out[str],
+         lastedJsonData: Out[str],
          context: Context) -> NoReturn:
     """
     Reads the data from the blob that has been updated, then runs it
@@ -632,6 +635,9 @@ def main(newData: str,
     deathsJsonOutLatest: Out[str]
         JSON file setter for deaths.
 
+    lastedJsonData: Out[str]
+        JSON data with new timestamp.
+
     context: Context
         Function triggering context.
     """
@@ -639,6 +645,7 @@ def main(newData: str,
     logging.info(f"--- Blob update has triggered the function. Starting the process.")
 
     json_data = loads(newData)
+    json_data["lastUpdatedAt"] = datetime.now().utcnow().isoformat() + 'Z'
     logging.info(f"> Loaded and parsed JSON data.")
 
     try:
@@ -679,5 +686,8 @@ def main(newData: str,
 
     deathsJsonOutLatest.set(deaths.json)
     logging.info(f'> Stored latest "deaths" as JSON.')
+
+    lastedJsonData.set(dumps(json_data))
+    logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
