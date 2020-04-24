@@ -418,7 +418,7 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
 
     # Convert datetime object to string.
     # NOTE: Must be applied after the data has been sorted.
-    d[DATE_COLUMN] = d[DATE_COLUMN] 
+    d[DATE_COLUMN] = d[DATE_COLUMN].apply(lambda t: t.strftime("%Y-%m-%d"))
 
     # Create CSV output:
     # Column names converted as required.
