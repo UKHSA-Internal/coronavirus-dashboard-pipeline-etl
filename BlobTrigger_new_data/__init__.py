@@ -658,7 +658,7 @@ def main(newData: str,
     logging.info(f"--- Blob update has triggered the function. Starting the process.")
 
     json_data = loads(newData)
-    json_data["lastUpdatedAt"] = datetime.now().utcnow().isoformat() + 'Z'
+    json_data["lastUpdatedAt"] = datetime.utcnow().isoformat() + 'Z'
     logging.info(f"> Loaded and parsed JSON data.")
 
     try:

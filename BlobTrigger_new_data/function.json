@@ -11,14 +11,14 @@
             "name": "casesCsvOut",
             "type": "blob",
             "direction": "out",
-            "path": "downloadsprivate/csv/coronavirus-cases_{blobdate}.csv",
+            "path": "downloads/csv/dated/coronavirus-cases_{blobdate}.csv",
             "connection": "DeploymentBlobStorage"
         },
         {
             "name": "casesJsonOut",
             "type": "blob",
             "direction": "out",
-            "path": "downloadsprivate/json/coronavirus-cases_{blobdate}.json",
+            "path": "downloads/json/dated/coronavirus-cases_{blobdate}.json",
             "connection": "DeploymentBlobStorage"
         },
         {
@@ -39,14 +39,14 @@
             "name": "deathsCsvOut",
             "type": "blob",
             "direction": "out",
-            "path": "downloadsprivate/csv/coronavirus-deaths_{blobdate}.csv",
+            "path": "downloads/csv/dated/coronavirus-deaths_{blobdate}.csv",
             "connection": "DeploymentBlobStorage"
         },
         {
             "name": "deathsJsonOut",
             "type": "blob",
             "direction": "out",
-            "path": "downloadsprivate/json/coronavirus-deaths_{blobdate}.json",
+            "path": "downloads/json/dated/coronavirus-deaths_{blobdate}.json",
             "connection": "DeploymentBlobStorage"
         },
         {
