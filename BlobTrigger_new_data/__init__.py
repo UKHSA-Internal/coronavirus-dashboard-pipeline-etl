@@ -36,6 +36,7 @@ from typing import (
 from json import loads, dumps
 from sys import exit as sys_exit
 import logging
+from collections import UserDict
 
 # 3rd party:
 from azure.functions import Out, Context
@@ -80,7 +81,6 @@ SORT_OUTPUT_BY = ["date", "Area type", "Area name"]
 DAILY_RECORD_LABELS = {
     "totalCases": "totalLabConfirmedCases",
     "newCases": "dailyLabConfirmedCases",
-    "deaths": "totalHospitalDeaths"
 }
 
 REPLACEMENT_COLUMNS = {
@@ -192,7 +192,6 @@ class DailyRecords(TypedDict):
     areaName: str
     totalLabConfirmedCases: Union[None, str]
     dailyLabConfirmedCases: Union[None, str]
-    totalHospitalDeaths: Union[None, str]
 
 
 class InternalProcessor(NamedTuple):
@@ -200,7 +199,7 @@ class InternalProcessor(NamedTuple):
     json: str
 
 
-class ExtraJsonData(TypedDict):
+class ExtraJsonData(UserDict):
     metadata: Metadata
     dailyRecords: DailyRecords
 
@@ -378,7 +377,7 @@ def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_typ
 
 
 def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
-                         output_cat: str) -> InternalProcessor:
+                         output_cat: str, daily_records=True) -> InternalProcessor:
     """
     Applies the necessary rules to generate CSV and JSON data
     ready to be stored.
@@ -393,6 +392,9 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
 
     output_cat: str
         Category name. Must be included in ``COLUMNS_BY_OUTPUT``.
+
+    daily_records: bool
+        Include daily records from ``json_extras``. [Default: True]
 
     Returns
     -------
@@ -416,7 +418,7 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
 
     # Convert datetime object to string.
     # NOTE: Must be applied after the data has been sorted.
-    d[DATE_COLUMN] = d[DATE_COLUMN].map(lambda x: x.strftime('%Y-%m-%d'))
+    d[DATE_COLUMN] = d[DATE_COLUMN] 
 
     # Create CSV output:
     # Column names converted as required.
@@ -437,10 +439,15 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
     # Converting column names as required for JSON output.
     d = d.rename(columns=REPLACEMENT_COLUMNS['json'][output_cat])
 
+    json_meta = json_extras.copy()
+
+    if not daily_records:
+        json_meta.pop("dailyRecords")
+
     # Create JSON output.
     json = produce_json(
         data=d,
-        json_extras=json_extras,
+        json_extras=json_meta,
         numeric_columns=column_data['numeric_cols'],
         included_columns=column_data["included_cols"]
     )
@@ -532,8 +539,7 @@ def process(data: DataFrame) -> GeneralProcessor:
     daily_records = DailyRecords(
         areaName="United Kingdom",
         totalLabConfirmedCases=None,
-        dailyLabConfirmedCases=None,
-        totalHospitalDeaths=None
+        dailyLabConfirmedCases=None
     )
 
     if (overview := data.get("overview")) is None:
@@ -582,7 +588,7 @@ def local_test(original_filepath: str) -> NoReturn:
     processed = process(json_data)
 
     cases = generate_output_data(processed.data, processed.json_extras, CASES)
-    deaths = generate_output_data(processed.data, processed.json_extras, DEATHS)
+    deaths = generate_output_data(processed.data, processed.json_extras, DEATHS, False)
 
     with open("downloads/csv/coronavirus-cases.csv", "w") as file:
         print(cases.csv, file=file)
@@ -662,7 +668,7 @@ def main(newData: str,
         cases = generate_output_data(processed.data, processed.json_extras, CASES)
         logging.info(f'> Finished generating output data for "cases".')
 
-        deaths = generate_output_data(processed.data, processed.json_extras, DEATHS)
+        deaths = generate_output_data(processed.data, processed.json_extras, DEATHS, False)
         logging.info(f'> Finished generating output data for "deaths".')
 
     except Exception as e:
