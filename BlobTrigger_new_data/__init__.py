@@ -35,16 +35,13 @@ from typing import (
 )
 from json import loads, dumps
 from sys import exit as sys_exit
-import logging
 from collections import UserDict
+from datetime import datetime
+import logging
 
 # 3rd party:
 from azure.functions import Out, Context
-
-from pandas import DataFrame, to_datetime
-from pandas import json_normalize
-
-from datetime import datetime
+from pandas import DataFrame, to_datetime, json_normalize
 
 # Internal:
 # None
@@ -54,14 +51,18 @@ from datetime import datetime
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.5.7"
+__version__ = "0.6.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 VALUE_COLUMNS = (
     'dailyTotalDeaths',
     'dailyDeaths',
     'dailyConfirmedCases',
-    'dailyTotalConfirmedCases'
+    'previouslyReportedDailyCases',
+    'changeInDailyCases',
+    'dailyTotalConfirmedCases',
+    'previouslyReportedDailyTotalCases',
+    'changeInDailyTotalCases'
 )
 
 CATEGORY_LABELS = (
@@ -76,21 +77,41 @@ DEATHS = "deaths"
 
 DATE_COLUMN = "date"
 
-SORT_OUTPUT_BY = ["date", "Area type", "Area name"]
+SORT_OUTPUT_BY = ["Area type", "Area name"]
 
 DAILY_RECORD_LABELS = {
     "totalCases": "totalLabConfirmedCases",
     "newCases": "dailyLabConfirmedCases",
 }
 
+# specimen date,
+# daily lab-confirmed cases,
+# previously reported daily cases,
+# change in daily cases,
+# cumulative lab-confirmed cases,
+# previously reported cumulative cases,
 REPLACEMENT_COLUMNS = {
     "csv": {
         CASES: {
+            "Area name": "Area name",
+            "Area code": "Area code",
+            "Area type": "Area type",
+
             "date": "Specimen date",
+
             "dailyConfirmedCases": "Daily lab-confirmed cases",
-            "dailyTotalConfirmedCases": "Cumulative lab-confirmed cases"
+            "previouslyReportedDailyCases": "Previously reported daily cases",
+            "changeInDailyCases": "Change in daily cases",
+
+            "dailyTotalConfirmedCases": "Cumulative lab-confirmed cases",
+            "previouslyReportedDailyTotalCases": "Previously reported cumulative cases",
+            "changeInDailyTotalCases": "Change in cumulative cases",
         },
         DEATHS: {
+            "Area name": "Area name",
+            "Area code": "Area code",
+            "Area type": "Area type",
+
             "date": "Reporting date",
             "dailyDeaths": "Daily hospital deaths",
             "dailyTotalDeaths": "Cumulative hospital deaths"
@@ -102,8 +123,14 @@ REPLACEMENT_COLUMNS = {
             "Area code": "areaCode",
             "Area type": "areaType",
             "date": "specimenDate",
+
             "dailyConfirmedCases": "dailyLabConfirmedCases",
-            "dailyTotalConfirmedCases": "totalLabConfirmedCases"
+            "previouslyReportedDailyCases": "previouslyReportedDailyCases",
+            "changeInDailyCases": "changeInDailyCases",
+
+            "dailyTotalConfirmedCases": "totalLabConfirmedCases",
+            "previouslyReportedDailyTotalCases": "previouslyReportedTotalCases",
+            "changeInDailyTotalCases": "changeInTotalCases",
         },
         DEATHS: {
             "Area name": "areaName",
@@ -115,23 +142,37 @@ REPLACEMENT_COLUMNS = {
         }
     }
 }
+# change in cumulative cases
 
 CRITERIA = {
     CASES: [
         dict(
             by="regions",
-            numeric_columns=['dailyConfirmedCases', 'dailyTotalConfirmedCases'],
+            numeric_columns=[
+                'dailyConfirmedCases',
+                'dailyTotalConfirmedCases',
+            ],
             area_type="Region",
             area_names_excluded=["Scotland", "Wales", "Northern Ireland", "United Kingdom"]
         ),
         dict(
             by="utlas",
-            numeric_columns=['dailyConfirmedCases', 'dailyTotalConfirmedCases'],
+            numeric_columns=[
+                'dailyConfirmedCases',
+                'dailyTotalConfirmedCases',
+            ],
             area_type="Upper tier local authority"
         ),
         dict(
             by="countries",
-            numeric_columns=['dailyConfirmedCases', 'dailyTotalConfirmedCases'],
+            numeric_columns=[
+                'dailyConfirmedCases',
+                'previouslyReportedDailyCases',
+                'changeInDailyCases',
+                'dailyTotalConfirmedCases',
+                'previouslyReportedDailyTotalCases',
+                'changeInDailyTotalCases'
+            ],
             area_type="Nation",
             area_names_excluded=["Scotland", "Wales", "Northern Ireland", "United Kingdom"]
         ),
@@ -147,7 +188,7 @@ CRITERIA = {
             by="overview",
             numeric_columns=['dailyDeaths', 'dailyTotalDeaths'],
             area_type="UK",
-            area_names_included=["United Kingdom",]
+            area_names_included=["United Kingdom"]
         )
     ]
 }
@@ -157,6 +198,7 @@ COLUMNS_BY_OUTPUT = {
         included_cols=[
             "areaCode",
             "areaType",
+            "areaName",
             "reportingDate",
             "dailyHospitalDeaths",
             "totalHospitalDeaths"
@@ -167,11 +209,23 @@ COLUMNS_BY_OUTPUT = {
         included_cols=[
             "areaCode",
             "areaType",
+            "areaName",
             "specimenDate",
             "dailyLabConfirmedCases",
-            "totalLabConfirmedCases"
+            "previouslyReportedDailyCases",
+            "changeInDailyCases",
+            "totalLabConfirmedCases",
+            "previouslyReportedTotalCases",
+            "changeInTotalCases"
         ],
-        numeric_cols=["dailyLabConfirmedCases", "totalLabConfirmedCases"]
+        numeric_cols=[
+            "dailyLabConfirmedCases",
+            "previouslyReportedDailyCases",
+            "changeInDailyCases",
+            "totalLabConfirmedCases",
+            "previouslyReportedTotalCases",
+            "changeInTotalCases"
+        ]
     )
 }
 
@@ -414,7 +468,7 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
         d = d.append(df_temp)
 
     # Sort the data (descending).
-    d = d.sort_values(SORT_OUTPUT_BY, ascending=False)
+    d = d.sort_values(SORT_OUTPUT_BY).sort_values("date", ascending=False)
 
     # Convert datetime object to string.
     # NOTE: Must be applied after the data has been sorted.
@@ -427,9 +481,10 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
     # Given that there is no floating point number in the outputs,
     # we can apply `float_format` and set it to "%d" to convert
     # values onto integer in CSV string output.
+    csv_cols = REPLACEMENT_COLUMNS['csv'][output_cat]
     csv = d.rename(
-        columns=REPLACEMENT_COLUMNS['csv'][output_cat]
-    ).to_csv(
+        columns=csv_cols
+    )[list(csv_cols.values())].to_csv(
         index=False,
         float_format="%d"
     )
@@ -474,7 +529,7 @@ def process(data: DataFrame) -> GeneralProcessor:
     dt_final = DataFrame(columns=columns)
 
     # Because of the hierarchical nature of the original data, there is
-    # no easy way to easily automate this process using a generic solution
+    # no easy way to automate this process using a generic solution
     # without prolonging the execution time. The iterative method appears
     # to produce the optimal time.
     for area_type in CATEGORY_LABELS:
