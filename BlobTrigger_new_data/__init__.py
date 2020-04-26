@@ -77,7 +77,7 @@ DEATHS = "deaths"
 
 DATE_COLUMN = "date"
 
-SORT_OUTPUT_BY = ["Area type", "Area name"]
+SORT_OUTPUT_BY = ["date", "Area code"]
 
 DAILY_RECORD_LABELS = {
     "totalCases": "totalLabConfirmedCases",
@@ -468,7 +468,7 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
         d = d.append(df_temp)
 
     # Sort the data (descending).
-    d = d.sort_values(SORT_OUTPUT_BY).sort_values("date", ascending=False)
+    d = d.sort_values(SORT_OUTPUT_BY, ascending=False)
 
     # Convert datetime object to string.
     # NOTE: Must be applied after the data has been sorted.
@@ -759,3 +759,6 @@ def main(newData: str,
     logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
+
+
+local_test("/Users/pouria/Desktop/all_data/data_202004241424.json")
