@@ -759,6 +759,3 @@ def main(newData: str,
     logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
-
-
-local_test("/Users/pouria/Desktop/all_data/data_202004241424.json")
