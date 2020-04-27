@@ -43,9 +43,9 @@ from io import StringIO
 import logging
 
 # 3rd party:
-from azure.functions import Out, Context
-from azure.storage.blob._blob_service_client import BlobServiceClient, BlobClient, ContainerClient
-from azure.storage.blob import ContentSettings
+from azure.functions import Context
+from azure.storage.blob import ContentSettings, BlobServiceClient, BlobClient, ContainerClient
+
 from pandas import DataFrame, to_datetime, json_normalize
 
 # Internal:
@@ -670,27 +670,18 @@ class Writer:
         self.service_client: ContainerClient = BlobServiceClient.from_connection_string(connect_str)
 
     def upload(self, container_name: str, filepath: str, filename: str, data: str, content_type: str) -> NoReturn:
-        content = StringIO()
-        content.write(data)
-        content.seek(0)
-
         blob_client: BlobClient = self.service_client.get_blob_client(
             container=container_name,
-            blob=join(filepath, filename),
-            overwrite=True
+            blob=join(filepath, filename)
         )
 
         settings = ContentSettings(content_type=content_type)
 
         blob_client.upload_blob(
-            content,
-            content_settings=settings
+            data.encode(),
+            content_settings=settings,
+            overwrite=True
         )
-
-        content.close()
-
-    def __enter__(self):
-        return self
 
 
 def main(newData: str, context: Context) -> NoReturn:
@@ -737,80 +728,81 @@ def main(newData: str, context: Context) -> NoReturn:
 
     timestamp = datetime.now().strftime("%Y%m%D%H%M")
 
-    with Writer(connect_str) as writer:
-        # JSON files
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/json",
-            filename="TEST_coronavirus-cases_latest.json",
-            data=cases.json,
-            content_type='application/json'
-        )
+    writer = Writer(connect_str)
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/json",
-            filename="TEST_coronavirus-deaths_latest.json",
-            data=deaths.json,
-            content_type='application/json'
-        )
+    # JSON files
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/json",
+        filename="TEST_coronavirus-cases_latest.json",
+        data=cases.json,
+        content_type='application/json'
+    )
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/json/dated",
-            filename=f"TEST_coronavirus-cases_{timestamp}.json",
-            data=cases.json,
-            content_type='application/json'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/json",
+        filename="TEST_coronavirus-deaths_latest.json",
+        data=deaths.json,
+        content_type='application/json'
+    )
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/json/dated",
-            filename=f"TEST_coronavirus-deaths_{timestamp}.json",
-            data=deaths.json,
-            content_type='application/json'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/json/dated",
+        filename=f"TEST_coronavirus-cases_{timestamp}.json",
+        data=cases.json,
+        content_type='application/json'
+    )
 
-        # CSV files
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/csv",
-            filename="TEST_coronavirus-cases_latest.csv",
-            data=cases.json,
-            content_type='text/csv'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/json/dated",
+        filename=f"TEST_coronavirus-deaths_{timestamp}.json",
+        data=deaths.json,
+        content_type='application/json'
+    )
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/csv",
-            filename="TEST_coronavirus-deaths_latest.csv",
-            data=deaths.json,
-            content_type='text/csv'
-        )
+    # CSV files
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/csv",
+        filename="TEST_coronavirus-cases_latest.csv",
+        data=cases.json,
+        content_type='text/csv'
+    )
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/csv/dated",
-            filename=f"TEST_coronavirus-cases_{timestamp}.csv",
-            data=cases.json,
-            content_type='text/csv'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/csv",
+        filename="TEST_coronavirus-deaths_latest.csv",
+        data=deaths.json,
+        content_type='text/csv'
+    )
 
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/csv/dated",
-            filename=f"TEST_coronavirus-deaths_{timestamp}.csv",
-            data=deaths.json,
-            content_type='text/csv'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/csv/dated",
+        filename=f"TEST_coronavirus-cases_{timestamp}.csv",
+        data=cases.json,
+        content_type='text/csv'
+    )
 
-        # Original data file
-        writer.upload(
-            OUTPUT_CONTAINER_NAME,
-            filepath="test/data",
-            filename="TEST_data_latest.json",
-            data=json_data,
-            content_type='application/json'
-        )
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/csv/dated",
+        filename=f"TEST_coronavirus-deaths_{timestamp}.csv",
+        data=deaths.json,
+        content_type='text/csv'
+    )
+
+    # Original data file
+    writer.upload(
+        OUTPUT_CONTAINER_NAME,
+        filepath="test/data",
+        filename="TEST_data_latest.json",
+        data=json_data,
+        content_type='application/json'
+    )
 
     logging.info(f"--- Process complete: exiting with code 0")
