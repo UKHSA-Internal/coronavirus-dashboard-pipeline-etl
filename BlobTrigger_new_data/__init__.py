@@ -44,7 +44,8 @@ import logging
 
 # 3rd party:
 from azure.functions import Out, Context
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, ContentSettings
+from azure.storage.blob._blob_service_client import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import ContentSettings
 from pandas import DataFrame, to_datetime, json_normalize
 
 # Internal:
