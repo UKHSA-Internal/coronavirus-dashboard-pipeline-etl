@@ -1,3 +1,4 @@
-cython==0.29.16
+cython==0.29.17
 pandas==1.0.3
 azure-functions==1.2.0
+azure-storage==0.36.0

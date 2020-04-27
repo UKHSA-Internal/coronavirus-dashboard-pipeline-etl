@@ -37,10 +37,14 @@ from json import loads, dumps
 from sys import exit as sys_exit
 from collections import UserDict
 from datetime import datetime
+from os.path import join
+from os import environ
+from io import StringIO
 import logging
 
 # 3rd party:
 from azure.functions import Out, Context
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, ContentSettings
 from pandas import DataFrame, to_datetime, json_normalize
 
 # Internal:
@@ -51,8 +55,10 @@ from pandas import DataFrame, to_datetime, json_normalize
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.6.1"
+__version__ = "0.7-test"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OUTPUT_CONTAINER_NAME = "downloads"
 
 VALUE_COLUMNS = (
     'dailyTotalDeaths',
@@ -658,13 +664,35 @@ def local_test(original_filepath: str) -> NoReturn:
         print(deaths.json, file=file)
 
 
-def main(newData: str,
-         casesCsvOut: Out[str], casesJsonOut: Out[str],
-         casesCsvOutLatest: Out[str], casesJsonOutLatest: Out[str],
-         deathsCsvOut: Out[str], deathsJsonOut: Out[str],
-         deathsCsvOutLatest: Out[str], deathsJsonOutLatest: Out[str],
-         lastedJsonData: Out[str],
-         context: Context) -> NoReturn:
+class Writer:
+    def __init__(self, connect_str: str):
+        self.service_client: ContainerClient = BlobServiceClient.from_connection_string(connect_str)
+
+    def upload(self, container_name: str, filepath: str, filename: str, data: str, content_type: str) -> NoReturn:
+        content = StringIO()
+        content.write(data)
+        content.seek(0)
+
+        blob_client: BlobClient = self.service_client.get_blob_client(
+            container=container_name,
+            blob=join(filepath, filename),
+            overwrite=True
+        )
+
+        settings = ContentSettings(content_type=content_type)
+
+        blob_client.upload_blob(
+            content,
+            content_settings=settings
+        )
+
+        content.close()
+
+    def __enter__(self):
+        return self
+
+
+def main(newData: str, context: Context) -> NoReturn:
     """
     Reads the data from the blob that has been updated, then runs it
     through the processors and produces the output by setting the
@@ -678,33 +706,6 @@ def main(newData: str,
     ----------
     newData: str
         JSON data for the new file that has been uploaded.
-
-    casesCsvOut: Out[str]
-        Dated CSV file setter for cases.
-
-    casesJsonOut: Out[str]
-        Dated JSON file setter for cases.
-
-    casesCsvOutLatest: Out[str]
-        CSV file setter for cases.
-
-    casesJsonOutLatest: Out[str]
-        JSON file setter for cases.
-
-    deathsCsvOut: Out[str]
-        Dated CSV file setter for deaths.
-
-    deathsJsonOut: Out[str]
-        Dated JSON file setter for deaths.
-
-    deathsCsvOutLatest: Out[str]
-        CSV file setter for deaths.
-
-    deathsJsonOutLatest: Out[str]
-        JSON file setter for deaths.
-
-    lastedJsonData: Out[str]
-        JSON data with new timestamp.
 
     context: Context
         Function triggering context.
@@ -731,31 +732,84 @@ def main(newData: str,
         sys_exit(255)
         return
 
-    casesCsvOut.set(cases.csv)
-    logging.info(f'> Stored dated "cases" as CSV.')
+    connect_str = environ["AzureWebJobsStorage"]
 
-    casesCsvOutLatest.set(cases.csv)
-    logging.info(f'> Stored latest "cases" as CSV.')
+    timestamp = datetime.now().strftime("%Y%m%D%H%M")
 
-    casesJsonOut.set(cases.json)
-    logging.info(f'> Stored dated "cases" as JSON.')
+    with Writer(connect_str) as writer:
+        # JSON files
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/json",
+            filename="TEST_coronavirus-cases_latest.json",
+            data=cases.json,
+            content_type='application/json'
+        )
 
-    casesJsonOutLatest.set(cases.json)
-    logging.info(f'> Stored latest "cases" as JSON.')
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/json",
+            filename="TEST_coronavirus-deaths_latest.json",
+            data=deaths.json,
+            content_type='application/json'
+        )
 
-    deathsCsvOut.set(deaths.csv)
-    logging.info(f'> Stored dated "deaths" as CSV.')
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/json/dated",
+            filename=f"TEST_coronavirus-cases_{timestamp}.json",
+            data=cases.json,
+            content_type='application/json'
+        )
 
-    deathsCsvOutLatest.set(deaths.csv)
-    logging.info(f'> Stored latest "deaths" as CSV.')
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/json/dated",
+            filename=f"TEST_coronavirus-deaths_{timestamp}.json",
+            data=deaths.json,
+            content_type='application/json'
+        )
 
-    deathsJsonOut.set(deaths.json)
-    logging.info(f'> Stored dated "deaths" as CSV.')
+        # CSV files
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/csv",
+            filename="TEST_coronavirus-cases_latest.csv",
+            data=cases.json,
+            content_type='text/csv'
+        )
 
-    deathsJsonOutLatest.set(deaths.json)
-    logging.info(f'> Stored latest "deaths" as JSON.')
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/csv",
+            filename="TEST_coronavirus-deaths_latest.csv",
+            data=deaths.json,
+            content_type='text/csv'
+        )
 
-    lastedJsonData.set(dumps(json_data))
-    logging.info(f'> Stored latest "data" as JSON.')
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/csv/dated",
+            filename=f"TEST_coronavirus-cases_{timestamp}.csv",
+            data=cases.json,
+            content_type='text/csv'
+        )
+
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/csv/dated",
+            filename=f"TEST_coronavirus-deaths_{timestamp}.csv",
+            data=deaths.json,
+            content_type='text/csv'
+        )
+
+        # Original data file
+        writer.upload(
+            OUTPUT_CONTAINER_NAME,
+            filepath="test/data",
+            filename="TEST_data_latest.json",
+            data=json_data,
+            content_type='application/json'
+        )
 
     logging.info(f"--- Process complete: exiting with code 0")
