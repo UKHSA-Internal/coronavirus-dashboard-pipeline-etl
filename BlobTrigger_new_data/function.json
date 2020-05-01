@@ -6,6 +6,104 @@
             "direction": "in",
             "path": "publicdata/{blobname}_{blobdate}.json",
             "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "casesCsvOut",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/csv/dated/coronavirus-cases_{blobdate}.csv",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "casesJsonOut",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/json/dated/coronavirus-cases_{blobdate}.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "casesCsvOutLatest",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/csv/coronavirus-cases_latest.csv",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "casesJsonOutLatest",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/json/coronavirus-cases_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "deathsCsvOut",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/csv/dated/coronavirus-deaths_{blobdate}.csv",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "deathsJsonOut",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/json/dated/coronavirus-deaths_{blobdate}.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "deathsCsvOutLatest",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/csv/coronavirus-deaths_latest.csv",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "deathsJsonOutLatest",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/json/coronavirus-deaths_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "lastedJsonData",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/data_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "overview",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/overview_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "countries",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/countries_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "regions",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/regions_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "utlas",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/utlas_latest.json",
+            "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "ltlas",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/ltlas_latest.json",
+            "connection": "DeploymentBlobStorage"
         }
     ]
 }
