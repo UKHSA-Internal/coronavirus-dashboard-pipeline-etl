@@ -754,6 +754,8 @@ def main(newData: str,
     timestamp = datetime.utcnow().isoformat() + 'Z'
     json_data["lastUpdatedAt"] = timestamp
 
+    original_data = json_data.copy()
+
     metadata = {
         "metadata": Metadata(
             lastUpdatedAt=timestamp,
@@ -809,7 +811,7 @@ def main(newData: str,
     # Bloom filter to take out unauthorised keys.
     json_data = {
         key: value
-        for key, value in json_data.items()
+        for key, value in original_data.items()
         if key in APPROVED_ATTRIBUTES
     }
 
