@@ -77,6 +77,12 @@ CATEGORY_LABELS = (
     "utlas"
 )
 
+APPROVED_ATTRIBUTES = (
+    *CATEGORY_LABELS,
+    "lastUpdatedAt",
+    "disclaimer"
+)
+
 CASES = "cases"
 DEATHS = "deaths"
 
@@ -793,14 +799,19 @@ def main(newData: str,
     deathsJsonOutLatest.set(deaths.json)
     logging.info(f'> Stored latest "deaths" as JSON.')
 
-    lastedJsonData.set(dumps(json_data))
-    logging.info(f'> Stored latest "data" as JSON.')
-
     for key, setter in data.items():
         value = json_data[key]
         value.update(metadata)
         value_json_str = dumps(value)
         setter.set(value_json_str)
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
+
+    # Bloom filter to take out unauthorised keys.
+    for key in json_data:
+        if key not in APPROVED_ATTRIBUTES:
+            json_data.pop(key)
+
+    lastedJsonData.set(dumps(json_data))
+    logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
