@@ -809,7 +809,7 @@ def main(newData: str,
     # Bloom filter to take out unauthorised keys.
     json_data = {
         key: value
-        for key, value in json_data
+        for key, value in json_data.items()
         if key in APPROVED_ATTRIBUTES
     }
 
