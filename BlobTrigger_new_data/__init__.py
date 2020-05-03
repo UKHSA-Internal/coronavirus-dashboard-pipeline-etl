@@ -777,6 +777,16 @@ def main(newData: str,
         sys_exit(255)
         return
 
+    # Bloom filter to take out unauthorised keys.
+    json_data_output = {
+        key: value
+        for key, value in original_data.items()
+        if key in APPROVED_ATTRIBUTES
+    }
+
+    lastedJsonData.set(dumps(json_data_output))
+    logging.info(f'> Stored latest "data" as JSON.')
+
     casesCsvOut.set(cases.csv)
     logging.info(f'> Stored dated "cases" as CSV.')
 
@@ -807,15 +817,5 @@ def main(newData: str,
         value_json_str = dumps(value)
         setter.set(value_json_str)
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
-
-    # Bloom filter to take out unauthorised keys.
-    json_data = {
-        key: value
-        for key, value in original_data.items()
-        if key in APPROVED_ATTRIBUTES
-    }
-
-    lastedJsonData.set(dumps(json_data))
-    logging.info(f'> Stored latest "data" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
