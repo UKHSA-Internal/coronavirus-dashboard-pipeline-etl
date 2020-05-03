@@ -807,9 +807,11 @@ def main(newData: str,
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
 
     # Bloom filter to take out unauthorised keys.
-    for key in json_data:
-        if key not in APPROVED_ATTRIBUTES:
-            json_data.pop(key)
+    json_data = {
+        key: value
+        for key, value in json_data
+        if key in APPROVED_ATTRIBUTES
+    }
 
     lastedJsonData.set(dumps(json_data))
     logging.info(f'> Stored latest "data" as JSON.')
