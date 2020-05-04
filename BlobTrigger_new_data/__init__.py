@@ -341,7 +341,7 @@ def produce_json(data: DataFrame, json_extras: ExtraJsonData,
             JSON_GROUP_NAME_REPLACEMENTS[group]: group_values
         })
 
-    json_file = dumps(js)
+    json_file = dumps(js, separators=(',', ':'))
 
     logging.info(">> JSON file generated.")
 
@@ -784,7 +784,7 @@ def main(newData: str,
         if key in APPROVED_ATTRIBUTES
     }
 
-    lastedJsonData.set(dumps(json_data_output))
+    lastedJsonData.set(dumps(json_data_output, separators=(',', ':')))
     logging.info(f'> Stored latest "data" as JSON.')
 
     casesCsvOut.set(cases.csv)
@@ -814,7 +814,7 @@ def main(newData: str,
     for key, setter in data.items():
         value = json_data[key]
         value.update(metadata)
-        value_json_str = dumps(value)
+        value_json_str = dumps(value, separators=(',', ':'))
         setter.set(value_json_str)
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
 
