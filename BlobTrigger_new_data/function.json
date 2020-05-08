@@ -104,6 +104,13 @@
             "direction": "out",
             "path": "downloads/data/ltlas_latest.json",
             "connection": "DeploymentBlobStorage"
+        },
+        {
+            "name": "landing",
+            "type": "blob",
+            "direction": "out",
+            "path": "downloads/data/landing.json",
+            "connection": "DeploymentBlobStorage"
         }
     ]
 }

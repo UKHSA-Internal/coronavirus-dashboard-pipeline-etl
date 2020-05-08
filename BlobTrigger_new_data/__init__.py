@@ -74,7 +74,8 @@ CATEGORY_LABELS = (
     "overview",
     "countries",
     "regions",
-    "utlas"
+    "utlas",
+    "ltlas"
 )
 
 APPROVED_ATTRIBUTES = (
@@ -175,6 +176,14 @@ CRITERIA = {
             area_type="Upper tier local authority"
         ),
         dict(
+            by="ltlas",
+            numeric_columns=[
+                'dailyConfirmedCases',
+                'dailyTotalConfirmedCases',
+            ],
+            area_type="Lower tier local authority"
+        ),
+        dict(
             by="countries",
             numeric_columns=[
                 'dailyConfirmedCases',
@@ -244,7 +253,63 @@ JSON_GROUP_NAME_REPLACEMENTS = {
     "Nation": "countries",
     "UK": "overview",
     "Region": "regions",
-    "Upper tier local authority": "utlas"
+    "Upper tier local authority": "utlas",
+    "Lower tier local authority": "ltlas",
+}
+
+
+def latest_daily_deaths(data):
+    return {
+        "latestDeaths": max(
+            data["dailyDeaths"],
+            key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d")
+        )
+    }
+
+
+LANDING_DATA = {
+    "overview": {
+        "K02000001": [  # United Kingdom
+            "name",
+            "totalCases",
+            "newCases",
+            "deaths",
+            latest_daily_deaths,
+            "dailyDeaths",
+            "dailyTotalDeaths"
+        ]
+    },
+    "countries": {
+        "E92000001": [  # England
+            "name",
+            "totalCases",
+            "deaths",
+            latest_daily_deaths,
+            "maleCases",
+            "femaleCases",
+            "changeInDailyCases",
+            "previouslyReportedDailyCasesAdjusted",
+            "dailyTotalConfirmedCases",
+        ],
+        "N92000002": [  # Northern Ireland
+            "name",
+            "totalCases",
+            "deaths",
+            latest_daily_deaths,
+        ],
+        "S92000003": [  # Scotland
+            "name",
+            "totalCases",
+            "deaths",
+            latest_daily_deaths,
+        ],
+        "W92000004": [  # Wales
+            "name",
+            "totalCases",
+            "deaths",
+            latest_daily_deaths,
+        ]
+    }
 }
 
 
@@ -634,6 +699,31 @@ def process(data: DataFrame) -> GeneralProcessor:
     return GeneralProcessor(data=dt_final, json_extras=extras)
 
 
+def get_landing_data(data, structure):
+    landing = dict()
+
+    for value in structure:
+
+        try:
+            key, value = value,  structure[value]
+        except TypeError:
+            key = value
+
+        if isinstance(value, (dict, list)):
+            value = get_landing_data(value, data[key])
+        elif isinstance(value, str) and key == value:
+            value = data[key]
+        elif isinstance(value, str):
+            value = data[value]
+        elif callable(value):
+            landing.update(value(data))
+            continue
+
+        landing[key] = value
+
+    return landing
+
+
 def local_test(original_filepath: str) -> NoReturn:
     """
     Reads and loads the JSON data from ``original_filepath`` and
@@ -668,6 +758,10 @@ def local_test(original_filepath: str) -> NoReturn:
     with open("downloads/json/coronavirus-deaths.json", "w") as file:
         print(deaths.json, file=file)
 
+    with open("downloads/landing_latest.json", "w") as file:
+        data = dumps(get_landing_data(json_data, LANDING_DATA), separators=(",", ":"))
+        print(data, file=file)
+
 
 def main(newData: str,
          casesCsvOut: Out[str], casesJsonOut: Out[str],
@@ -677,6 +771,7 @@ def main(newData: str,
          lastedJsonData: Out[str],
          overview: Out[str], countries: Out[str], regions: Out[str],
          utlas: Out[str], ltlas: Out[str],
+         landing: Out[str],
          context: Context) -> NoReturn:
     """
     Reads the data from the blob that has been updated, then runs it
@@ -734,6 +829,9 @@ def main(newData: str,
     ltlas: Out[str]
         JSON data for lower tier local authorities.
 
+    landing: Out[str]
+        Landing page (essential) data.
+
     context: Context
         Function triggering context.
     """
@@ -763,6 +861,9 @@ def main(newData: str,
         )
     }
 
+    landing_latest = get_landing_data(json_data, LANDING_DATA)
+    landing_latest.update(metadata)
+
     try:
         processed = process(json_data)
         logging.info(f"> Finished processing the data.")
@@ -783,6 +884,9 @@ def main(newData: str,
         for key, value in original_data.items()
         if key in APPROVED_ATTRIBUTES
     }
+
+    landing.set(dumps(landing_latest, separators=(',', ':')))
+    logging.info(f'> Stored latest "landing_latest" as JSON.')
 
     lastedJsonData.set(dumps(json_data_output, separators=(',', ':')))
     logging.info(f'> Stored latest "data" as JSON.')
