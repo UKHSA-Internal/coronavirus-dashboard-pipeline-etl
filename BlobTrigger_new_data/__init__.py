@@ -288,8 +288,13 @@ LANDING_DATA = {
             "maleCases",
             "femaleCases",
             "changeInDailyCases",
+            "dailyConfirmedCases",
+            "previouslyReportedDailyCases",
             "previouslyReportedDailyCasesAdjusted",
             "dailyTotalConfirmedCases",
+            "previouslyReportedDailyTotalCases",
+            "changeInDailyTotalCases",
+            "dailyTotalConfirmedCases"
         ],
         "N92000002": [  # Northern Ireland
             "name",
@@ -758,7 +763,7 @@ def local_test(original_filepath: str) -> NoReturn:
     with open("downloads/json/coronavirus-deaths.json", "w") as file:
         print(deaths.json, file=file)
 
-    with open("downloads/landing_latest.json", "w") as file:
+    with open("downloads/landing.json", "w") as file:
         data = dumps(get_landing_data(json_data, LANDING_DATA), separators=(",", ":"))
         print(data, file=file)
 
