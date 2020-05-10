@@ -54,7 +54,7 @@ from pandas import DataFrame, to_datetime, json_normalize
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.7-test"
+__version__ = "0.8"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 OUTPUT_CONTAINER_NAME = "downloads"
