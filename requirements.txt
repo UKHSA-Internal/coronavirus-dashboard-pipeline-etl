@@ -1,5 +1,6 @@
 cython==0.29.17
 pandas==1.0.3
+requests==2.23.0
 azure-functions==1.2.0
 azure-storage==0.36.0
 azure-storage-blob

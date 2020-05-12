@@ -37,12 +37,14 @@ from json import loads, dumps
 from sys import exit as sys_exit
 from collections import UserDict
 from datetime import datetime
+from os import path
 # from os.path import join
 # from os import environ
 # from io import StringIO
 import logging
 
 # 3rd party:
+from requests import get as get_request
 from azure.functions import Out, Context
 from pandas import DataFrame, to_datetime, json_normalize
 
@@ -58,6 +60,8 @@ __version__ = "0.8"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 OUTPUT_CONTAINER_NAME = "downloads"
+
+POPULATION_DATA_URL = "https://c19pub.azureedge.net/assets/population/population.json"
 
 VALUE_COLUMNS = (
     'dailyTotalDeaths',
@@ -115,6 +119,7 @@ REPLACEMENT_COLUMNS = {
             "previouslyReportedDailyCases": "Previously reported daily cases",
             "changeInDailyCases": "Change in daily cases",
 
+            "dailyTotalConfirmedCasesRate": "Cumulative lab-confirmed cases rate",
             "dailyTotalConfirmedCases": "Cumulative lab-confirmed cases",
             "previouslyReportedDailyTotalCases": "Previously reported cumulative cases",
             "changeInDailyTotalCases": "Change in cumulative cases",
@@ -141,6 +146,7 @@ REPLACEMENT_COLUMNS = {
             "changeInDailyCases": "changeInDailyCases",
 
             "dailyTotalConfirmedCases": "totalLabConfirmedCases",
+            "dailyTotalConfirmedCasesRate": "dailyTotalLabConfirmedCasesRate",
             "previouslyReportedDailyTotalCases": "previouslyReportedTotalCases",
             "changeInDailyTotalCases": "changeInTotalCases",
         },
@@ -154,7 +160,17 @@ REPLACEMENT_COLUMNS = {
         }
     }
 }
-# change in cumulative cases
+
+RATE_FIELDS = {
+    "dailyTotalConfirmedCases"
+}
+
+
+RATE_PER_POPULATION_FACTOR = 100_000  # Per resident population
+
+
+RATE_PRECISION = 1  # Decimal places
+
 
 CRITERIA = {
     CASES: [
@@ -235,6 +251,7 @@ COLUMNS_BY_OUTPUT = {
             "previouslyReportedDailyCases",
             "changeInDailyCases",
             "totalLabConfirmedCases",
+            "dailyTotalLabConfirmedCasesRate",
             "previouslyReportedTotalCases",
             "changeInTotalCases"
         ],
@@ -344,6 +361,35 @@ class GeneralProcessor(NamedTuple):
     json_extras: ExtraJsonData
 
 
+def get_population_data():
+    """
+    Gets the population data from `POPULATION_DATA_URL`, and
+    turns it into a data frame indexed using the keys (area codes).
+
+    The data is expected to be a JSON in the following format:
+
+        {
+            "#E01234": 1234
+        }
+
+    Returns
+    -------
+    DataFrame
+        With indices representing the area code and one column: Population.
+    """
+    response = get_request(POPULATION_DATA_URL)
+
+    if response.status_code == 200:
+        data = DataFrame.from_dict(loads(response.text), orient='index', columns=["population"])
+        # data = data.reset_index()
+        # data.columns = ["key", "population"]
+        return data
+
+    logging.error("Failed to get population data")
+
+    raise RuntimeError("Failed to get population data")
+
+
 def produce_json(data: DataFrame, json_extras: ExtraJsonData,
                  numeric_columns: Iterable[str], included_columns: Iterable[str]) -> str:
     """
@@ -419,6 +465,7 @@ def produce_json(data: DataFrame, json_extras: ExtraJsonData,
 
 
 def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_type: str,
+                 population_data: DataFrame,
                  area_names_excluded: Optional[Tuple[str]] = tuple(),
                  area_names_included: Optional[Tuple[str]] = tuple()) -> DataFrame:
     """
@@ -440,6 +487,9 @@ def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_typ
     area_type: str
         Name to be used for the "Area type" column. It provides an
         alternative and user readable name for ``by``.
+
+    population_data: DataFrame
+        Population data.
 
     area_names_excluded: Optional[Tuple[str]]
         Only include area names that have certain values.
@@ -497,22 +547,47 @@ def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_typ
     # Reorder columns and reset the index so that
     # it starts from zero and discard the missing
     # indices that have been filtered out.
-    result = dd[[
+    output_cols = [
         "Area name",
         "Area code",
         "Area type",
         "date",
         *numeric_columns
-    ]].reset_index(drop=True)
+    ]
+    result = dd[output_cols].reset_index(drop=True)
+
+    rate_fields = RATE_FIELDS.intersection(numeric_columns)
+    # Return the results if the calculation of rate
+    # is not included for this output.
+    if not rate_fields:
+        return result
+
+    # Join population data based on area code.
+    # Note: Population data has the area code as its index.
+    result = result.join(population_data, on="Area code")
+
+    # Going through the intersection of the numeric values
+    # and rate fields to calculate the rate for each designated field.
+    for item in RATE_FIELDS.intersection(numeric_columns):
+        # Add the field output columns
+        output_cols.append(f"{item}Rate")
+
+        # Calculate the rate and sorted. The key is the
+        # field name with "Rate" appended to the end.
+        result[f"{item}Rate"] = (
+                (result[item] / result["population"]) * RATE_PER_POPULATION_FACTOR
+        ).round(RATE_PRECISION)
 
     logging.info(
         f'>> Extracted data based on "{by}" - numeric columns: {numeric_columns}.'
     )
-    return result
+
+    return result[output_cols]
 
 
 def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
-                         output_cat: str, daily_records=True) -> InternalProcessor:
+                         output_cat: str, population_data: DataFrame,
+                         daily_records: Optional[bool] = True) -> InternalProcessor:
     """
     Applies the necessary rules to generate CSV and JSON data
     ready to be stored.
@@ -527,6 +602,9 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
 
     output_cat: str
         Category name. Must be included in ``COLUMNS_BY_OUTPUT``.
+
+    population_data: DataFrame
+        Population data.
 
     daily_records: bool
         Include daily records from ``json_extras``. [Default: True]
@@ -545,7 +623,11 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
     # Collect data and consolidate the results for
     # different criteria associated with each output file.
     for criteria in CRITERIA[output_cat]:
-        df_temp = extract_data(data=data.copy(deep=True), **criteria)
+        df_temp = extract_data(
+            data=data.copy(deep=True),
+            population_data=population_data,
+            **criteria
+        )
         d = d.append(df_temp)
 
     # Sort the data (descending).
@@ -567,7 +649,7 @@ def generate_output_data(data: DataFrame, json_extras: ExtraJsonData,
         columns=csv_cols
     )[list(csv_cols.values())].to_csv(
         index=False,
-        float_format="%d"
+        float_format="%g"
     )
 
     logging.info(">> CSV file generated.")
@@ -743,14 +825,46 @@ def local_test(original_filepath: str) -> NoReturn:
     original_filepath: str
         Path to the original data.
     """
+    population_data = get_population_data()
+
+    _, full_file_name = path.split(original_filepath)
+    file_name, _ = path.splitext(full_file_name)
+    _, file_date = file_name.split("_")
+
     with open(original_filepath, "r") as f:
         json_data = loads(f.read())
 
+    timestamp = datetime.utcnow().isoformat() + 'Z'
+    json_data["lastUpdatedAt"] = timestamp
+
+    metadata = {
+        "metadata": Metadata(
+            lastUpdatedAt=timestamp,
+            disclaimer=json_data['disclaimer']
+        )
+    }
+
+    with open("downloads/data_unwrapped.json", "w") as f:
+        print(dumps(json_data, indent=2), file=f)
+
     processed = process(json_data)
 
-    cases = generate_output_data(processed.data, processed.json_extras, CASES)
-    deaths = generate_output_data(processed.data, processed.json_extras, DEATHS, False)
+    cases = generate_output_data(
+        data=processed.data,
+        json_extras=processed.json_extras,
+        output_cat=CASES,
+        population_data=population_data
+    )
 
+    deaths = generate_output_data(
+        data=processed.data,
+        json_extras=processed.json_extras,
+        output_cat=DEATHS,
+        population_data=population_data,
+        daily_records=False
+    )
+
+    # Latest
     with open("downloads/csv/coronavirus-cases.csv", "w") as file:
         print(cases.csv, file=file)
 
@@ -763,9 +877,41 @@ def local_test(original_filepath: str) -> NoReturn:
     with open("downloads/json/coronavirus-deaths.json", "w") as file:
         print(deaths.json, file=file)
 
-    with open("downloads/landing.json", "w") as file:
+    # Dated
+    with open(f"downloads/csv/dated/coronavirus-cases_{file_date}.csv", "w") as file:
+        print(cases.csv, file=file)
+
+    with open(f"downloads/csv/dated/coronavirus-deaths_{file_date}.csv", "w") as file:
+        print(deaths.csv, file=file)
+
+    with open(f"downloads/json/dated/coronavirus-cases_{file_date}.json", "w") as file:
+        print(cases.json, file=file)
+
+    with open(f"downloads/json/dated/coronavirus-deaths_{file_date}.json", "w") as file:
+        print(deaths.json, file=file)
+
+    # Landing data
+    with open("downloads/data/landing.json", "w") as file:
         data = dumps(get_landing_data(json_data, LANDING_DATA), separators=(",", ":"))
         print(data, file=file)
+
+    # Local landing data
+    data = {
+        "overview",
+        "countries",
+        "regions",
+        "utlas",
+        "ltlas"
+    }
+
+    # Data
+    for key in data:
+        value = json_data[key]
+        value.update(metadata)
+        value_json_str = dumps(value, separators=(',', ':'))
+
+        with open(f"downloads/data/{key}.json", "w") as file:
+            print(value_json_str, file=file)
 
 
 def main(newData: str,
@@ -854,6 +1000,8 @@ def main(newData: str,
         "ltlas": ltlas
     }
 
+    population_data = get_population_data()
+
     timestamp = datetime.utcnow().isoformat() + 'Z'
     json_data["lastUpdatedAt"] = timestamp
 
@@ -873,10 +1021,21 @@ def main(newData: str,
         processed = process(json_data)
         logging.info(f"> Finished processing the data.")
 
-        cases = generate_output_data(processed.data, processed.json_extras, CASES)
+        cases = generate_output_data(
+            data=processed.data,
+            json_extras=processed.json_extras,
+            output_cat=CASES,
+            population_data=population_data
+        )
         logging.info(f'> Finished generating output data for "cases".')
 
-        deaths = generate_output_data(processed.data, processed.json_extras, DEATHS, False)
+        deaths = generate_output_data(
+            data=processed.data,
+            json_extras=processed.json_extras,
+            output_cat=DEATHS,
+            population_data=population_data,
+            daily_records=False
+        )
         logging.info(f'> Finished generating output data for "deaths".')
     except Exception as e:
         logging.error(f'EXCEPTION: {e}')
