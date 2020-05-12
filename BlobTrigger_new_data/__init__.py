@@ -865,16 +865,16 @@ def local_test(original_filepath: str) -> NoReturn:
     )
 
     # Latest
-    with open("downloads/csv/coronavirus-cases.csv", "w") as file:
+    with open("downloads/csv/coronavirus-cases_latest.csv", "w") as file:
         print(cases.csv, file=file)
 
-    with open("downloads/csv/coronavirus-deaths.csv", "w") as file:
+    with open("downloads/csv/coronavirus-deaths_latest.csv", "w") as file:
         print(deaths.csv, file=file)
 
-    with open("downloads/json/coronavirus-cases.json", "w") as file:
+    with open("downloads/json/coronavirus-cases_latest.json", "w") as file:
         print(cases.json, file=file)
 
-    with open("downloads/json/coronavirus-deaths.json", "w") as file:
+    with open("downloads/json/coronavirus-deaths_latest.json", "w") as file:
         print(deaths.json, file=file)
 
     # Dated
@@ -892,7 +892,9 @@ def local_test(original_filepath: str) -> NoReturn:
 
     # Landing data
     with open("downloads/data/landing.json", "w") as file:
-        data = dumps(get_landing_data(json_data, LANDING_DATA), separators=(",", ":"))
+        data = get_landing_data(json_data, LANDING_DATA)
+        data.update(metadata)
+        data = dumps(data, separators=(",", ":"))
         print(data, file=file)
 
     # Local landing data
@@ -910,7 +912,7 @@ def local_test(original_filepath: str) -> NoReturn:
         value.update(metadata)
         value_json_str = dumps(value, separators=(',', ':'))
 
-        with open(f"downloads/data/{key}.json", "w") as file:
+        with open(f"downloads/data/{key}_latest.json", "w") as file:
             print(value_json_str, file=file)
 
 
@@ -1087,3 +1089,6 @@ def main(newData: str,
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
+
+
+local_test("downloads/data_202005121454.json")
