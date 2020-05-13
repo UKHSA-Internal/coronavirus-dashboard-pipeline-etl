@@ -1089,6 +1089,3 @@ def main(newData: str,
         logging.info(f'> Stored latest "{key}_latest" as JSON.')
 
     logging.info(f"--- Process complete: exiting with code 0")
-
-
-local_test("downloads/data_202005121454.json")
