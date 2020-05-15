@@ -4,7 +4,7 @@
             "name": "newData",
             "type": "blobTrigger",
             "direction": "in",
-            "path": "publicdata/{blobname}_{blobdate}.json",
+            "path": "prerelease/{blobname}_{blobdate}.json",
             "connection": "DeploymentBlobStorage"
         },
         {
