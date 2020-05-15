@@ -46,7 +46,7 @@ import logging
 # 3rd party:
 from requests import get as get_request
 from azure.functions import Out, Context
-from pandas import DataFrame, to_datetime, json_normalize
+from pandas import DataFrame, to_datetime, json_normalize, isna
 
 # Internal:
 # None
@@ -56,7 +56,7 @@ from pandas import DataFrame, to_datetime, json_normalize
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.8"
+__version__ = "0.9"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 OUTPUT_CONTAINER_NAME = "downloads"
@@ -119,10 +119,11 @@ REPLACEMENT_COLUMNS = {
             "previouslyReportedDailyCases": "Previously reported daily cases",
             "changeInDailyCases": "Change in daily cases",
 
-            "dailyTotalConfirmedCasesRate": "Cumulative lab-confirmed cases rate",
             "dailyTotalConfirmedCases": "Cumulative lab-confirmed cases",
             "previouslyReportedDailyTotalCases": "Previously reported cumulative cases",
             "changeInDailyTotalCases": "Change in cumulative cases",
+
+            "dailyTotalConfirmedCasesRate": "Cumulative lab-confirmed cases rate",
         },
         DEATHS: {
             "Area name": "Area name",
@@ -146,9 +147,10 @@ REPLACEMENT_COLUMNS = {
             "changeInDailyCases": "changeInDailyCases",
 
             "dailyTotalConfirmedCases": "totalLabConfirmedCases",
-            "dailyTotalConfirmedCasesRate": "dailyTotalLabConfirmedCasesRate",
             "previouslyReportedDailyTotalCases": "previouslyReportedTotalCases",
             "changeInDailyTotalCases": "changeInTotalCases",
+
+            "dailyTotalConfirmedCasesRate": "dailyTotalLabConfirmedCasesRate",
         },
         DEATHS: {
             "Area name": "areaName",
@@ -251,9 +253,9 @@ COLUMNS_BY_OUTPUT = {
             "previouslyReportedDailyCases",
             "changeInDailyCases",
             "totalLabConfirmedCases",
-            "dailyTotalLabConfirmedCasesRate",
             "previouslyReportedTotalCases",
-            "changeInTotalCases"
+            "changeInTotalCases",
+            "dailyTotalLabConfirmedCasesRate",
         ],
         numeric_cols=[
             "dailyLabConfirmedCases",
@@ -380,9 +382,12 @@ def get_population_data():
     response = get_request(POPULATION_DATA_URL)
 
     if response.status_code == 200:
-        data = DataFrame.from_dict(loads(response.text), orient='index', columns=["population"])
-        # data = data.reset_index()
-        # data.columns = ["key", "population"]
+        data = DataFrame.from_dict(
+            loads(response.text),
+            orient='index',
+            columns=["population"]
+        )
+
         return data
 
     logging.error("Failed to get population data")
@@ -435,12 +440,15 @@ def produce_json(data: DataFrame, json_extras: ExtraJsonData,
     # JSON output is structured by area type.
     df_by_area = data.groupby("areaType")
 
+    included_columns = list(included_columns)
+    included_columns.remove("areaType")
+
     js = dict()
     js.update(json_extras)
 
     # Adding items by groups (categories, defined as `areaType`):
     for group in df_by_area.groups:
-        group_values = loads(df_by_area.get_group(group)[included_columns].to_json(orient='records'))
+        group_values = df_by_area.get_group(group)[included_columns].to_dict(orient='records')
         # Values default to float because of missing numbers.
         # There's no easy / clean way to convert them onto int.
         for index, value in enumerate(group_values):
@@ -448,8 +456,10 @@ def produce_json(data: DataFrame, json_extras: ExtraJsonData,
             # and any alterations to it will be implemented in the original
             # item in `group_values`.
             for col in numeric_columns:
-                if value[col] is not None:
+                if not isna(value[col]):
                     value[col] = int(value[col])
+                else:
+                    value[col] = None
 
         js.update({
             # Converting category name the attribute names
