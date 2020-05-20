@@ -46,7 +46,7 @@ import logging
 # 3rd party:
 from requests import get as get_request
 from azure.functions import Out, Context
-from pandas import DataFrame, to_datetime, json_normalize, isna
+from pandas import DataFrame, to_datetime, json_normalize, isna, notnull
 
 # Internal:
 # None
@@ -56,7 +56,7 @@ from pandas import DataFrame, to_datetime, json_normalize, isna
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.9"
+__version__ = "0.9.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 OUTPUT_CONTAINER_NAME = "downloads"
@@ -587,6 +587,8 @@ def extract_data(data: DataFrame, by: str, numeric_columns: Tuple[str], area_typ
         result[f"{item}Rate"] = (
                 (result[item] / result["population"]) * RATE_PER_POPULATION_FACTOR
         ).round(RATE_PRECISION)
+
+    result = result.where(notnull(result), None)
 
     logging.info(
         f'>> Extracted data based on "{by}" - numeric columns: {numeric_columns}.'
