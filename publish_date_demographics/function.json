@@ -1,0 +1,15 @@
+{
+  "scriptFile": "__init__.py",
+  "entryPoint": "main",
+  "bindings": [
+    {
+      "name": "message",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "topicName": "supplementary-datasets",
+      "subscriptionName": "casesByPublishDateDemographics-age",
+      "accessRights": "listen",
+      "connection": "AzureServiceBus"
+    }
+  ]
+}

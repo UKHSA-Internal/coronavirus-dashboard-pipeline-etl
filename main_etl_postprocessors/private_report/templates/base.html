@@ -1,0 +1,182 @@
+{% set up_arrow = '<img src="https://coronavirus.data.gov.uk/assets/images/arrow-up-grey.png" width="12px" loading="lazy" alt="arrow" aria-hidden="true" style="transform: rotate(0.0deg)">' %}
+{% set down_arrow = '<img src="https://coronavirus.data.gov.uk/assets/images/arrow-up-grey.png" width="12px" loading="lazy" alt="arrow" aria-hidden="true" style="transform: rotate(180deg)">' %}
+{% set straight_arrow = '<img src="https://coronavirus.data.gov.uk/assets/images/arrow-up-grey.png" width="12px" loading="lazy" alt="arrow" aria-hidden="true" style="transform: rotate(90deg)">' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://coronavirus.data.gov.uk/assets/application.css?tm=2021-09-07T15:00:05.8165155Z" type="text/css">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="theme-color" content="#0b0c0c">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@PHE_uk">
+	<meta property="og:type" content="website">
+	<link rel="icon" href="https://coronavirus.data.gov.uk/favicon.ico">
+	<meta property="og:locale" content="en_GB"/>
+	<title>UK Coronavirus Dashboard: Pre-release data</title>
+	<meta name="robots" content="noindex,nofollow" />
+	<meta name="googlebot" content="noindex,nofollow" />
+	<meta name="googlebot-news" content="noindex,nosnippet,nofollow" />
+	<meta name="AdsBot-Google" content="noindex,nofollow" />
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-161400643-2"></script>
+  <script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}</script>
+	<style>
+		body {
+				margin: 0;
+		}
+		table {
+				border-collapse: separate;
+        border-spacing: 3px .2rem;
+		}
+		tbody > tr > td:nth-of-type(3n+1) > *,
+		thead > tr > th:nth-of-type(3n) > * {
+			margin-right: 5px;
+		}
+		tbody > tr:hover {
+				background: #e5e5e5;
+		}
+		.date {
+				background: rgba(206, 206, 217, 0.3);
+		}
+	</style>
+</head>
+<body>
+<header class="govuk-header" role="banner" data-module="govuk-header">
+	<a href="#main-content" class="govuk-skip-link">Skip to main content</a>
+	<div class="govuk-header__container govuk-width-container">
+		<div class="govuk-header__logo">
+			<a href="https://coronavirus.data.gov.uk/" class="govuk-header__link govuk-header__link--homepage">
+                    <span class="govuk-header__logotype">
+                        <svg aria-hidden="true" focusable="false" class="govuk-header__logotype-crown govuk-!-margin-right-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" height="30" width="36">
+                            <path fill="currentColor" fillrule="evenodd" d="M25 30.2c3.5 1.5 7.7-.2 9.1-3.7 1.5-3.6-.2-7.8-3.9-9.2-3.6-1.4-7.6.3-9.1 3.9-1.4 3.5.3 7.5 3.9 9zM9 39.5c3.6 1.5 7.8-.2 9.2-3.7 1.5-3.6-.2-7.8-3.9-9.1-3.6-1.5-7.6.2-9.1 3.8-1.4 3.5.3 7.5 3.8 9zM4.4 57.2c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.5-1.5-7.6.3-9.1 3.8-1.4 3.5.3 7.6 3.9 9.1zm38.3-21.4c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.6-1.5-7.6.3-9.1 3.8-1.3 3.6.4 7.7 3.9 9.1zm64.4-5.6c-3.6 1.5-7.8-.2-9.1-3.7-1.5-3.6.2-7.8 3.8-9.2 3.6-1.4 7.7.3 9.2 3.9 1.3 3.5-.4 7.5-3.9 9zm15.9 9.3c-3.6 1.5-7.7-.2-9.1-3.7-1.5-3.6.2-7.8 3.7-9.1 3.6-1.5 7.7.2 9.2 3.8 1.5 3.5-.3 7.5-3.8 9zm4.7 17.7c-3.6 1.5-7.8-.2-9.2-3.8-1.5-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.3 3.5-.4 7.6-3.9 9.1zM89.3 35.8c-3.6 1.5-7.8-.2-9.2-3.8-1.4-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.4 3.6-.3 7.7-3.9 9.1zM69.7 17.7l8.9 4.7V9.3l-8.9 2.8c-.2-.3-.5-.6-.9-.9L72.4 0H59.6l3.5 11.2c-.3.3-.6.5-.9.9l-8.8-2.8v13.1l8.8-4.7c.3.3.6.7.9.9l-5 15.4v.1c-.2.8-.4 1.6-.4 2.4 0 4.1 3.1 7.5 7 8.1h.2c.3 0 .7.1 1 .1.4 0 .7 0 1-.1h.2c4-.6 7.1-4.1 7.1-8.1 0-.8-.1-1.7-.4-2.4V34l-5.1-15.4c.4-.2.7-.6 1-.9zM66 92.8c16.9 0 32.8 1.1 47.1 3.2 4-16.9 8.9-26.7 14-33.5l-9.6-3.4c1 4.9 1.1 7.2 0 10.2-1.5-1.4-3-4.3-4.2-8.7L108.6 76c2.8-2 5-3.2 7.5-3.3-4.4 9.4-10 11.9-13.6 11.2-4.3-.8-6.3-4.6-5.6-7.9 1-4.7 5.7-5.9 8-.5 4.3-8.7-3-11.4-7.6-8.8 7.1-7.2 7.9-13.5 2.1-21.1-8 6.1-8.1 12.3-4.5 20.8-4.7-5.4-12.1-2.5-9.5 6.2 3.4-5.2 7.9-2 7.2 3.1-.6 4.3-6.4 7.8-13.5 7.2-10.3-.9-10.9-8-11.2-13.8 2.5-.5 7.1 1.8 11 7.3L80.2 60c-4.1 4.4-8 5.3-12.3 5.4 1.4-4.4 8-11.6 8-11.6H55.5s6.4 7.2 7.9 11.6c-4.2-.1-8-1-12.3-5.4l1.4 16.4c3.9-5.5 8.5-7.7 10.9-7.3-.3 5.8-.9 12.8-11.1 13.8-7.2.6-12.9-2.9-13.5-7.2-.7-5 3.8-8.3 7.1-3.1 2.7-8.7-4.6-11.6-9.4-6.2 3.7-8.5 3.6-14.7-4.6-20.8-5.8 7.6-5 13.9 2.2 21.1-4.7-2.6-11.9.1-7.7 8.8 2.3-5.5 7.1-4.2 8.1.5.7 3.3-1.3 7.1-5.7 7.9-3.5.7-9-1.8-13.5-11.2 2.5.1 4.7 1.3 7.5 3.3l-4.7-15.4c-1.2 4.4-2.7 7.2-4.3 8.7-1.1-3-.9-5.3 0-10.2l-9.5 3.4c5 6.9 9.9 16.7 14 33.5 14.8-2.1 30.8-3.2 47.7-3.2z"></path>
+                                  <image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAgCAYAAAB6kdqOAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AgXEBkknAt7fAAAA0VJREFUWMPtl02IjlEUx/93Rs0YFiJSmlkgSU2+ZmGFNGI2PhdvjLJkMdRYiclHyl7U2CiThZKFpiRSksUsKM0GTVhggRnCTJhe08/m/4471/M+3jHjIzl1e57nfPzPueeee+5zpX+JgIp446EwCUEdkrTEnw9CCCcnglc1CYn6LKnVY/BPLtdUP2fzjWbEst+doQLwUdIBScMeHeYVfkmxAtOBqjI6uyhPu8rYVAHT84o/01kIQcA518QI0JwTf7ukokd7ziSbJY1IGgTOhRDGlaHaZMZ3zN8OXATagPnAVGBBpLfAvPnWuQhst+2dBLP2R0FsMkC7v2PqApYnvA3WOxHxTpi3IdFdboxRsl67fW5Kg5mXALQCjUA30FmmZg6a/yrivTLvYFZNAZ3GbLSPmObFAW1OhEfjogMEVAP9lg8DdclyxctWZx1sU52BdzSx25xm6aUFI8CsnJ03x88ArMgIaAUQEt2sEpllXwAvM88eYGbJ2Tg2wPMomKfjsAuxz9FYgBrgoQEvpFkBpgFNP+hXBaCQ11+AJmOl/Av2/RCoEdCRpjwxOGv+op85yT2pRcY4m8jSJT82RdKXBONj8r3Hz0shhGUJYIukmdFfA5LehhCuJU32UoS1N8fXpxJwt3fDkYwZjukdyVI1ZhR1Y0ZtfocRyY7Yd3cKvtTNayPQEBlcN9ZAArTOz7bIX1upMSa6A5Zfj3gN9tUFLB0zCfeNEi0EeiPDeqAI3APOAzvN/wBcAVYDbzxWm/fBOjvssMcY9RFur32VqC5N3W4Lbvo5LTkW0rbfE7E+eZSoJ+P4GT1ejB372l1uRzzxTPBWvg/cjRpYE3Daupc9y2rgKnDD773AZeuctk2p4d71KJhXBJ7kbc9tVqwH9gHro9ST6B+I3vuBd1myKFM7/L4W2G8f2Gdu3ygCfXFHBbbY+HiG/uFoOToy5Mct2xKfAEAfUKykkZ0ywGOgBdgKDEVOXwBnPPoyaqQvkr+I+EPGajE2wKlKAlrF76OVFd3LmOhtr9JLYcZ/7JQyurckrZH0WNIzSa8lPZL0XtJb38We51w0kVQvqUbSXEl1khZLmiOpQdJCSbd/+no80Svyr8D8T38NfQWcfES5EXNkCgAAAABJRU5ErkJggg==" class="govuk-header__logotype-crown-fallback-image" height="32" width="36"></image>
+                        </svg>
+                        <span class="govuk-header__logotype-text">GOV.UK</span>
+                    </span>
+				<span class="govuk-header__product-name">
+                        Coronavirus (COVID-19) in the UK
+                    </span>
+                </a>
+						<button class="mobile-menu-button govuk-button" id="mobile-menu-btn">
+							Menu ▼
+						</button>
+            </div>
+        </div>
+    </header>
+<div class="govuk-width-container">
+	<div class="govuk-grid-row govuk-body">
+		<div style="max-width: 40em; margin-left: auto; margin-right: auto;">
+			<h1 class="govuk-heading-l" style="margin: 1.2em 0;">
+				COVID-19 data &mdash; Pre-release
+				<small class="govuk-caption-m"><strong>Last update:</strong> {{ timestamp }}</small>
+			</h1>
+			<div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+			  <div class="govuk-notification-banner__header">
+			    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+			      Important
+			    </h2>
+			  </div>
+			  <div class="govuk-notification-banner__content">
+				  <p class="govuk-notification-banner__heading">This page contains pre-release data.</p>
+				  <p class="govuk-body">
+					  The data are only intended for authorised use. Please <u>do not share</u> this page or the data before they
+					  are released on the <a href="https://coronavirus.data.gov.uk" target="_blank" rel="noreferrer noopener">Coronavirus Dashboard</a> service.
+			    </p>
+			  </div>
+			</div>
+			<p style="margin: 0;">Latest Coronavirus (COVID-19) data for the United Kingdom are as follows:</p>
+		</div>
+<div class="govuk-body-s">
+	<table style="margin-top: 1.2em; border-top: 3px solid black; margin-left: auto; margin-right: auto;" class="govuk-!-margin-top-5">
+		<caption>{{ area_name }}</caption>
+		<thead>
+			<tr>
+				<th colspan="1" rowspan="2" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: left; min-width: 330px; line-height: 1.2em;"><span>Metric</span></th>
+				{% for area_name in results["area_names"] %}
+				<th colspan="{% if area_name == 'United Kingdom' %}3{% else %}2{% endif %}" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: left; line-height: 1.2em;" class="date"><span>{{ area_name }}</span></th>
+				{% endfor %}
+			</tr>
+		<tr>
+			{% for area_name in results["area_names"] %}
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.3em; text-align: left; line-height: 1.2em;" class="date"><span>Reporting date</span></th>
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: right; min-width: 80px; line-height: 1.2em;"><span>Figure</span></th>
+				{% if area_name == "United Kingdom" %}
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: right; min-width: 80px; line-height: 1.2em;"><span>Change (weekly)</span></th>
+				{% endif %}
+			{% endfor %}
+		</tr>
+		</thead>
+		<tbody>
+			{% for collection in results["data"] -%}
+				{%- set outer_loop_last=loop.last -%}
+				{%- for item in collection -%}
+					{% set inner_loop=loop %}
+					<tr>
+						<td colspan="1" style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if inner_loop.last and not outer_loop_last %} border-bottom: 1px solid black{% elif inner_loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item["United Kingdom"].name }}</span>
+						</td>
+					{% for area_name in results["area_names"] %}
+						<td colspan="1" class="date" style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if inner_loop.last and not outer_loop_last %} border-bottom: 1px solid black{% elif inner_loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item[area_name].date }}</span>
+						</td>
+						<td colspan="1" style="padding: 0.3em; text-align: right; line-height: 1.2em; {% if inner_loop.last and not outer_loop_last %}border-bottom: 1px solid black{% elif inner_loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item[area_name].value }}</span>
+						</td>
+						{% if area_name == "United Kingdom" %}
+						<td colspan="1" style="padding: 0.3em; text-align: right; line-height: 1.2em; {% if inner_loop.last and not outer_loop_last %}border-bottom: 1px solid black{% elif inner_loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>
+								{% if item[area_name].change != "&mdash;" %}
+									{% if item[area_name].change.startswith("-") %}
+										&ndash;{{ item[area_name].change[1:] }} ({{ down_arrow }}&nbsp;&ndash;{{ item[area_name].percentage_change[1:] }}%)
+									{% elif item[area_name].change == "0" %}
+										{{ item[area_name].change[1:] }} ({{ straight_arrow }}&nbsp;{{ item[area_name].percentage_change[1:] }}%)
+									{% else %}
+										{{ item[area_name].change }} ({{ up_arrow }}&nbsp;{{ item[area_name].percentage_change }}%)
+								  {% endif %}
+								{% endif %}</span>
+						</td>
+						{% endif %}
+					{%- endfor -%}
+					</tr>
+			{%- endfor %}
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+		<div style="max-width: 40em; margin-left: auto; margin-right: auto;" class="govuk-!-margin-bottom-5">
+<p style="margin-top: 3em">
+	<span style="color: rgb(90, 90, 90)">
+		For all queries, please contact:
+	</span> <a href="mailto:COVID19.Dashboard.Data@phe.gov.uk?Subject=Daily pre-release announcement">COVID19.Dashboard.Data@phe.gov.uk</a>
+</p>
+			</div>
+	</div>
+	</div>
+<footer class="govuk-footer " role="contentinfo">
+	<div class="govuk-width-container ">
+		<div class="govuk-footer__meta">
+			<div class="govuk-footer__meta-item govuk-footer__meta-item--grow"><h2 class="govuk-visually-hidden">Support
+				links</h2>
+				<div class="govuk-footer__meta-custom"><p class="govuk-footer__meta-custom govuk-!-margin-top-0"><a class="govuk-footer__link govuk-!-margin-right-3" href="/details/announcements">Announcements</a></p>
+					<p class="govuk-footer__meta-custom"><a class="govuk-footer__link govuk-!-margin-right-3" href="/details/accessibility">Accessibility</a><a class="govuk-footer__link" href="/details/interactive-map/Cookies">Cookies</a></p>
+					<p class="govuk-footer__meta-custom">For feedback email&nbsp;<a class="govuk-footer__link" href="mailto:coronavirus-tracker@phe.gov.uk?Subject=Dashboard%20feedback" rel="noopener noreferrer" target="_blank">coronavirus-tracker@phe.gov.uk</a>
+					</p>
+					<p class="govuk-footer__meta-custom">Developed by&nbsp;<a class="govuk-footer__link" href="https://www.gov.uk/government/organisations/public-health-england" target="_blank" rel="noopener noreferrer">
+						Public Health England</a>.</p>
+					<p class="govuk-footer__meta-custom">This service is open source. See our repositories on <a class="govuk-footer__link" href="https://github.com/publichealthengland/coronavirus-dashboard#coronavirus-covid-19-in-the-uk" target="_blank" rel="noopener noreferrer">GitHub®</a>.
+					</p>
+				</div>
+				<svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">
+					<path fill="currentColor" d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"></path>
+				</svg>
+				<span class="govuk-footer__licence-description">All content is available under the <a class="govuk-footer__link" href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence v3.0</a>, except where otherwise stated</span>
+			</div>
+			<div class="govuk-footer__meta-item"><a class="govuk-footer__link govuk-footer__copyright-logo" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">©
+				Crown copyright</a></div>
+		</div>
+	</div>
+</footer>
+<script>"use strict";function gtag(){window.dataLayer.push(arguments)}var setCookies=function(){window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-161400643-2",{anonymize_ip:!0,allowAdFeatures:!1}),window.ga("create","UA-145652997-1","auto","govuk_shared",{allowLinker:!0}),window.ga("govuk_shared.require","linker"),window.ga("govuk_shared.set","anonymizeIp",!0),window.ga("govuk_shared.set","allowAdFeatures",!1),window.ga("govuk_shared.linker:autoLink",["www.gov.uk"]),window.ga("send","pageview"),window.ga("govuk_shared.send","pageview")},removeCookies=function(){document.cookie="_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;",document.cookie="_gid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;",document.cookie="_gat_gtag_UA_161400643_2=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;",document.cookie="LocationBanner=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"},determineCookieState=function(){var e=document.cookie.split(";").find(function(e){return e.trim().startsWith("cookies_preferences_set_21_3")});if(!e||"true"!==e.split("=")[1]){var o=document.querySelector("#cookie-banner");o.style.display="block",o.style.visibility="visible"}};function showElement(e){e.style.display="block",e.style.visibility="visible"}function hideElement(e){e.remove()}function runCookieJobs(){var e=document.querySelector("#global-cookie-message");document.querySelector("#accept-cookies").onclick=function(){var o=new Date,t=o.getFullYear(),n=o.getMonth(),i=o.getDate(),c=new Date(t,n+1,i).toUTCString();document.cookie="cookies_policy_21_3="+encodeURIComponent('{"essential":true,"usage":true,"preferences":true}')+"; expires="+c+";",document.cookie="cookies_preferences_set_21_3=true; expires="+c+";",setCookies(),showElement(e),hideElement(document.querySelector("#cookie-banner")),document.querySelector("#hide-cookie-decision").onclick=function(){hideElement(e)}},document.querySelector("#reject-cookies").onclick=function(){var o=new Date,t=o.getFullYear(),n=o.getMonth(),i=o.getDate(),c=new Date(t,n+1,i).toUTCString();document.cookie="cookies_policy_21_3="+encodeURIComponent('{"essential":true,"usage":false,"preferences":false}')+"; expires="+c+";",document.cookie="cookies_preferences_set_21_3=true; expires="+c+";",removeCookies(),e.innerHTML=e.innerHTML.replace("accepted","rejected"),showElement(e),hideElement(document.querySelector("#cookie-banner")),document.querySelector("#hide-cookie-decision").onclick=function(){hideElement(e)}},determineCookieState()}"loading"!==document.readyState?runCookieJobs():document.addEventListener("DOMContentLoaded",runCookieJobs);</script>
+</body>
+</html>

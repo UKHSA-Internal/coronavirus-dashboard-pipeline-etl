@@ -1,0 +1,12 @@
+{
+  "scriptFile": "__init__.py",
+  "entryPoint": "process_modals",
+  "bindings": [
+    {
+      "name": "timer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */2 * * * *"
+    }
+  ]
+}

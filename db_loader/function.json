@@ -1,0 +1,13 @@
+{
+  "scriptFile": "__init__.py",
+  "entryPoint": "main",
+  "bindings": [
+    {
+      "name": "blob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "migrations/{name}.json",
+      "connection": "DeploymentBlobStorage"
+    }
+  ]
+}

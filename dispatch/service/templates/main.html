@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h1>Public Health England</h1>
+	<p>This is an internal service &mdash; authorised personnel only.</p>
+	<hr>
+	<h2>{{ environment }}</h2>
+	<h3>Latest status</h3>
+	<div>
+		<p>
+			Jobs queue:
+		</p>
+		<ul>
+			<li>
+				Remaining processes: {{ remaining_jobs }} [
+					{% if remaining_jobs == 0 %}
+						<span style="color: green">OK</span>
+					{% else %}
+						<span style="color: red">In progress &mdash; DO NOT DESPATCH</span>
+					{% endif %}
+				]
+			</li>
+			<li>
+				Failed processes: {{ failed_jobs }} [
+					{% if failed_jobs == 0 %}
+						<span style="color: green">OK</span>
+					{% else %}
+						<span style="color: red">Failed jobs, contact support &mdash; DO NOT DESPATCH</span>
+					{% endif %}
+				]
+			</li>
+		</ul>
+	</div>
+	<p>
+		Latest available (latest in the database): {{ latest_available }} of which {{ latest_count }} / {{ total_data }} records
+		have been processed [
+		{% if db_count_difference == 0 %}
+			<span style="color: green">MATCH</span>
+		{% else %}
+			<span style="color: red">MISMATCH &mdash; DO NOT DESPATCH</span>
+		{% endif %}
+		]
+	</p>
+	<p>Latest demographic dataset (age) by specimen date [
+			{% if demographics.specimen_date.match %}<span style="color: green">MATCH</span>{% else %}<span style="color: red">MISMATCH &mdash; DO NOT DESPATCH</span>{% endif %}
+		]
+	</p>
+	<ul>
+		<li>Dataset date: {{ demographics_specimen_date }}</li>
+		<li>Total dataset records on {{ demographics.specimen_date.dataset_date }}: {{ demographics.specimen_date.db_count }}</li>
+		<li>Total records uploaded to the database: {{ demographics.specimen_date.db_count }} / {{ demographics.specimen_date.dataset_count }}</li>
+	</ul>
+	<p>Latest demographic dataset (age) by publish date [
+			{% if demographics.publish_date.match %}<span style="color: green">MATCH</span>{% else %}<span style="color: red">MISMATCH &mdash; DO NOT DESPATCH</span>{% endif %}
+		]
+	</p>
+	<ul>
+		<li>Dataset date: {{ demographics_publish_date }}</li>
+		<li>Total dataset records on {{ demographics.publish_date.dataset_date }}: {{ demographics.publish_date.db_count }}</li>
+		<li>Total records uploaded to the database: {{ demographics.publish_date.db_count }} / {{ demographics.publish_date.dataset_count }}</li>
+	</ul>
+	<div>
+		<p>Latest deployed:</p>
+		<ul>
+			<li>Latest published (available via API): {{ latest_published }}</li>
+			<li>Latest release (displayed on the service):  {{ latest_released }}</li>
+		</ul>
+	</div>
+	<p>
+		Delta (available &ndash; published) = {{ delta }} [
+		{% if is_different %}
+			<span style="color: green">MISMATCH &mdash; DESPATCH WHEN READY</span>
+		{% else %}
+			<span style="color: red">MATCH &mdash; Latest data have been despatched</span>
+		{% endif %}
+		]
+	</p>
+
+	<p>Total data for the latest round: <span id="total-data"></span></p>
+
+	{% if delta != 0 %}
+		<hr/>
+		<h3>Update</h3>
+		<form method="POST">
+			<p>Would you like to release the latest data?</p>
+			
+			<p>
+				<label for="token">
+					Please enter the authorisation token issued on {{ auth_token_date }}:
+				</label>
+				<input name="token" id="token" type="text" maxlength="100" style="width: 500px; font-family: monospace; height: 20px; font-size: 12pt"/>
+				<input type="submit" value="Update" style="width: 80px; height: 30px; cursor: pointer;"/>
+			</p>
+			
+		</form>
+<hr/>
+	{% endif %}
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>-->
+<!--<script type="application/javascript">-->
+<!--	const getLatestCount = () => {-->
+<!--      const request = new XMLHttpRequest();-->
+
+<!--      function reqListener() {-->
+<!--          const elm = document.getElementById("total-data");-->
+<!--          elm.innerText = `${ numeral(JSON.parse(this.responseText).value).format("0,0") } items`;-->
+<!--      }-->
+
+<!--      request.addEventListener("load", reqListener);-->
+<!--      request.open("GET", "latest_count");-->
+<!--      request.send();-->
+<!--  };-->
+<!--	setInterval(getLatestCount, 10);-->
+<!--</script>-->
+{% endblock %}

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <url>
+        <loc>https://coronavirus.data.gov.uk/</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/interactive-map/cases</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/interactive-map/vaccinations</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/cases</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/testing</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/healthcare</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/vaccinations</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/deaths</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/whats-new</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/easy_read</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/about-data</loc>
+        <lastmod>{{ about_timestamp }}</lastmod>
+        <priority>1.00</priority>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/download</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>0.90</priority>
+        <changefreq>daily</changefreq>
+    </url>
+    {{ sub_pages }}
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/developers-guide</loc>
+        <lastmod>{{ timestamp }}</lastmod>
+        <priority>0.50</priority>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/accessibility</loc>
+        <lastmod>{{ accessibility_timestamp }}</lastmod>
+        <priority>0.10</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>https://coronavirus.data.gov.uk/details/cookies</loc>
+        <lastmod>2020-04-01T10:41:12+00:00</lastmod>
+        <priority>0.10</priority>
+        <changefreq>yearly</changefreq>
+    </url>
+</urlset>

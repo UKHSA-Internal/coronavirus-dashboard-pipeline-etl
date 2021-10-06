@@ -1,0 +1,77 @@
+<p><span style="color: rgb(226,80,65)"><u><strong>Official - SENSITIVE</strong></u></span></p>
+<h1 style="margin: 1.2em 0; font-size: 20px;">COVID-19 data &mdash; Pre-release:</h1>
+
+<p style="margin: 0 0 2rem 0; max-width: 40em">
+	<strong>Pre-release page:</strong>
+	Additional details &mdash; including data from the devolved administrations, are available on the
+	<a href="https://coronavirus.data.gov.uk/downloads/ondemand/prerelease/{{ slug_id }}.html">pre-release web page</a>. Please note that the link to the pre-release page is updated every day.
+</p>
+
+<p style="margin: 0;">Latest Coronavirus (COVID-19) data for the United Kingdom are as follows:</p>
+<div style="margin-left: 3em">
+	<table style="margin-top: 1.2em; border-top: 3px solid black;">
+		<thead>
+			<tr>
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: left; min-width: 330px; line-height: 1.2em;"><span>Metric</span></th>
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: left; line-height: 1.2em;"><span>Reporting date</span></th>
+				<th colspan="1" style="border-bottom: 2px solid black; padding: 0.5em 0.3em; text-align: right; min-width: 80px; line-height: 1.2em;"><span>Figure</span></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for collection in results['United Kingdom'] -%}
+				{%- set outer_loop_last=loop.last -%}
+				{%- for item in collection -%}
+					<tr>
+						<td style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if loop.last and not outer_loop_last %} border-bottom: 1px solid black{% elif loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item.name }}</span>
+						</td>
+						<td style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if loop.last and not outer_loop_last %} border-bottom: 1px solid black{% elif loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item.date }}</span>
+						</td>
+						<td style="padding: 0.3em; text-align: right; line-height: 1.2em; {% if loop.last and not outer_loop_last %}border-bottom: 1px solid black{% elif loop.last and outer_loop_last %} border-bottom: 2px solid black{% endif %}">
+							<span>{{ item.value }}</span>
+						</td>
+					</tr>
+				{%- endfor -%}
+			{%- endfor %}
+			{% for collection in results['England'] -%}
+				{%- set outer_loop_last=loop.last -%}
+				{%- for item in collection -%}
+					<tr>
+						<td style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if loop.last and not outer_loop_last %} border-bottom: 1px solid black{% endif %}">
+							<span>{{ item.name }} &mdash; <i>England only</i></span>
+						</td>
+						<td style="padding: 0.3em; text-align: left; line-height: 1.2em; {% if loop.last and not outer_loop_last %} border-bottom: 1px solid black{% endif %}">
+							<span>{{ item.date }}</span>
+						</td>
+						<td style="padding: 0.3em; text-align: right; line-height: 1.2em; {% if loop.last and not outer_loop_last %}border-bottom: 1px solid black{% endif %}">
+							<span>{{ item.value }}</span>
+						</td>
+					</tr>
+				{%- endfor -%}
+			{%- endfor %}
+		</tbody>
+		<tfoot>
+			<tr style="text-align: right;">
+				<td style="border-top: 3px solid black; font-size: 0.9em" colspan="3"><span>Data was generated on <strong>{{ timestamp }}</strong>.</span></td>
+			</tr>
+		</tfoot>
+	</table>
+</div>
+<p style="margin-top: 2em; max-width: 40em;">
+	<b>Note:</b> This email contains pre-release data and is only intended for authorised recipients.
+	Please <u>do not share</u> the data before it is released on
+	the <a href="https://coronavirus.data.gov.uk">Coronavirus Dashboard</a> service.
+</p>
+<p style="margin-top: 3em; max-width: 40em">
+	<span style="color: rgb(90, 90, 90)">
+		Reply if you would like to stop receiving the email and unsubscribe from the daily pre-release update.
+		For all other queries, please contact:
+	</span> <a href="mailto:COVID19.Dashboard.Data@phe.gov.uk?Subject=Daily pre-release announcement">COVID19.Dashboard.Data@phe.gov.uk</a>
+</p>
+<p style="font-size: small;">
+	This email was automatically generated on behalf of the Coronavirus Dashboard Team - Public Health England.
+</p>
+<br>
+
+

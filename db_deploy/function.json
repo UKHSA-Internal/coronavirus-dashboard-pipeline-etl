@@ -1,0 +1,13 @@
+{
+  "scriptFile": "__init__.py",
+  "entryPoint": "main_worker",
+  "bindings": [
+    {
+      "name": "event",
+      "type": "eventGridTrigger",
+      "direction": "in",
+      "path": "pipeline/db_chunks/db_{date}_{chunk}.json",
+      "connection": "DeploymentBlobStorage"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+    "indexingMode": "consistent",
+    "automatic": true,
+    "includedPaths": [
+        {
+            "path": "/*"
+        }
+    ],
+    "excludedPaths": [
+        {
+            "path": "/\"_etag\"/?"
+        }
+    ],
+    "compositeIndexes": [
+        [
+            {
+                "path": "/releaseTimestamp",
+                "order": "descending"
+            },
+            {
+                "path": "/date",
+                "order": "descending"
+            },
+            {
+                "path": "/areaType",
+                "order": "ascending"
+            },
+            {
+                "path": "/areaCode",
+                "order": "ascending"
+            }
+        ]
+    ]
+}
