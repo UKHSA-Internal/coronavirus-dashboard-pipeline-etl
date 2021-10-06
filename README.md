@@ -6,6 +6,10 @@ ETL service.
 
 Additional details will be added in the future.
 
+## ETL Diagram
+
+![Sequence diagram of the ETL](etl_diagram/etl.png)
+
 ## Other repositories
 
 Different parts of the Coronavirus dashboard service are maintained in their respective 

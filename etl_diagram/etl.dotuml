@@ -1,0 +1,266 @@
+SequenceDiagram [frame=true framecolor=steelblue label="Coronavirus Dashboard ETL"] {
+  actor user as "data team"
+  lifeline "Main ETL\nOrchestrator" as etl
+  lifeline "Despatch\nOrchestrator" as despatch
+  lifeline "ETL\nSub-orchestrators" as suborchestrators
+  lifeline "MSOA\nOrchestrator" as msoa_etl
+  lifeline "ETL\nRetriever" as retriever
+  lifeline "ETL\nActivity" as processor
+  lifeline "Database\nSub-orchestrator" as db_orch
+  lifeline "Database\nActivities" as db_act
+  entity "storage" as storage
+  database "database" as database
+  
+  // etl --> suborchestrators "MSOA processor"
+  // deactivate etl
+  // deactivate suborchestrators
+  
+  //suborchestrators -r-> etl "Http redirect"
+
+  fragment alt "[DEMOGRAPHICS]"  { 
+    user --> etl "raw data"
+    activate etl
+    etl --> suborchestrators "Chunk proc"
+    activate suborchestrators
+    suborchestrators --> retriever "chunk_etl_retriever"
+    activate retriever
+    storage --> retriever "request data"
+    fragment loop "{1..n}" {
+      retriever --> storage "store chunk"
+    }
+    suborchestrators <-- retriever "n chunk paths"
+    deactivate retriever
+
+    fragment par "{1..n}" {
+        suborchestrators -a-> processor "chunk_etl_processor" 
+        activate processor
+        storage --> processor "request chunk"
+        processor --> storage "store processed chunk"
+        suborchestrators <-a- processor "processed chunk path"
+        deactivate processor
+    }
+    suborchestrators --> db_orch "db_etl_processor" 
+    activate db_orch
+    fragment par "{1..n}" {
+      db_orch --> db_act "db_etl_upload"
+      activate db_act
+      storage -a-> db_act "request chunk"
+      db_act --> database
+      db_act -r-> db_orch "done"
+      deactivate db_act
+    }
+    deactivate db_orch
+    
+    suborchestrators --> processor "chunk_etl_postprocessing"
+    activate processor
+    processor --> storage
+    processor --> database
+    suborchestrators <-r- processor
+    deactivate processor
+
+    fragment par "" {
+      suborchestrators --> db_act "db_etl_update_db"
+      activate db_act
+      db_act --> database "stats + perms"
+      suborchestrators <-r- db_act "done"
+      deactivate db_act
+
+      suborchestrators --> db_act "db_etl_homepage_graphs"
+      activate db_act
+      db_act <-- database "payload"
+      db_act --> storage "data viz"
+      suborchestrators <-r- db_act "done"
+      deactivate db_act
+    }
+
+    suborchestrators <-r- db_orch "done"
+    deactivate db_orch
+
+    etl <-r- suborchestrators "done"
+    deactivate suborchestrators
+    deactivate etl
+
+
+    case "[MSOA]"
+      user --> msoa_etl "raw data"
+      activate msoa_etl
+      fragment par "{1..n}" {
+        msoa_etl --> processor "msoa_etl_db"
+        activate processor
+        processor --> database
+        msoa_etl <-r- processor "done"
+        deactivate processor
+      }
+
+      msoa_etl --> db_act "db_etl_update_db"
+      activate db_act
+      db_act --> database "stats + perms"
+      msoa_etl <-r- db_act "done"
+      deactivate db_act
+
+      deactivate msoa_etl
+
+
+    case "[MAIN]"
+      user --> etl "raw data"
+      activate etl
+      etl --> retriever "chunk_etl_retriever"
+      activate retriever
+      storage --> retriever "request data"
+      fragment loop "{1..n}" {
+        retriever --> storage "store chunk"
+      }      
+      etl <-- retriever "n chunk paths"
+      deactivate retriever
+      
+      fragment par "{1..n}" {
+        etl -a-> processor "chunk_etl_processor" 
+        activate processor
+        storage --> processor "request chunk"
+        processor --> storage "store processed chunk"
+        etl <-a- processor "processed chunk path"
+        deactivate processor
+      }
+      //etl --> suborchestrators "db_etl_orchestrator" 
+      //activate suborchestrators
+      etl --> db_orch "db_etl_orchestrator" 
+      activate db_orch
+      fragment par "{1..n}" {
+          db_orch --> db_act "db_etl_upload"
+          activate db_act
+          storage -a-> db_act "request chunk"
+          db_act --> database
+          db_act -r-> db_orch "done"
+          deactivate db_act
+      }
+
+      fragment par "" {
+        db_orch --> db_act "db_etl_update_db"
+        activate db_act
+        db_act --> database "stats + perms"
+        db_orch <-r- db_act "done"
+        deactivate db_act
+
+        db_orch --> db_act "db_etl_homepage_graphs"
+        activate db_act
+        db_act <-- database "payload"
+        db_act --> storage "data viz"
+        db_orch <-r- db_act "done"
+        deactivate db_act
+      }
+
+      etl <-r- db_orch "done"
+      
+      deactivate db_orch
+      //deactivate suborchestrators
+  
+      fragment par "" {
+        etl --> processor "main_etl_archiver"
+        activate processor
+        fragment loop "{1..n}" {
+          processor <-- storage "processed chunks"
+        }
+        processor --> storage "consolidated archive"
+        etl <-r- processor "done"
+        deactivate processor
+        etl --> processor "main_etl_daily_report"
+        activate processor
+        processor <-- database "payload"
+        etl <-r- processor "done"
+        deactivate processor
+      }
+      deactivate etl
+
+  }
+
+  user --> despatch "Despatch order"
+  activate despatch 
+  fragment par "" {
+    despatch --> processor "despatch_ops_workers"
+    activate processor
+    processor <-- database "payload"
+    processor <-- storage "payload"
+    processor --> storage "results"
+  }
+
+
+
+
+
+
+  //user --> etl "Deaths demogs"
+  //activate etl
+  //etl --> suborchestrators "Chunk proc"
+  //activate suborchestrators
+  //suborchestrators --> retriever "chunk_etl_retriever"
+  //activate retriever
+  //suborchestrators <-- retriever "10 chunk paths"
+  //deactivate retriever
+  //fragment loop "{1..10}" {
+  //  suborchestrators --> processor "chunk_etl_processor" 
+  //  activate processor
+  //  suborchestrators <-- processor
+  //  deactivate processor
+  //}
+  //suborchestrators --> db_orch "db_etl_processor" 
+  //activate db_orch
+  //fragment loop "{1..10}" {
+  //  db_orch --> database
+  //}
+  //suborchestrators <-- db_orch "done"
+  //deactivate db_orch
+  //etl <-- suborchestrators "done"
+  //deactivate suborchestrators
+  //deactivate etl
+//
+//
+//
+  //user --> etl "Vax demogs"
+  //activate etl
+  //etl --> suborchestrators "Chunk proc"
+  //activate suborchestrators
+  //suborchestrators --> retriever "chunk_etl_retriever"
+  //activate retriever
+  //suborchestrators <-- retriever "474 chunk paths"
+  //deactivate retriever
+  //fragment loop "{1..474}" {
+  //  suborchestrators --> processor "chunk_etl_processor" 
+  //  activate processor
+  //  suborchestrators <-- processor
+  //  deactivate processor
+  //}
+  //suborchestrators --> db_orch "db_etl_processor" 
+  //activate db_orch
+  //fragment loop "{1..474}" {
+  //  db_orch --> database
+  //}
+  //suborchestrators <-- db_orch "done"
+  //deactivate db_orch
+  //etl <-- suborchestrators "done"
+  //deactivate suborchestrators
+  //deactivate etl
+
+
+  //etl --> auth "auth request"
+  //auth -r-> etl "permission form"
+  //etl -r-> user "permission form"
+
+  //user --> etl "user permission"
+  //etl --> auth "process permission"
+  //auth -r-> etl "Http redirect"
+  
+  // fragment alt "[Permission granted]" {
+  //   etl --> suborchestrators "authorization code"
+  //   suborchestrators --> auth "authorization code"
+  //   suborchestrators <-r- auth "access token"
+  //   suborchestrators --> content "access protected resources"
+  //   suborchestrators <-r- content "protected resources"
+  //   etl <-r- suborchestrators "protected resources"
+  //   user <-r- etl "protected resources"
+  // case "[no permission]"
+  //   etl --> suborchestrators "no authorization"
+  //   etl <-r- suborchestrators "resource not available"
+  //   user <-r- etl "resource not available"
+  // 	deactivate etl
+  // }
+}
