@@ -1300,3 +1300,4 @@ local.settings.json
 local.settings.json2
 local.settings.prod.json
 /_BlobTrigger_new_data/*
+/__BlobTrigger_new_data/
