@@ -72,6 +72,7 @@ _BlobTrigger_new_data
 _despatch_etl_msoa_processor
 _despatch_etl_orchestrator
 __BlobTrigger_new_data
+_etl_trigger
 
 local.settings.dev.json
 local.settings.staging.json
