@@ -32,4 +32,4 @@ __version__ = "0.5.4"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 from .etl import *
-from .db_uploader import upload_from_file, combine_and_upload_from_file
+from .db_uploader import upload_from_file

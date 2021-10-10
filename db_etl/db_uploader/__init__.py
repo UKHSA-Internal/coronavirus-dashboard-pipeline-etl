@@ -17,7 +17,6 @@ Contributors:  Pouria Hadjibagheri
 
 # Internal:
 from .uploader import *
-from .chunk_ops.combine import combine_and_upload_from_file
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Header
