@@ -1,3 +1,5 @@
+![Latest production status](https://vsrm.dev.azure.com/NHSXEI/_apis/public/Release/badge/c44af821-73ef-4117-ac58-16492eb50c0a/14/57)
+
 # Coronavirus Dashboard
 
 ## Consumer data pipeline ETL
