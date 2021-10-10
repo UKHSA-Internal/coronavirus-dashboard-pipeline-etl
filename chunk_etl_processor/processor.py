@@ -23,6 +23,8 @@ __all__ = [
 
 
 def main(payload):
+    logging.info(f"Chunk processor triggered: {payload}")
+
     handlers = {
         ("vaccination", None): run_direct,
         ("positivity", None): run_direct,
