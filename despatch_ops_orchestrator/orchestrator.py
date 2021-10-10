@@ -52,19 +52,6 @@ def main(context: DurableOrchestrationContext):
 
     trigger_data = loads(trigger_payload)
 
-    # ToDo:
-    #   [x] Deploy map geojsons
-    #   [x] Deploy map percentiles
-    #   [x] Generate sitemap
-    #   [x] Update archive dates
-    #   [x] Deploy OG images
-    #   [x] Scales
-    #   [x] Deploy landing page map
-    #   [x] Deploy demogs
-    #   [x] Generate MSOA data
-    #   [-] Deploy map rolling rates
-    #   [-] Flush cache
-
     devices = [Device.desktop, Device.mobile]
     area_types = ["utla", "ltla", "msoa"]
 
