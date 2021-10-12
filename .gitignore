@@ -1301,4 +1301,6 @@ local.settings.json2
 local.settings.prod.json
 /_BlobTrigger_new_data/*
 /__BlobTrigger_new_data/
-/_etl_trigger/
+/_deaths28d_death_date_demographics/
+/_demographic_etl/
+/_specimen_date_demographics/

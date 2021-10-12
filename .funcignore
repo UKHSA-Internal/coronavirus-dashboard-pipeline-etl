@@ -72,7 +72,9 @@ _BlobTrigger_new_data
 _despatch_etl_msoa_processor
 _despatch_etl_orchestrator
 __BlobTrigger_new_data
-_etl_trigger
+_deaths28d_death_date_demographics/
+_demographic_etl/
+_specimen_date_demographics/
 
 local.settings.dev.json
 local.settings.staging.json
