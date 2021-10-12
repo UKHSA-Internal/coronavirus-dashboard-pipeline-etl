@@ -18,8 +18,8 @@ from matplotlib import markers
 try:
     from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session
+    from __app__.despatch_ops_workers.utils.utils.variables import AREA_TYPE_PARTITION
     from .queries import RATES
-    from ..utils.variables import AREA_TYPE_PARTITION
 except ImportError:
     from storage import StorageClient
     from despatch_ops_workers.rate_scales.queries import RATES
