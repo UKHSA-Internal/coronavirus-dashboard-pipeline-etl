@@ -128,13 +128,11 @@ def get_release_id(datestamp: datetime, process_name: str) -> Tuple[int, datetim
     finally:
         session.close()
 
-    # session = Session(autocommit=True)
     try:
         release = ReleaseReference(timestamp=datestamp)
         session.begin()
         session.add(release)
         session.commit()
-        # session.flush()
 
         category = ReleaseCategory(
             release_id=release.id,
