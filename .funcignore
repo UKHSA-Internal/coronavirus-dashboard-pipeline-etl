@@ -75,6 +75,13 @@ __BlobTrigger_new_data
 _deaths28d_death_date_demographics/
 _demographic_etl/
 _specimen_date_demographics/
+/despatch_ops_workers/_deploy_demographics/
+/despatch_ops_workers/_temp_msoa_data/
+/db_etl/_token/
+/_dispatch/
+/_fanout/
+/_main_etl_token_generator/
+/_publish_date_demographics/
 
 local.settings.dev.json
 local.settings.staging.json
