@@ -78,6 +78,22 @@ def get_dataset(payload: Payload) -> DataFrame:
 
 
 def get_release_id(datestamp: datetime, process_name: str) -> Tuple[int, datetime]:
+    """
+    Generates or retrieves the `release_id` for the process.
+
+    Parameters
+    ----------
+    datestamp : datetime
+        Datestamp for the data.
+
+    process_name : str
+        Name of the process - must match the ENUM defined in the database.
+
+    Returns
+    -------
+    Tuple[int, datetime]
+        Tuple of `release_id` and the timestamp associated with the release.
+    """
     query = (
         select([
             ReleaseReference.id,
