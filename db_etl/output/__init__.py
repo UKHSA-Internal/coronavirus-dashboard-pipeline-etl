@@ -16,7 +16,7 @@ Contributors:  Pouria Hadjibagheri
 # 3rd party:
 
 # Internal: 
-from .JsonOutput import produce_json
+from .json import *
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Header
@@ -25,7 +25,3 @@ __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
 __version__ = "0.0.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-__all__ = [
-    'produce_json'
-]
