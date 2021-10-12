@@ -20,7 +20,7 @@ __all__ = [
 
 
 async def main(message: ServiceBusMessage, starter: str) -> NoReturn:
-    logging.info(f"--- SeviceBus event has triggered the function. Starting the process")
+    logging.info(f"--- ServiceBus event has triggered the function. Starting the process")
 
     client = DurableOrchestrationClient(starter)
     message = message.get_body().decode()
