@@ -149,30 +149,6 @@ def main(context: DurableOrchestrationContext):
         context.set_custom_status("Legacy file detected.")
         return f"DONE: {context.current_utc_datetime}"
 
-    # ToDo: To be removed:
-    # [START]
-    # Generating despatch token [DEPRECATED]
-    # token_response = context.call_activity(
-    #     "main_etl_token_generator",
-    #     input_=dict(
-    #         environment=retrieve_payload['ENVIRONMENT'],
-    #         path=retrieve_payload['data_path']
-    #     )
-    # )
-    # tasks.append(token_response)
-    #
-    # Deploy to the database
-    # for payload in etl_response:
-    #     task = context.call_activity_with_retry(
-    #         name="main_etl_deploy_to_db",
-    #         retry_options=default_retry_opts,
-    #         input_=payload,
-    #     )
-    #     tasks.append(task)
-    #
-    # _ = yield context.task_all(tasks)
-    # [END]
-
     _ = yield context.call_activity_with_retry(
         "chunk_etl_postprocessing",
         input_={
