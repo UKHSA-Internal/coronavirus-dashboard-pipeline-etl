@@ -1,7 +1,8 @@
 #!/usr/bin python3
 
 """
-<Description of the programme>
+Processes associated with the deployment of preprocessed data
+to the database.
 
 Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
 Created:       27 Jun 2021
@@ -23,5 +24,5 @@ from .uploader import *
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2021, Public Health England"
 __license__ = "MIT"
-__version__ = "0.0.1"
+__version__ = "3.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
