@@ -243,6 +243,22 @@ def get_partition_id(area_type, release):
 
 
 def create_partition(area_type: str, release: datetime):
+    """
+    Creates new database partition - if one doesn't already exist - for
+    the `time_series` table based on `area_type` and `release` datestamp.
+
+    Parameters
+    ----------
+    area_type : str
+        Area type, as defined in the `area_reference` table.
+
+    release: datetime
+        Release timestamp of the data.
+
+    Returns
+    -------
+    NoReturn
+    """
     partition_id = get_partition_id(area_type, release)
 
     if area_type in ["nhsTrust", "utla", "ltla", "msoa"]:
@@ -250,10 +266,8 @@ def create_partition(area_type: str, release: datetime):
     else:
         area_partition = f"{release:%Y_%-m_%-d}_other"
 
-    # session = Session(autocommit=True)
     session = Session()
     try:
-        # session.begin()
         session.execute(
             f"""
             CREATE TABLE IF NOT EXISTS covid19.time_series_p{area_partition} 
