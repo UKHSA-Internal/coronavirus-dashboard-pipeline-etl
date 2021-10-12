@@ -9,10 +9,8 @@ from json import loads
 
 # Internal:
 try:
-    from __app__.fanout import enqueue_job
     from __app__.utilities.generic_types import ETLResponse
 except ImportError:
-    from fanout import enqueue_job
     from utilities.generic_types import ETLResponse
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

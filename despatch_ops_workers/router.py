@@ -16,8 +16,6 @@ from .og_images import generate_og_images
 from .sitemap import generate_sitemap
 from .rate_scales import get_latest_scale_records, generate_scale_graph
 from .landing_page_map import generate_landing_page_map
-from .deploy_demographics import generate_demog_downloads
-# from .temp_msoa_data import generate_msoa_data
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -37,8 +35,6 @@ def main(payload):
         "latest_scale_records": get_latest_scale_records,
         "scale_graphs": generate_scale_graph,
         "landing_page_map": generate_landing_page_map,
-        "generate_demog_downloads": generate_demog_downloads,
-        # "generate_msoa_data": generate_msoa_data
     }
 
     handler_name = payload["handler"]

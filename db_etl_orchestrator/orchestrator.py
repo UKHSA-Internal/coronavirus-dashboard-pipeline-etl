@@ -22,7 +22,6 @@ from azure.durable_functions import (
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.fanout import enqueue_job
     from __app__.utilities.data_files import category_label, parse_filepath
     from __app__.db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference, ReleaseCategory
@@ -30,7 +29,6 @@ try:
     from __app__.data_registration import set_file_releaseid
 except ImportError:
     from storage import StorageClient
-    from fanout import enqueue_job
     from utilities.data_files import category_label, parse_filepath
     from db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference, ReleaseCategory

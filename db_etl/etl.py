@@ -32,9 +32,7 @@ try:
     )
     from __app__.utilities.generic_types import RawDataPayload, PopulationData
     from .output import produce_json
-    from __app__.fanout import enqueue_job
     from __app__.storage import StorageClient
-    from .token import generate_token
     from .processors import (
         homogenise_dates, normalise_records,
         calculate_pair_summations, calculate_by_adjacent_column,
@@ -51,10 +49,8 @@ except ImportError:
         func_logger, get_population_data
     )
     from utilities.generic_types import RawDataPayload, PopulationData
-    from fanout import enqueue_job
     from storage import StorageClient
     from db_etl.output import produce_json
-    from db_etl.token import generate_token
     from db_etl.processors import (
         homogenise_dates, normalise_records,
         calculate_pair_summations, calculate_by_adjacent_column,
