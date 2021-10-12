@@ -17,13 +17,11 @@ from matplotlib import markers
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.fanout import enqueue_job
     from __app__.db_tables.covid19 import Session
     from .queries import RATES
     from ..utils.variables import AREA_TYPE_PARTITION
 except ImportError:
     from storage import StorageClient
-    from fanout import enqueue_job
     from despatch_ops_workers.rate_scales.queries import RATES
     from db_tables.covid19 import Session
     from despatch_ops_workers.utils.variables import AREA_TYPE_PARTITION

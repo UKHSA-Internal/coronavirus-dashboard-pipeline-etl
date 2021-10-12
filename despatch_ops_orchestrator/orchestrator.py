@@ -16,7 +16,6 @@ from orjson import loads
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.fanout import enqueue_job
     from __app__.despatch_ops_workers.map_geojson import Device
     from __app__.db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference,
@@ -24,7 +23,6 @@ try:
     )
 except ImportError:
     from storage import StorageClient
-    from fanout import enqueue_job
     from despatch_ops_workers.map_geojson import Device
     from db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference,
