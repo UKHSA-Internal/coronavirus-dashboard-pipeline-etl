@@ -6,24 +6,19 @@
 import logging
 from pathlib import Path
 from datetime import datetime
-from os import getenv
 from string import Template
-from json import loads
-from redis import Redis
-from redis.client import Pipeline
-from typing import List
 
 # 3rd party:
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from sqlalchemy import text
 
 # Internal:
 try:
     from __app__.db_tables.covid19 import Session
-    from __app__.db_etl_upload import generate_row_hash, to_sql
+    from __app__.caching import RedisClient
 except ImportError:
     from db_tables.covid19 import Session
-    from db_etl_upload import generate_row_hash, to_sql
+    from caching import RedisClient
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -39,40 +34,6 @@ query_path = (
     .resolve()
     .absolute()
 )
-
-CACHE_TTL = 36 * 60 * 60  # 36 hours in seconds
-
-
-class RedisClient:
-    def __init__(self):
-        self._redis_creds = loads(getenv("REDIS", "[]"))
-        self._instances: List[Redis] = list()
-        self._pipelines: List[Pipeline] = list()
-
-    def __enter__(self):
-        for creds in self._redis_creds:
-            host, port, password = creds.split(";")
-            cli = Redis(host=host, port=port, password=password, db=2)
-            pipeline = cli.pipeline()
-            self._pipelines.append(pipeline)
-            self._instances.append(cli)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        for pipeline, cli in zip(self._pipelines, self._instances):
-            pipeline.execute()
-            pipeline.close()
-            cli.close()
-
-    def set_data(self, data: Series):
-        for pipe in self._pipelines:
-            pipe.set(data['key'], data['value'], ex=CACHE_TTL)
-
-    def delete(self):
-        for pipe in self._pipelines:
-            for conn in self._instances:
-                for key in conn.keys("[^area]*"):
-                    pipe.delete(key)
 
 
 def retrieve_data(timestamp: datetime):
@@ -104,8 +65,8 @@ def main(payload):
 
     data = retrieve_data(timestamp)
 
-    with RedisClient() as redis_client:
-        data.apply(redis_client.set_data, axis=1)
+    with RedisClient() as client:
+        data.apply(client.set_data, axis=1)
 
     logging.info(f"Done pre-populating the cache.")
 
@@ -117,9 +78,11 @@ if __name__ == '__main__':
     # ---------
     # WARNING:
     # Do not add today's date before release. Bad things will happen.
+    # from datetime import timedelta
+    #
     from datetime import timedelta
 
     main({"timestamp": (datetime.now() - timedelta(days=0)).isoformat()})
 
-    # with RedisClient() as redis_client:
-    #     redis_client.delete()
+    with RedisClient() as redis_client:
+        redis_client.delete('[^area-]*')
