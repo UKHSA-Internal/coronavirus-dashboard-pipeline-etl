@@ -68,21 +68,21 @@ def main(context: DurableOrchestrationContext):
     archived = yield context.task_all(activities)
 
     # Remove archived blobs
-    context.set_custom_status("Removing archived data")
-    activities = list()
-    for archived_file in archived:
-        activity = context.call_activity_with_retry(
-            "housekeeping_remover",
-            input_=GenericPayload(
-                timestamp=timestamp.isoformat(),
-                environment=trigger_payload['environment'],
-                content=archived_file,
-            ),
-            retry_options=retry_twice_opts
-        )
-        activities.append(activity)
-
-    _ = yield context.task_all(activities)
+    # context.set_custom_status("Removing archived data")
+    # activities = list()
+    # for archived_file in archived:
+    #     activity = context.call_activity_with_retry(
+    #         "housekeeping_remover",
+    #         input_=GenericPayload(
+    #             timestamp=timestamp.isoformat(),
+    #             environment=trigger_payload['environment'],
+    #             content=archived_file,
+    #         ),
+    #         retry_options=retry_twice_opts
+    #     )
+    #     activities.append(activity)
+    #
+    # _ = yield context.task_all(activities)
 
     context.set_custom_status("ALL DONE")
 
