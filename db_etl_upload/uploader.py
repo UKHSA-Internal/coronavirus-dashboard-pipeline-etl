@@ -353,6 +353,28 @@ def deploy_nested(df, key):
 
 
 def deploy_preprocessed_long(df):
+    """
+    Generates hash key and deploys the data to the database.
+
+    Data must be preprocessed and in long (unstacked) format.
+
+    Parameters
+    ----------
+    df: DataFrame
+        Dataframe containing the following columns:
+
+        - metric_id
+        - area_id
+        - partition_id
+        - release_id
+        - date
+        - payload
+
+    Returns
+    -------
+    DataFrame
+        Processed dataframe
+    """
     to_sql(
         df
         .join(get_area_data(), on=["area_type", "area_code"])
