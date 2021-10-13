@@ -4,19 +4,19 @@ from typing import TypedDict, Union, List
 
 
 __all__ = [
-    "ArchiverPayload",
+    "ArtefactPayload",
     "RetrieverPayload",
-    "RemoverPayload",
+    "DisposerPayload",
     "GenericPayload"
 ]
 
 
-class RemoverPayload(TypedDict):
+class DisposerPayload(TypedDict):
     removables: List[str]
     date: str
 
 
-class ArchiverPayload(TypedDict):
+class ArtefactPayload(TypedDict):
     date: str
     category: str
     subcategory: Union[str, None]
@@ -33,4 +33,4 @@ class RetrieverPayload(TypedDict):
 class GenericPayload(TypedDict):
     timestamp: str
     environment: str
-    content: Union[List[ArchiverPayload], RetrieverPayload, RemoverPayload]
+    content: Union[List[ArtefactPayload], RetrieverPayload, DisposerPayload]
