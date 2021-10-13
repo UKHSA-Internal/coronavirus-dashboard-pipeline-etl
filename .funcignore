@@ -82,6 +82,7 @@ _specimen_date_demographics/
 /_fanout/
 /_main_etl_token_generator/
 /_publish_date_demographics/
+/_db_deploy/
 
 local.settings.dev.json
 local.settings.staging.json

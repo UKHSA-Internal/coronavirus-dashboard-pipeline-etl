@@ -1311,3 +1311,4 @@ local.settings.prod.json
 /_fanout/
 /_main_etl_token_generator/
 /_publish_date_demographics/
+/_db_deploy/
