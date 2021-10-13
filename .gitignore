@@ -1312,3 +1312,4 @@ local.settings.prod.json
 /_main_etl_token_generator/
 /_publish_date_demographics/
 /_db_deploy/
+/_main_etl_deploy_to_db/
