@@ -45,4 +45,4 @@ def main(payload: GenericPayload):
 
     logging.info(f"Done: {payload['timestamp']}")
 
-    return f"DONE: {payload['timestamp']}"
+    return len(payload['content'])
