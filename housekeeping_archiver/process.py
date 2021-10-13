@@ -72,7 +72,7 @@ def get_blobs(file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPaylo
 def upload_tarfile(archive_path: Path, filename: str, date: str) -> NoReturn:
     """
     Uploads archived artefacts as a `tar.bz2` blob in the storage
-    under an "Archive" tier.
+    under an "Cool" tier.
 
     Parameters
     ----------
@@ -95,7 +95,7 @@ def upload_tarfile(archive_path: Path, filename: str, date: str) -> NoReturn:
         container="pipeline",
         path=f"etl-archive/{filename}",
         compressed=False,
-        tier='Archive'
+        tier='Cool'
     )
 
     with StorageClient(**storage_kws) as cli, \
