@@ -69,7 +69,7 @@ def get_blobs(file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPaylo
     logging.info("all artefacts have been downloaded + processed")
 
 
-def upload_tarfile(archive_path: Path, filename: str, date: str) -> NoReturn:
+def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived: int) -> NoReturn:
     """
     Uploads archived artefacts as a `tar.bz2` blob in the storage
     under an "Cool" tier.
@@ -84,6 +84,9 @@ def upload_tarfile(archive_path: Path, filename: str, date: str) -> NoReturn:
 
     date: str
         Archive date - i.e. the date on which archived data were generated.
+
+    total_archived: int
+        Total number of artefacts included in the archive.
 
     Returns
     -------
@@ -103,7 +106,8 @@ def upload_tarfile(archive_path: Path, filename: str, date: str) -> NoReturn:
         cli.upload(fp.read())
         cli.client.set_blob_metadata({
             "date": date,
-            "generated_on": datetime.utcnow().isoformat()
+            "generated_on": datetime.utcnow().isoformat(),
+            "total_artefacts": total_archived
         })
 
     logging.info(f"Tar archive uploaded: {storage_kws}")
@@ -180,7 +184,12 @@ def main(payload: GenericPayload) -> DisposerPayload:
 
     logging.info("tar file composition is complete")
 
-    upload_tarfile(path, filename=filename, date=payload_content[0]['date'])
+    upload_tarfile(
+        archive_path=path,
+        filename=filename,
+        date=payload_content[0]['date'],
+        total_archived=len(payload_content)
+    )
 
     logging.info(f"completed for {payload['timestamp']}")
 
