@@ -30,7 +30,7 @@ pattern = re.compile(
     r"""
     ^
     (?P<from_path>
-    etl/
+    etl_chunks/
     (?P<category>[a-z-]+)/
     (?P<subcategory>[a-z-]+)?/?
     (?P<date>\d{4}-\d{2}-\d{2})/
@@ -62,7 +62,7 @@ def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
 
     candidates = defaultdict(list)
 
-    with StorageClient("pipeline", "etl/") as cli:
+    with StorageClient("pipeline", "etl_chunks/") as cli:
         for blob in cli.list_blobs():
             path = pattern.search(blob["name"])
 
