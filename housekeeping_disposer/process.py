@@ -45,4 +45,4 @@ def main(payload: GenericPayload):
 
     logging.info(f"Done: {payload['timestamp']}")
 
-    return len(payload['content'])
+    return {"total_processed": len(payload['content'])}

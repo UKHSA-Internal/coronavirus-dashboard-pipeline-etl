@@ -81,9 +81,9 @@ def main(context: DurableOrchestrationContext):
         )
         activities.append(activity)
 
-    total_processed = yield context.task_all(activities)
+    report = yield context.task_all(activities)
 
-    context.set_custom_status(f"ALL DONE - processed {total_processed} artefacts")
+    context.set_custom_status(f"ALL DONE - processed {report['total_processed']} artefacts")
 
     return f"DONE - {timestamp.isoformat()}"
 
