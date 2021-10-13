@@ -10,10 +10,10 @@ import logging
 # Internal: 
 try:
     from __app__.storage import StorageClient
-    from __app__.housekeeping_orchestrator.dtypes import RemoverPayload, GenericPayload
+    from __app__.housekeeping_orchestrator.dtypes import DisposerPayload, GenericPayload
 except ImportError:
     from storage import StorageClient
-    from housekeeping_orchestrator.dtypes import RemoverPayload, GenericPayload
+    from housekeeping_orchestrator.dtypes import DisposerPayload, GenericPayload
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -23,7 +23,19 @@ __all__ = [
 
 
 def main(payload: GenericPayload):
-    payload_content: RemoverPayload = payload['content']
+    """
+    Removes blobs from the storage.
+
+    Parameters
+    ----------
+    payload: GenericPayload
+
+    Returns
+    -------
+    str
+        Message confirming that the process is done.
+    """
+    payload_content: DisposerPayload = payload['content']
     logging.info(f"Triggered - total blobs to remove: {len(payload['content'])}")
 
     first_path = payload_content['removables'][0]
