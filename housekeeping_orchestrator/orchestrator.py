@@ -86,4 +86,3 @@ def main(context: DurableOrchestrationContext):
     context.set_custom_status(f"ALL DONE - processed {report['total_processed']} artefacts")
 
     return f"DONE - {timestamp.isoformat()}"
-
