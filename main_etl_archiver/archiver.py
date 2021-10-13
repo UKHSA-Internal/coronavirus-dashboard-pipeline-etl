@@ -16,12 +16,10 @@ from pandas import concat, read_feather, DataFrame
 try:
     from __app__.storage import StorageClient
     from __app__.storage.etl_utils import TestOutput, MainOutput
-    from __app__.db_etl.token import generate_token
     from __app__.utilities.generic_types import ArchivePayload
 except ImportError:
     from storage import StorageClient
     from storage.etl_utils import TestOutput, MainOutput
-    from db_etl.token import generate_token
     from utilities.generic_types import ArchivePayload
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
