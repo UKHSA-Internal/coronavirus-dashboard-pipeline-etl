@@ -1,7 +1,12 @@
 #!/usr/bin python3
 
 """
-<Description of the programme>
+Housekeeping Orchestrator
+-------------------------
+
+Orchestrates processes associated with housekeeping tasks. These are
+often periodic tasks that clean up and archive the artefacts produced
+by daily processes.
 
 Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
 Created:       12 Oct 2021

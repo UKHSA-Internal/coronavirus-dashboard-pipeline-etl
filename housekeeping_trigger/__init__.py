@@ -1,7 +1,11 @@
 #!/usr/bin python3
 
 """
-<Description of the programme>
+Housekeeping Trigger
+--------------------
+
+Time trigger for Housekeeping Orchestrator. The process is
+triggered at 1:30am UK time every day.
 
 Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
 Created:       12 Oct 2021

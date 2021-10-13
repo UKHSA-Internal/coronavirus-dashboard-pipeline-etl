@@ -1,7 +1,10 @@
 #!/usr/bin python3
 
 """
-<Description of the programme>
+Housekeeping Retriever
+----------------------
+
+Identifies artefacts that are candidates for being archived.
 
 Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
 Created:       12 Oct 2021
