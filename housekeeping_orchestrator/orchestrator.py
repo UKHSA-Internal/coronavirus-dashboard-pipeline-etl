@@ -67,23 +67,23 @@ def main(context: DurableOrchestrationContext):
     archived = yield context.task_all(activities)
 
     # Dispose of archived blobs
-    # context.set_custom_status("Removing archived data")
-    # activities = list()
-    # for archived_file in archived:
-    #     activity = context.call_activity_with_retry(
-    #         "housekeeping_disposer",
-    #         input_=GenericPayload(
-    #             timestamp=timestamp.isoformat(),
-    #             environment=trigger_payload['environment'],
-    #             content=archived_file,
-    #         ),
-    #         retry_options=retry_twice_opts
-    #     )
-    #     activities.append(activity)
-    #
-    # _ = yield context.task_all(activities)
+    context.set_custom_status("Removing archived data")
+    activities = list()
+    for archived_file in archived:
+        activity = context.call_activity_with_retry(
+            "housekeeping_disposer",
+            input_=GenericPayload(
+                timestamp=timestamp.isoformat(),
+                environment=trigger_payload['environment'],
+                content=archived_file,
+            ),
+            retry_options=retry_twice_opts
+        )
+        activities.append(activity)
 
-    context.set_custom_status("ALL DONE")
+    total_processed = yield context.task_all(activities)
+
+    context.set_custom_status(f"ALL DONE - processed {total_processed} artefacts")
 
     return f"DONE - {timestamp.isoformat()}"
 
