@@ -41,8 +41,11 @@ def main(payload: GenericPayload):
     first_path = payload_content['removables'][0]
     with StorageClient(container="pipeline", path=first_path) as cli:
         container = cli.get_container()
-        container.delete_blobs(*payload_content['removables'])
+        for path in payload_content['removables']:
+            container.delete_blob(path)
+
+        container.close()
 
     logging.info(f"Done: {payload['timestamp']}")
 
-    return {"total_processed": len(payload['content'])}
+    return {"total_processed": len(payload['content']['removables'])}
