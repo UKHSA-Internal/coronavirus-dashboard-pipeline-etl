@@ -81,8 +81,8 @@ def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
             blob_data = ArtefactPayload(**path.groupdict(), content_type=content_type)
 
             candidates[path['date']].append(blob_data)
-            break
 
-    logging.info(f"Done processing: {payload}")
+    artefacts = list(candidates.values())
+    logging.info(f"Done processing - length: {len(artefacts)}")
 
-    return list(candidates.values())
+    return artefacts
