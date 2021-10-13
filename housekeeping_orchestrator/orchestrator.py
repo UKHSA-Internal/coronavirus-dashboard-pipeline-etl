@@ -4,7 +4,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
 import logging
-from os import getenv
 from json import loads
 
 # 3rd party:
@@ -53,13 +52,13 @@ def main(context: DurableOrchestrationContext):
     # Submit for archiving
     context.set_custom_status("Submitting candidates to the archiver")
     activities = list()
-    for candidate in candidates:
+    for artefact in candidates:
         activity = context.call_activity_with_retry(
             "housekeeping_archiver",
             input_=GenericPayload(
                 timestamp=timestamp.isoformat(),
                 environment=trigger_payload['environment'],
-                content=candidate,
+                content=artefact,
             ),
             retry_options=retry_twice_opts
         )
@@ -67,12 +66,12 @@ def main(context: DurableOrchestrationContext):
 
     archived = yield context.task_all(activities)
 
-    # Remove archived blobs
+    # Dispose of archived blobs
     # context.set_custom_status("Removing archived data")
     # activities = list()
     # for archived_file in archived:
     #     activity = context.call_activity_with_retry(
-    #         "housekeeping_remover",
+    #         "housekeeping_disposer",
     #         input_=GenericPayload(
     #             timestamp=timestamp.isoformat(),
     #             environment=trigger_payload['environment'],
