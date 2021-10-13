@@ -107,7 +107,7 @@ def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived:
         cli.client.set_blob_metadata({
             "date": date,
             "generated_on": datetime.utcnow().isoformat(),
-            "total_artefacts": total_archived
+            "total_artefacts": str(total_archived)
         })
 
     logging.info(f"Tar archive uploaded: {storage_kws}")
