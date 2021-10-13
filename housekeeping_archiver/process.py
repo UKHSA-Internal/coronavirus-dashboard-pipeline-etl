@@ -4,14 +4,14 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
 import logging
+import tarfile
 from typing import List, Iterator, Tuple, NoReturn
 from tempfile import gettempdir, NamedTemporaryFile
 from io import BytesIO
-from os.path import join
+from os import path
 from pathlib import Path
 from datetime import datetime
 from orjson import dumps
-import tarfile
 
 # 3rd party:
 
@@ -128,9 +128,9 @@ def get_archive_path(artefact: ArtefactPayload) -> str:
         Archive path for the artefact.
     """
     if artefact["subcategory"] is None:
-        return join(artefact["category"], artefact["filename"])
+        return path.join(artefact["category"], artefact["filename"])
 
-    return join(artefact["category"], artefact["subcategory"], artefact["filename"])
+    return path.join(artefact["category"], artefact["subcategory"], artefact["filename"])
 
 
 def main(payload: GenericPayload) -> DisposerPayload:
