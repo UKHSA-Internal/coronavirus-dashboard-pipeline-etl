@@ -17,7 +17,7 @@ try:
     from __app__.housekeeping_orchestrator.dtypes import RetrieverPayload, ArchiverPayload
 except ImportError:
     from storage import StorageClient
-    from housekeeping_orchestrator.dtypes import RetrieverPayload, ArchiverPayload
+    from housekeeping_orchestrator.dtypes import RetrieverPayload, ArtefactPayload
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -42,7 +42,19 @@ pattern = re.compile(
 )
 
 
-def main(payload: RetrieverPayload) -> List[List[ArchiverPayload]]:
+def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
+    """
+    Identifies artefacts that are candidates for being archived.
+
+    Parameters
+    ----------
+    payload: Retriever Payload
+
+    Returns
+    -------
+    List[List[ArtefactPayload]]
+        List of lists for candidate artefacts.
+    """
     logging.info(f"Triggered with payload: {payload}")
 
     timestamp = datetime.fromisoformat(payload['timestamp'])
@@ -66,7 +78,7 @@ def main(payload: RetrieverPayload) -> List[List[ArchiverPayload]]:
             if path['date'] > max_date:
                 continue
 
-            blob_data = ArchiverPayload(**path.groupdict(), content_type=content_type)
+            blob_data = ArtefactPayload(**path.groupdict(), content_type=content_type)
 
             candidates[path['date']].append(blob_data)
             break
