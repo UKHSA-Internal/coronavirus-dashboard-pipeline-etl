@@ -10,7 +10,7 @@ from io import BytesIO
 from os.path import join
 from pathlib import Path
 from datetime import datetime
-from json import dump
+from orjson import dumps
 import tarfile
 
 # 3rd party:
@@ -99,8 +99,8 @@ def main(payload: GenericPayload) -> RemoverPayload:
 
             archived.append(archive_obj['from_path'])
 
-        with NamedTemporaryFile('w+') as fp:
-            dump(manifest, fp=fp)
+        with NamedTemporaryFile('w+b') as fp:
+            fp.write(dumps(manifest))
             fp.seek(0)
             tar_info = archive_file.gettarinfo(fileobj=fp)
             tar_info.path = "/manifest.json"
