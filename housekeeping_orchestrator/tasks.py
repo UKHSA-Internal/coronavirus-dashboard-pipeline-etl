@@ -80,4 +80,14 @@ housekeeping_tasks = (
         archive_directory='easy_read',
         mode=ProcessMode.ARCHIVE_AND_DISPOSE
     ),
+    Manifest(
+        label='Raw pipeline data',
+        container='rawdbdata',
+        directory='',
+        regex_pattern=r"^(?P<from_path>(?P<date>\d{4}-\d{2}-\d{2})/(?P<filename>.+))$",
+        date_format="%Y-%m-%d",
+        offset_days=7,
+        archive_directory='raw_db_data',
+        mode=ProcessMode.ARCHIVE_AND_DISPOSE
+    ),
 )
