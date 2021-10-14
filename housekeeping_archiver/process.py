@@ -8,7 +8,6 @@ import tarfile
 from typing import List, Iterator, Tuple, NoReturn
 from tempfile import gettempdir, NamedTemporaryFile
 from io import BytesIO
-from os import path
 from pathlib import Path
 from datetime import datetime
 from orjson import dumps
@@ -19,12 +18,12 @@ from orjson import dumps
 try:
     from __app__.storage import StorageClient
     from __app__.housekeeping_orchestrator.dtypes import (
-        ArtefactPayload, GenericPayload,  DisposerPayload
+        ArtefactPayload, GenericPayload, MetaDataManifest
     )
 except ImportError:
     from storage import StorageClient
     from housekeeping_orchestrator.dtypes import (
-        ArtefactPayload, GenericPayload, DisposerPayload
+        ArtefactPayload, GenericPayload, MetaDataManifest
     )
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,13 +33,19 @@ __all__ = [
 ]
 
 
-def get_blobs(file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPayload, BytesIO]]:
+ARCHIVE_CONTAINER = 'archives'
+
+
+def get_blobs(container: str, file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPayload, BytesIO]]:
     """
     Generator to download artefact blobs, store them in a temp file
     and yields the file pointer.
 
     Parameters
     ----------
+    container: str
+        Storage container in which the artefact blobs are stored.
+
     file_paths: List[ArchivePayload]
         List of artefacts to download.
 
@@ -51,7 +56,7 @@ def get_blobs(file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPaylo
     """
     logging.info("starting the generator to download artefact blobs")
 
-    with StorageClient(container="pipeline", path=file_paths[0]["from_path"]) as cli:
+    with StorageClient(container=container, path=file_paths[0]["from_path"]) as cli:
         container = cli.get_container()
 
         for artefact in file_paths:
@@ -69,7 +74,7 @@ def get_blobs(file_paths: List[ArtefactPayload]) -> Iterator[Tuple[ArtefactPaylo
     logging.info("all artefacts have been downloaded + processed")
 
 
-def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived: int) -> NoReturn:
+def upload_tarfile(archive_path: Path, storage_dir: str, filename: str, date: str, total_archived: int) -> NoReturn:
     """
     Uploads archived artefacts as a `tar.bz2` blob in the storage
     under an "Cool" tier.
@@ -78,6 +83,10 @@ def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived:
     ----------
     archive_path: Path
         Path to the temp archive file.
+
+    storage_dir: str
+        Path to the directory in the `ARCHIVE_CONTAINER` where the archived
+        artefacts are to be stored.
 
     filename: str
         Name by which to store the file in the storage.
@@ -95,8 +104,8 @@ def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived:
     logging.info("uploading the Tar archive")
 
     storage_kws = dict(
-        container="pipeline",
-        path=f"etl-archive/{filename}",
+        container=ARCHIVE_CONTAINER,
+        path=f"{storage_dir}/{filename}",
         compressed=False,
         tier='Cool'
     )
@@ -112,28 +121,10 @@ def upload_tarfile(archive_path: Path, filename: str, date: str, total_archived:
 
     logging.info(f"Tar archive uploaded: {storage_kws}")
 
-
-def get_archive_path(artefact: ArtefactPayload) -> str:
-    """
-    Generates the archive path for the artefact based on its properties.
-
-    Parameters
-    ----------
-    artefact: ArtefactPayload
-        Artefact object whose archive path is to be generated.
-
-    Returns
-    -------
-    str
-        Archive path for the artefact.
-    """
-    if artefact["subcategory"] is None:
-        return path.join(artefact["category"], artefact["filename"])
-
-    return path.join(artefact["category"], artefact["subcategory"], artefact["filename"])
+    return None
 
 
-def main(payload: GenericPayload) -> DisposerPayload:
+def main(payload: GenericPayload) -> GenericPayload:
     """
     Downloads artefact blobs, stores them in a Tar archive, and
     uploads the archive into the storage.
@@ -141,36 +132,43 @@ def main(payload: GenericPayload) -> DisposerPayload:
     Parameters
     ----------
     payload: GenericPayload
-        Trigger data with artefacts (`ArtefactPayload`) as content.
+        Trigger data with artefacts (`ArtefactPayload`) as tasks.
 
     Returns
     -------
-    DisposerPayload
-        Artefact that have been archived and are ready for removal.
+    GenericPayload
+        Artefact that have been archived.
     """
-    logging.info(f"triggered for {payload['timestamp']}")
+    task_manifest = payload['manifest']
+    logging.info(f"triggered with manifest: {task_manifest}")
 
-    payload_content: List[ArtefactPayload] = payload["content"]
+    payload_content: List[ArtefactPayload] = payload["tasks"]
 
     # Archive is temporarily stored on disk.
     temp_dir = gettempdir()
     filename = f"{payload_content[0]['date']}.tar.bz2"
-    path = Path(temp_dir).joinpath(filename).resolve().absolute()
+    archive_path = Path(temp_dir).joinpath(filename).resolve().absolute()
 
     manifest = list()
     archived = list()
 
-    with tarfile.open(path, mode='w:bz2') as archive_file:
+    with tarfile.open(archive_path, mode='w:bz2') as archive_file:
         logging.info("generated tar file")
 
-        for artefact, data in get_blobs(payload_content):
+        for artefact, data in get_blobs(task_manifest['container'], payload_content):
             tar_info = archive_file.gettarinfo(fileobj=data)
 
-            tar_info.path = get_archive_path(artefact)
+            tar_info.path = artefact['filename']
             archive_file.addfile(tar_info, data)
 
-            manifest.append({**artefact, 'archive_path': tar_info.path})
-            archived.append(artefact['from_path'])
+            manifest.append(
+                MetaDataManifest(
+                    original_artefact=artefact,
+                    archive_path=tar_info.path
+                )
+            )
+
+            archived.append(artefact)
 
         # Storing manifest as a temp file
         with NamedTemporaryFile('w+b') as fp:
@@ -185,7 +183,8 @@ def main(payload: GenericPayload) -> DisposerPayload:
     logging.info("tar file composition is complete")
 
     upload_tarfile(
-        archive_path=path,
+        archive_path=archive_path,
+        storage_dir=task_manifest['archive_directory'],
         filename=filename,
         date=payload_content[0]['date'],
         total_archived=len(payload_content)
@@ -193,4 +192,11 @@ def main(payload: GenericPayload) -> DisposerPayload:
 
     logging.info(f"completed for {payload['timestamp']}")
 
-    return DisposerPayload(removables=archived, date=payload_content[0]['date'])
+    response = GenericPayload(
+        manifest=task_manifest,
+        timestamp=payload['timestamp'],
+        environment=payload['environment'],
+        tasks=archived
+    )
+
+    return response
