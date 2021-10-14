@@ -5,6 +5,7 @@
 # Python:
 import logging
 from json import loads
+from itertools import chain
 
 # 3rd party:
 from azure.durable_functions import (
@@ -13,11 +14,13 @@ from azure.durable_functions import (
 
 # Internal:
 try:
-    from __app__.data_registration import register_file
-    from .dtypes import RetrieverPayload, GenericPayload
+    from .dtypes import RetrieverPayload, GenericPayload, Manifest, ProcessMode
+    from .tasks import housekeeping_tasks
 except ImportError:
-    from data_registration import register_file
-    from housekeeping_orchestrator.dtypes import RetrieverPayload, GenericPayload
+    from housekeeping_orchestrator.dtypes import (
+        RetrieverPayload, GenericPayload, Manifest, ProcessMode
+    )
+    from housekeeping_orchestrator.tasks import housekeeping_tasks
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -36,52 +39,92 @@ def main(context: DurableOrchestrationContext):
     timestamp = context.current_utc_datetime
     trigger_payload = loads(context.get_input())
 
-    logging.info(f"Triggered with payload: {trigger_payload}")
+    logging.info(f"triggered with payload: {trigger_payload}")
 
+    # ------------------------------------------------------------------------------------
     # Retrieve blob paths
-    context.set_custom_status("Retrieving candidates")
-    candidates = yield context.call_activity_with_retry(
-        "housekeeping_retriever",
-        input_=RetrieverPayload(
-            timestamp=timestamp.isoformat(),
-            environment=trigger_payload['environment'],
-        ),
-        retry_options=retry_twice_opts
-    )
+    # ------------------------------------------------------------------------------------
+    context.set_custom_status("Retrieving artefacts")
+    logging.info("retrieving artefacts")
 
+    task_artefacts = list()
+
+    for task_manifest in housekeeping_tasks:
+        logging.info(f"submitting '{task_manifest['label']}' to retriever")
+
+        artefacts = context.call_activity_with_retry(
+            "housekeeping_retriever",
+            input_=RetrieverPayload(
+                timestamp=timestamp.isoformat(),
+                environment=trigger_payload['environment'],
+                manifest=task_manifest
+            ),
+            retry_options=retry_twice_opts
+        )
+
+        task_artefacts.append(artefacts)
+
+    logging.info("awaiting retriever tasks")
+    retrieved_artefacts = yield context.task_all(task_artefacts)
+
+    # ------------------------------------------------------------------------------------
     # Submit for archiving
+    # ------------------------------------------------------------------------------------
     context.set_custom_status("Submitting candidates to the archiver")
+    logging.info("submitting candidates to the archiver")
+
+    archive_modes = [ProcessMode.ARCHIVE_AND_DISPOSE, ProcessMode.ARCHIVE_ONLY]
     activities = list()
-    for artefact in candidates:
+
+    for task in retrieved_artefacts:
+        logging.info(f"submitting '{task['manifest']['label']}' to retriever")
+
+        if task["manifest"]["mode"] not in archive_modes:
+            logging.info("-- not archived")
+            continue
+
         activity = context.call_activity_with_retry(
             "housekeeping_archiver",
-            input_=GenericPayload(
-                timestamp=timestamp.isoformat(),
-                environment=trigger_payload['environment'],
-                content=artefact,
-            ),
+            input_=task,
             retry_options=retry_twice_opts
         )
         activities.append(activity)
 
-    archived = yield context.task_all(activities)
+    logging.info("awaiting archiver tasks")
+    archived_artefacts = yield context.task_all(activities)
 
+    # ------------------------------------------------------------------------------------
     # Dispose of archived blobs
+    # ------------------------------------------------------------------------------------
     context.set_custom_status("Removing archived data")
+    logging.info("removing archived data")
+
+    disposable_only = filter(
+        lambda t: t['manifest']['mode'] == ProcessMode.DISPOSE_ONLY,
+        task_artefacts
+    )
+
+    disposal_modes = [ProcessMode.ARCHIVE_AND_DISPOSE, ProcessMode.DISPOSE_ONLY]
     activities = list()
-    for archived_file in archived:
+
+    for task in chain(archived_artefacts, disposable_only):
+        logging.info(f"submitting '{task['manifest']['label']}' to retriever")
+
+        if task["manifest"]["mode"] not in disposal_modes:
+            logging.info("-- not disposed")
+            continue
+
         activity = context.call_activity_with_retry(
             "housekeeping_disposer",
-            input_=GenericPayload(
-                timestamp=timestamp.isoformat(),
-                environment=trigger_payload['environment'],
-                content=archived_file,
-            ),
+            input_=task,
             retry_options=retry_twice_opts
         )
         activities.append(activity)
 
+    logging.info("awaiting disposer tasks")
     report = yield context.task_all(activities)
+
+    # ------------------------------------------------------------------------------------
 
     context.set_custom_status(f"ALL DONE - processed {report['total_processed']} artefacts")
 
