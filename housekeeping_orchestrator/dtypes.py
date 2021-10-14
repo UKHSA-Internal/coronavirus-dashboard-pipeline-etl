@@ -1,7 +1,7 @@
 #!/usr/bin python3
 
 from typing import TypedDict, Union, List
-from enum import Enum
+from enum import IntEnum
 
 
 __all__ = [
@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-class ProcessMode(Enum):
+class ProcessMode(IntEnum):
     ARCHIVE_AND_DISPOSE = 0
     ARCHIVE_ONLY = 1
     DISPOSE_ONLY = 2
