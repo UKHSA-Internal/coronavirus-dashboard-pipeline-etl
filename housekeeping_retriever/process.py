@@ -3,21 +3,25 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
+import logging
+import re
 from typing import List
 from collections import defaultdict
 from datetime import datetime, timedelta
-import logging
-import re
 
 # 3rd party:
 
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.housekeeping_orchestrator.dtypes import RetrieverPayload, ArchiverPayload
+    from __app__.housekeeping_orchestrator.dtypes import (
+        RetrieverPayload, ArchiverPayload, GenericPayload
+    )
 except ImportError:
     from storage import StorageClient
-    from housekeeping_orchestrator.dtypes import RetrieverPayload, ArtefactPayload
+    from housekeeping_orchestrator.dtypes import (
+        RetrieverPayload, ArtefactPayload, GenericPayload
+    )
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -26,23 +30,7 @@ __all__ = [
 ]
 
 
-pattern = re.compile(
-    r"""
-    ^
-    (?P<from_path>
-    etl_chunks/
-    (?P<category>[a-z-]+)/
-    (?P<subcategory>[a-z-]+)?/?
-    (?P<date>\d{4}-\d{2}-\d{2})/
-    (?P<filename>.+\.ft)
-    )
-    $
-    """,
-    re.VERBOSE | re.IGNORECASE
-)
-
-
-def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
+def main(payload: RetrieverPayload) -> List[GenericPayload]:
     """
     Identifies artefacts that are candidates for being archived.
 
@@ -52,17 +40,24 @@ def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
 
     Returns
     -------
-    List[List[ArtefactPayload]]
-        List of lists for candidate artefacts.
+    List[GenericPayload]
+        List of tasks.
     """
-    logging.info(f"Triggered with payload: {payload}")
+    task_manifest = payload['manifest']
+    logging.info(f"triggered with manifest: {task_manifest}")
 
     timestamp = datetime.fromisoformat(payload['timestamp'])
-    max_date = f"{timestamp - timedelta(days=7):%Y-%m-%d}"
+
+    # Calculate offset based on manifest
+    offset = timedelta(days=task_manifest['offset_days'])
+    max_date = f"{timestamp - offset:%Y-%m-%d}"
+
+    # Compile blob path pattern based on manifest
+    pattern = re.compile(task_manifest['regex_pattern'], re.I)
 
     candidates = defaultdict(list)
 
-    with StorageClient("pipeline", "etl_chunks/") as cli:
+    with StorageClient(task_manifest['container'], task_manifest['directory']) as cli:
         for blob in cli.list_blobs():
             path = pattern.search(blob["name"])
 
@@ -75,14 +70,33 @@ def main(payload: RetrieverPayload) -> List[List[ArtefactPayload]]:
                 logging.info(f'Unmatched pattern: {blob["name"]}')
                 continue
 
-            if path['date'] > max_date:
+            # Parse and generated ISO formatted date stamp.
+            artefact_date = datetime.strptime(path['date'], task_manifest['date_format'])
+            formatted_artefact_date = f"{artefact_date}:%Y-%m-%d"
+
+            # Ignore artefacts created after
+            # the offset period.
+            if formatted_artefact_date > max_date:
                 continue
 
-            blob_data = ArtefactPayload(**path.groupdict(), content_type=content_type)
+            parsed_data = path.groupdict()
 
-            candidates[path['date']].append(blob_data)
+            # Replace date with ISO-formatted date stamp.
+            parsed_data['date'] = formatted_artefact_date
 
-    artefacts = list(candidates.values())
-    logging.info(f"Done processing - length: {len(artefacts)}")
+            blob_data = ArtefactPayload(**parsed_data, content_type=content_type)
+
+            candidates[formatted_artefact_date].append(blob_data)
+
+    artefacts = [
+        GenericPayload(
+            timestamp=payload['timestamp'],
+            environment=payload['environment'],
+            manifest=payload['manifest'],
+            tasks=item
+        ) for item in candidates.values()
+    ]
+
+    logging.info(f"done processing - length: {len(artefacts)}")
 
     return artefacts
