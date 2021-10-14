@@ -76,7 +76,7 @@ def main(context: DurableOrchestrationContext):
     archive_modes = [ProcessMode.ARCHIVE_AND_DISPOSE, ProcessMode.ARCHIVE_ONLY]
     activities = list()
 
-    for task in retrieved_artefacts:
+    for task in chain(*retrieved_artefacts):
         logging.info(f"submitting '{task['manifest']['label']}' to retriever")
 
         if task["manifest"]["mode"] not in archive_modes:
