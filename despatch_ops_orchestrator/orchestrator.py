@@ -139,15 +139,15 @@ def main(context: DurableOrchestrationContext):
     )
     tasks.append(task)
 
-    task = context.call_activity_with_retry(
-        "despatch_ops_workers",
-        retry_options=retry_options,
-        input_={
-            "handler": "generate_demog_downloads",
-            "payload": {"timestamp": trigger_data["timestamp"]}
-        }
-    )
-    tasks.append(task)
+    # task = context.call_activity_with_retry(
+    #     "despatch_ops_workers",
+    #     retry_options=retry_options,
+    #     input_={
+    #         "handler": "generate_demog_downloads",
+    #         "payload": {"timestamp": trigger_data["timestamp"]}
+    #     }
+    # )
+    # tasks.append(task)
 
     context.set_custom_status("All jobs created - submitting for execution.")
     _ = yield context.task_all(tasks)
