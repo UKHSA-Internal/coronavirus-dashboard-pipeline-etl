@@ -228,7 +228,11 @@ class StorageClient:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> NoReturn:
-        self.client.close()
+        try:
+            self.client.close()
+        except AttributeError:
+            # We're using a container client.
+            pass
 
     @trace_method_operation(
         "container", "path", "target", "url",
