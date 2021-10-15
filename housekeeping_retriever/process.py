@@ -72,7 +72,7 @@ def main(payload: RetrieverPayload) -> List[GenericPayload]:
 
             # Parse and generated ISO formatted date stamp.
             artefact_date = datetime.strptime(path['date'], task_manifest['date_format'])
-            formatted_artefact_date = f"{artefact_date}:%Y-%m-%d"
+            formatted_artefact_date = f"{artefact_date:%Y-%m-%d}"
 
             # Ignore artefacts created after
             # the offset period.
