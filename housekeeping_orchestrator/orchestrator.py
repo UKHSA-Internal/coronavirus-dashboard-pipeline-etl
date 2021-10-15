@@ -77,7 +77,7 @@ def main(context: DurableOrchestrationContext):
     activities = list()
 
     for task in chain(*retrieved_artefacts):
-        logging.info(f"submitting '{task['manifest']['label']}' to retriever")
+        logging.info(f"submitting '{task['manifest']['label']}' to archiver")
 
         if task["manifest"]["mode"] not in archive_modes:
             logging.info("-- not archived")
@@ -101,14 +101,14 @@ def main(context: DurableOrchestrationContext):
 
     disposable_only = filter(
         lambda t: t['manifest']['mode'] == ProcessMode.DISPOSE_ONLY,
-        task_artefacts
+        chain(*retrieved_artefacts)
     )
 
     disposal_modes = [ProcessMode.ARCHIVE_AND_DISPOSE, ProcessMode.DISPOSE_ONLY]
     activities = list()
 
     for task in chain(archived_artefacts, disposable_only):
-        logging.info(f"submitting '{task['manifest']['label']}' to retriever")
+        logging.info(f"submitting '{task['manifest']['label']}' to disposer")
 
         if task["manifest"]["mode"] not in disposal_modes:
             logging.info("-- not disposed")
