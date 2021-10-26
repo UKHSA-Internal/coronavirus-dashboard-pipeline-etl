@@ -172,9 +172,11 @@ def get_vaccination_matrices(threshold, identifier):
 def plot_vaccinations(data):
     first_dose = data["first_dose"]
     second_dose = data["second_dose"]
+    third_dose = data["third_dose"]
 
     first_dose_matrix = get_vaccination_matrices(first_dose, 1)
     second_dose_matrix = get_vaccination_matrices(second_dose, 2)
+    third_dose_matrix = get_vaccination_matrices(third_dose, 3)
 
     fig = go.Figure()
 
@@ -187,13 +189,9 @@ def plot_vaccinations(data):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(1,113,104,1)"],
-
-                [.5, "rgba(1,113,104,1)"],
-                [1, "rgba(1,113,104,1)"],
-
-                [1, "rgba(84,179,171,1)"],
-                [1, "rgba(84,179,171,1)"],
+                [.5, "rgba(119,196,191,1)"],
+                [.9, "rgba(119,196,191,1)"],
+                [1, "rgba(119,196,191,1)"],
             ]
         )
     )
@@ -207,13 +205,25 @@ def plot_vaccinations(data):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(1,113,104,1)"],
+                [.5, "rgba(0,156,145,1)"],
+                [.9, "rgba(0,156,145,1)"],
+                [1, "rgba(0,156,145,1)"],
+            ]
+        )
+    )
 
-                [.5, "rgba(1,113,104,1)"],
-                [1, "rgba(1,113,104,1)"],
-
-                [1, "rgba(84,179,171,1)"],
-                [1, "rgba(84,179,171,1)"],
+    fig.add_trace(
+        go.Heatmap(
+            z=third_dose_matrix,
+            hoverongaps=False,
+            showscale=False,
+            ygap=3,
+            xgap=3,
+            colorscale=[
+                [0, "rgba(216,216,216,1)"],
+                [.5, "rgba(0,65,61,1)"],
+                [.9, "rgba(0,65,61,1)"],
+                [1, "rgba(0,65,61,1)"],
             ]
         )
     )
