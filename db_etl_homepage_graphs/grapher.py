@@ -15,11 +15,12 @@ try:
     from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session
     from .utils import plot_thumbnail, plot_vaccinations
+    from . import queries
 except ImportError:
     from storage import StorageClient
     from db_tables.covid19 import Session
     from db_etl_homepage_graphs.utils import plot_thumbnail, plot_vaccinations
-
+    from db_etl_homepage_graphs import queries
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
@@ -33,118 +34,6 @@ metrics = [
     'newDeaths28DaysByPublishDate',
     'newVirusTests'
 ]
-
-
-TIMESRIES_QUERY = """\
-SELECT
-     date                           AS "date",
-     (payload ->> 'value')::NUMERIC AS "value"
-FROM covid19.time_series_p{partition} AS main
-JOIN covid19.release_reference AS rr ON rr.id = release_id
-JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
-JOIN covid19.area_reference    AS ar ON ar.id = main.area_id
-WHERE
-      partition_id = :partition_id
-  AND area_type = 'overview'
-  AND date > ( NOW() - INTERVAL '6 months')
-  AND metric = :metric
-ORDER BY date DESC;\
-"""
-
-LATEST_CHANGE_QUERY = """\
-SELECT
-     metric,
-     date                        AS "date",
-     (payload -> 'value')::FLOAT AS "value"
-FROM covid19.time_series_p{partition} AS ts
-JOIN covid19.release_reference AS rr ON rr.id = release_id
-JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
-JOIN covid19.area_reference    AS ar ON ar.id = ts.area_id
-WHERE
-      partition_id = :partition_id
-  AND area_type = 'overview'
-  AND date > ( DATE( :datestamp ) - INTERVAL '30 days' )
-  AND metric = :metric
-ORDER BY date DESC
-OFFSET 0
-FETCH FIRST 1 ROW ONLY;\
-"""
-
-
-VACCINATIONS_QUERY = """\
-SELECT first.area_type,
-       first.area_code,
-       MAX(first.date)              AS date,
-       MAX(FLOOR(first_dose))::INT  AS first_dose,
-       MAX(FLOOR(second_dose))::INT AS second_dose
-FROM (
-         SELECT area_type,
-                area_code,
-                MAX(date)                        AS date,
-                MAX((payload -> 'value')::FLOAT) AS first_dose
-         FROM (
-                  SELECT *
-                  FROM covid19.time_series_p{partition_date}_other AS tm
-                           JOIN covid19.release_reference AS rr ON rr.id = release_id
-                           JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                           JOIN covid19.area_reference AS ar ON ar.id = tm.area_id
-                  UNION
-                  (
-                      SELECT *
-                      FROM covid19.time_series_p{partition_date}_utla AS ts
-                               JOIN covid19.release_reference AS rr ON rr.id = release_id
-                               JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                               JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
-                  )
-                  UNION
-                  (
-                      SELECT *
-                      FROM covid19.time_series_p{partition_date}_ltla AS ts
-                               JOIN covid19.release_reference AS rr ON rr.id = release_id
-                               JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                               JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
-                  )
-              ) AS ts
-         WHERE date > (DATE(:datestamp) - INTERVAL '30 days')
-           AND metric = 'cumVaccinationFirstDoseUptakeByPublishDatePercentage'
-           AND (payload ->> 'value') NOTNULL
-         GROUP BY area_type, area_code
-     ) as first
-         JOIN (
-    SELECT area_type,
-           area_code,
-           MAX(date)                        AS date,
-           MAX((payload -> 'value')::FLOAT) AS second_dose
-    FROM (
-             SELECT *
-             FROM covid19.time_series_p{partition_date}_other AS tm
-                      JOIN covid19.release_reference AS rr ON rr.id = release_id
-                      JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                      JOIN covid19.area_reference AS ar ON ar.id = tm.area_id
-             UNION
-             (
-                 SELECT *
-                 FROM covid19.time_series_p{partition_date}_utla AS ts
-                          JOIN covid19.release_reference AS rr ON rr.id = release_id
-                          JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                          JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
-             )
-             UNION
-             (
-                 SELECT *
-                 FROM covid19.time_series_p{partition_date}_ltla AS ts
-                          JOIN covid19.release_reference AS rr ON rr.id = release_id
-                          JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                          JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
-             )
-         ) AS ts
-    WHERE date > ( DATE(:datestamp) - INTERVAL '30 days' )
-      AND metric = 'cumVaccinationSecondDoseUptakeByPublishDatePercentage'
-      AND (payload ->> 'value') NOTNULL
-    GROUP BY area_type, area_code
-) AS second ON first.date = second.date AND first.area_code = second.area_code
-GROUP BY first.area_type, first.area_code;\
-"""
 
 
 def store_data(date: str, metric: str, svg: str, area_type: str = None,
@@ -169,8 +58,8 @@ def get_timeseries(date: str, metric: str):
     ts = datetime.strptime(date, "%Y-%m-%d")
     partition = f"{ts:%Y_%-m_%-d}_other"
     partition_id = f"{ts:%Y_%-m_%-d}|other"
-    values_query = TIMESRIES_QUERY.format(partition=partition)
-    change_query = LATEST_CHANGE_QUERY.format(partition=partition)
+    values_query = queries.TIMESRIES_QUERY.format(partition=partition)
+    change_query = queries.LATEST_CHANGE_QUERY.format(partition=partition)
 
     session = Session()
     conn = session.connection()
@@ -208,7 +97,7 @@ def get_vaccinations(date):
     ts = datetime.strptime(date, "%Y-%m-%d")
     partition = f"{ts:%Y_%-m_%-d}"
 
-    vax_query = VACCINATIONS_QUERY.format(partition_date=partition)
+    vax_query = queries.VACCINATIONS_QUERY.format(partition_date=partition)
 
     session = Session()
     conn = session.connection()
