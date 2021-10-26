@@ -10,9 +10,9 @@ from tempfile import gettempdir, NamedTemporaryFile
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
-from orjson import dumps
 
 # 3rd party:
+from orjson import dumps
 
 # Internal:
 try:
