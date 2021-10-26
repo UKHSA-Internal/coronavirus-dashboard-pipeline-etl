@@ -78,11 +78,11 @@ if __name__ == '__main__':
     # ---------
     # WARNING:
     # Do not add today's date before release. Bad things will happen.
-    # from datetime import timedelta
     #
     from datetime import timedelta
 
     main({"timestamp": (datetime.now() - timedelta(days=0)).isoformat()})
 
-    with RedisClient() as redis_client:
-        redis_client.delete('[^area-]*')
+    # Remove non-area data
+    # with RedisClient() as redis_client:
+    #     redis_client.delete('[^area-]*')
