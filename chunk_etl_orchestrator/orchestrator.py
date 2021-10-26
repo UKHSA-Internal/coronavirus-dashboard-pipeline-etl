@@ -28,30 +28,6 @@ __all__ = [
 ]
 
 
-# def get_file_data(file_name: str):
-#     filename_pattern = re.compile(
-#         r"""
-#         ^(?P<prefix>[0-9-]{10})/
-#         (?P<area_type>MSOA)?_?
-#         (?P<category>[a-zA-Z0-9-]*)_?
-#         (?P<subcategory>[a-zA-Z0-9-]*)_
-#         (?P<timestamp>\d{12})\.parquet$
-#         """,
-#         re.IGNORECASE | re.VERBOSE
-#     )
-#
-#     found = filename_pattern.search(file_name)
-#
-#     if found is None:
-#         return None
-#
-#     metadata = found.groupdict()
-#     date = metadata["prefix"]
-#     area_type = metadata["area_type"]
-#     category = metadata["category"]
-#     subcategory = metadata["subcategory"]
-
-
 @Orchestrator.create
 def main(context: DurableOrchestrationContext):
     logging.info(f"Chunk ETL orchestrator has been triggered")
