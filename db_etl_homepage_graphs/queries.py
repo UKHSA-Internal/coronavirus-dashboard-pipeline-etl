@@ -15,9 +15,18 @@ VACCINATIONS_QUERY = """\
 SELECT first.area_type,
        first.area_code,
        MAX(first.date)              AS date,
-       MAX(FLOOR(first_dose))::INT  AS first_dose,
-       MAX(FLOOR(second_dose))::INT AS second_dose,
-       MAX(FLOOR(third_dose))::INT  AS third_dose
+       CASE
+           WHEN MAX(first_dose) ISNULL THEN 0::INT
+           ELSE MAX(FLOOR(first_dose))::INT
+       END AS first_dose,
+       CASE
+           WHEN MAX(second_dose) ISNULL THEN 0::INT
+           ELSE MAX(FLOOR(second_dose))::INT
+       END AS second_dose,
+       CASE
+           WHEN MAX(third_dose) ISNULL THEN 0::INT
+           ELSE MAX(FLOOR(third_dose))::INT
+       END AS third_dose
 FROM (
          SELECT area_type,
                 area_code,
@@ -51,7 +60,7 @@ FROM (
            AND (payload ->> 'value') NOTNULL
          GROUP BY area_type, area_code
      ) as first
-         JOIN (
+         FULL JOIN (
     SELECT area_type,
            area_code,
            MAX(date)                        AS date,
@@ -84,7 +93,7 @@ FROM (
       AND (payload ->> 'value') NOTNULL
     GROUP BY area_type, area_code
 ) AS second ON first.date = second.date AND first.area_code = second.area_code
- JOIN (
+ FULL JOIN (
     SELECT area_type,
            area_code,
            MAX(date)                        AS date,
