@@ -188,8 +188,8 @@ UK_structure = [
         },
         {
             "name": "Total people vaccinated &mdash; 3rd dose and booster",
-            "label": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage",
+            "label": "cumPeopleVaccinatedThirdInjectionByPublishDate",
+            "metric": "cumPeopleVaccinatedThirdInjectionByPublishDate",
         },
         {
             "name": "Vaccination uptake &mdash; 3rd dose and booster (%)",
