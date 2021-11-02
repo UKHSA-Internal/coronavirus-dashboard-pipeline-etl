@@ -154,7 +154,7 @@ def main(context: DurableOrchestrationContext):
         value = processor_fn(trigger_data["releaseTimestamp"])
 
         task = context.call_activity_with_retry(
-            "despatch_ops_cache_buster",
+            "despatch_ops_release",
             retry_options=retry_options,
             input_={
                 "path": item["path"],
