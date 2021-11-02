@@ -16,6 +16,8 @@ from orjson import loads
 # Internal:
 try:
     from __app__.storage import StorageClient
+    from __app__.despatch_ops_cache_buster import get_operations
+    from __app__.despatch_ops_release import ReleaseTimestamps
     from __app__.despatch_ops_workers.map_geojson import Device
     from __app__.db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference,
@@ -23,6 +25,8 @@ try:
     )
 except ImportError:
     from storage import StorageClient
+    from despatch_ops_cache_buster import get_operations
+    from despatch_ops_release import ReleaseTimestamps
     from despatch_ops_workers.map_geojson import Device
     from db_tables.covid19 import (
         ReleaseReference, AreaReference, MetricReference,
@@ -139,74 +143,43 @@ def main(context: DurableOrchestrationContext):
     )
     tasks.append(task)
 
-    # task = context.call_activity_with_retry(
-    #     "despatch_ops_workers",
-    #     retry_options=retry_options,
-    #     input_={
-    #         "handler": "generate_demog_downloads",
-    #         "payload": {"timestamp": trigger_data["timestamp"]}
-    #     }
-    # )
-    # tasks.append(task)
-
     context.set_custom_status("All jobs created - submitting for execution.")
     _ = yield context.task_all(tasks)
-    context.set_custom_status("All jobs complete.")
 
-    # tasks = list()
-    # context.set_custom_status("Requesting latest scale records.")
-    # area_types = ["nation", "region", "utla", "ltla", "msoa"]
-    # for area_type in area_types:
-    #     task = context.call_activity_with_retry(
-    #         "despatch_ops_workers",
-    #         retry_options=retry_options,
-    #         input_={
-    #             "handler": "latest_scale_records",
-    #             "payload": {
-    #                 "timestamp": trigger_data["timestamp"],
-    #                 "area_type": area_type
-    #             }
-    #         }
-    #     )
-    #     tasks.append(task)
-    #
-    # raw_scale_records = yield context.task_all(tasks)
-    # context.set_custom_status("Received latest scale records.")
-    #
-    # tasks = list()
-    # for item in raw_scale_records:
-    #     for record in item['records']:
-    #         task = context.call_activity_with_retry(
-    #             "despatch_ops_workers",
-    #             retry_options=retry_options,
-    #             input_={
-    #                 "handler": "scale_graphs",
-    #                 "payload": {
-    #                     "timestamp": item["timestamp"],
-    #                     "area_type": record['area_type'],
-    #                     "area_code": record['area_code'],
-    #                     "rate": record['rate'],
-    #                     "percentiles": item['percentiles'],
-    #                 }
-    #             }
-    #         )
-    #         tasks.append(task)
+    context.set_custom_status("All jobs complete - updating timestamps.")
 
+    tasks = list()
+    for item in ReleaseTimestamps:
+        processor_fn = item["process"]
+        value = processor_fn(trigger_data["releaseTimestamp"])
 
-    # task = context.call_activity_with_retry(
-    #     "despatch_ops_workers",
-    #     retry_options=retry_options,
-    #     input_={
-    #         "handler": "generate_msoa_data",
-    #         "payload": {
-    #             "timestamp": trigger_data["timestamp"]
-    #         }
-    #     }
-    # )
-    # tasks.append(task)
+        task = context.call_activity_with_retry(
+            "despatch_ops_cache_buster",
+            retry_options=retry_options,
+            input_={
+                "path": item["path"],
+                "container": item["container"],
+                "value": value
+            }
+        )
 
-    # context.set_custom_status("Submitting remaining jobs.")
-    # _ = yield context.task_all(tasks)
-    # context.set_custom_status("All jobs complete.")
+        tasks.append(task)
 
-    return f"DONE: {trigger_payload}"
+    _ = yield context.task_all(tasks)
+    context.set_custom_status("Timestamps updated - clearing Redis cache.")
+
+    tasks = list()
+    for payload in get_operations():
+        task = context.call_activity_with_retry(
+            "despatch_ops_cache_buster",
+            retry_options=retry_options,
+            input_=payload
+        )
+
+        tasks.append(task)
+
+    _ = yield context.task_all(tasks)
+
+    context.set_custom_status(f"ALL DONE: {trigger_payload}")
+
+    return f"ALL DONE: {trigger_payload}"
