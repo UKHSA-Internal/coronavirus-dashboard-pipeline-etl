@@ -36,14 +36,14 @@ class RedisClient:
         self._pipelines: List[Pipeline] = list()
         self._db = db
 
-    def __enter__(self, db):
-        self._db = db
         for creds in CREDENTIALS:
             host, port, password = creds.split(";")
             cli = Redis(host=host, port=port, password=password, db=self._db)
             pipeline = cli.pipeline()
             self._pipelines.append(pipeline)
             self._instances.append(cli)
+
+    def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
