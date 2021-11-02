@@ -31,14 +31,16 @@ class RedisClient:
     Client for handling operations on multiple Redis instances.
     """
 
-    def __init__(self):
+    def __init__(self, db=0):
         self._instances: List[Redis] = list()
         self._pipelines: List[Pipeline] = list()
+        self._db = db
 
-    def __enter__(self):
+    def __enter__(self, db):
+        self._db = db
         for creds in CREDENTIALS:
             host, port, password = creds.split(";")
-            cli = Redis(host=host, port=port, password=password, db=2)
+            cli = Redis(host=host, port=port, password=password, db=self._db)
             pipeline = cli.pipeline()
             self._pipelines.append(pipeline)
             self._instances.append(cli)
@@ -54,8 +56,26 @@ class RedisClient:
         for pipe in self._pipelines:
             pipe.set(data['key'], data['value'], ex=ttl)
 
-    def delete(self, key_pattern):
+    def delete_pattern(self, key_patterns):
+        for pipe, conn in zip(self._pipelines, self._instances):
+            for key in map(conn.keys, key_patterns):
+                pipe.delete(key)
+
+    def delete_keys(self, keys):
         for pipe in self._pipelines:
-            for conn in self._instances:
-                for key in conn.keys(key_pattern):
-                    pipe.delete(key)
+            for key in keys:
+                pipe.delete(key)
+
+    def expire_keys(self, keys, ttl):
+        for pipe in self._pipelines:
+            for key in keys:
+                pipe.expire(key, ttl)
+
+    def expire_pattern(self, ttl, key_patterns):
+        for pipe, conn in zip(self._pipelines, self._instances):
+            for key in map(conn.keys, key_patterns):
+                pipe.expire(key, ttl)
+
+    def flush_db(self):
+        for pipe in self._pipelines:
+            pipe.flushdb()
