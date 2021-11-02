@@ -65,7 +65,7 @@ def main(payload):
 
     data = retrieve_data(timestamp)
 
-    with RedisClient() as client:
+    with RedisClient(db=2) as client:
         data.apply(client.set_data, axis=1)
 
     logging.info(f"Done pre-populating the cache.")
