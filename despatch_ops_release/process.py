@@ -1,14 +1,5 @@
 #!/usr/bin python3
 
-"""
-<Description of the programme>
-
-Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
-Created:       02 Nov 2021
-License:       MIT
-Contributors:  Pouria Hadjibagheri
-"""
-
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
@@ -70,3 +61,5 @@ def main(payload):
 
     with StorageClient(**kws) as client:
         client.upload(value)
+
+    return f"DONE: {payload}"
