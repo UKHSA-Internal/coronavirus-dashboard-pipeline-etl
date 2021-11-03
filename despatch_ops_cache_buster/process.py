@@ -5,7 +5,6 @@
 # Python:
 from typing import Iterator
 from enum import IntEnum
-from json import loads, dumps
 
 # 3rd party:
 
@@ -54,14 +53,12 @@ CACHE_OPERATIONS = {
 
 def get_operations() -> Iterator:
     for db, operations in CACHE_OPERATIONS.items():
-        yield dumps({"db": db, "operations": operations})
+        yield {"db": db, "operations": operations}
 
 
 def main(payload):
-    data = loads(payload)
-
-    with RedisClient(db=data['db']) as cli:
-        for method, args in data['operations'].items():
+    with RedisClient(db=payload['db']) as cli:
+        for method, args in payload['operations'].items():
             func = getattr(cli, method)
 
             if isinstance(args, dict):
