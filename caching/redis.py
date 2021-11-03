@@ -6,6 +6,7 @@
 from typing import List
 from os import getenv
 from json import loads
+from itertools import chain
 
 # 3rd party:
 from redis import Redis
@@ -58,7 +59,7 @@ class RedisClient:
 
     def delete_pattern(self, key_patterns):
         for pipe, conn in zip(self._pipelines, self._instances):
-            for key in map(conn.keys, key_patterns):
+            for key in chain.from_iterable(map(conn.keys, key_patterns)):
                 pipe.delete(key)
 
     def delete_keys(self, keys):
@@ -73,7 +74,7 @@ class RedisClient:
 
     def expire_pattern(self, ttl, key_patterns):
         for pipe, conn in zip(self._pipelines, self._instances):
-            for key in map(conn.keys, key_patterns):
+            for key in chain.from_iterable(map(conn.keys, key_patterns)):
                 pipe.expire(key, ttl)
 
     def flush_db(self):
