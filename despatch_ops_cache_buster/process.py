@@ -5,6 +5,7 @@
 # Python:
 from typing import Iterator
 from enum import IntEnum
+from json import loads
 
 # 3rd party:
 
@@ -57,18 +58,20 @@ def get_operations() -> Iterator:
 
 
 def main(payload):
-    with RedisClient(db=payload['db']) as cli:
-        for method, payload in payload['operations'].items():
+    data = payload["data"]
+
+    with RedisClient(db=data['db']) as cli:
+        for method, args in data['operations'].items():
             func = getattr(cli, method)
 
-            if isinstance(payload, dict):
-                func(**payload)
-            elif isinstance(payload, (list, str, int, float)):
-                func(payload)
+            if isinstance(args, dict):
+                func(**args)
+            elif isinstance(args, (list, str, int, float)):
+                func(args)
             else:
                 raise TypeError(
                     "expected one of dict, list, str, int, or float, "
-                    "got '%s' instead" % type(payload)
+                    "got '%s' instead" % type(args)
                 )
 
     return f"DONE: {payload}"
