@@ -35,7 +35,7 @@ class CacheDatabase(IntEnum):
 CACHE_OPERATIONS = {
     CacheDatabase.GENERIC_API: {
         "delete_pattern": {
-            "key_pattern": [
+            "key_patterns": [
                 "*v[12]/data*",
                 "*/generic/soa/msoa/*"
             ]
@@ -43,7 +43,7 @@ CACHE_OPERATIONS = {
     },
     CacheDatabase.SUMMARY: {
         "delete_pattern": {
-            "key_pattern": [
+            "key_patterns": [
                 "[^area]*"
             ]
         }
