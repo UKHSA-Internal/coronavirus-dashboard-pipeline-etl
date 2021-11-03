@@ -60,8 +60,15 @@ def main(payload):
     with RedisClient(db=payload['db']) as cli:
         for method, payload in payload['operations'].items():
             func = getattr(cli, method)
-            if isinstance(payload, (list, str, int, float)):
+
+            if isinstance(payload, dict):
+                func(**payload)
+            elif isinstance(payload, (list, str, int, float)):
                 func(payload)
             else:
-                # It's a dict
-                func(**payload)
+                raise TypeError(
+                    "expected one of dict, list, str, int, or float, "
+                    "got '%s' instead" % type(payload)
+                )
+
+    return f"DONE: {payload}"
