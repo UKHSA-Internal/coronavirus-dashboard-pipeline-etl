@@ -29,15 +29,9 @@ WHERE
       ts.release_id IN (
           SELECT rr.id 
           FROM covid19.release_reference AS rr
-          WHERE 
-                rr.id NOT IN (
-                    SELECT rs.release_id
-                    FROM covid19.release_stats AS rs
-                )
-            AND DATE(rr.timestamp) = '{datestamp}'
+          WHERE rr.timestamp::DATE = '{datestamp}'::DATE
       )
-  AND 
-  ts.partition_id = ANY('{partitions}'::VARCHAR[])
+  AND ts.partition_id = ANY('{partitions}'::VARCHAR[])
 GROUP BY ts.release_id
 ON CONFLICT ( release_id ) DO
     UPDATE SET record_count = EXCLUDED.record_count;\
