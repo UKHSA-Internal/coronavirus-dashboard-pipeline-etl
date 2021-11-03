@@ -173,9 +173,7 @@ def main(context: DurableOrchestrationContext):
         task = context.call_activity_with_retry(
             "despatch_ops_cache_buster",
             retry_options=retry_options,
-            input_={
-                "data": payload
-            }
+            input_=payload
         )
 
         tasks.append(task)
