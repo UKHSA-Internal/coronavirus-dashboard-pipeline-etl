@@ -15,10 +15,10 @@ from azure.durable_functions import (
 
 # Internal:
 try:
-    from __app__.utilities.data_files import parse_filepath
+    from __app__.utilities.data_files import parse_filepath, category_label
     from __app__.data_registration import register_file
 except ImportError:
-    from utilities.data_files import parse_filepath
+    from utilities.data_files import parse_filepath, category_label
     from data_registration import register_file
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,8 +64,11 @@ def main(context: DurableOrchestrationContext):
     )
     timestamp = timestamp_raw.isoformat()
 
-    # if not context.is_replaying:
-    #     register_file(filepath=file_name, timestamp=timestamp_raw)
+    main_path = trigger_data['fileName']
+    if main_path.endswith("json"):
+        process_name = "MAIN"
+    else:
+        process_name = category_label(metadata)
 
     msg = (
         f'Starting to upload pre-processed data: '
@@ -75,13 +78,16 @@ def main(context: DurableOrchestrationContext):
     if (metadata["area_type"], metadata["category"]) == ("MSOA", "vaccinations-by-vaccination-date"):
         logging.info(msg)
         context.set_custom_status(msg)
+
+        process_name = "MSOA: VACCINATION - EVENT DATE"
+
         _ = yield context.call_activity_with_retry(
             "chunk_db_direct",
             input_={
                 'data_path': file_name,
                 'area_type': metadata["area_type"],
                 'timestamp': timestamp,
-                'process_name': "MSOA: VACCINATION - EVENT DATE"
+                'process_name': process_name
             },
             retry_options=retry_twice_opts
         )
@@ -91,13 +97,16 @@ def main(context: DurableOrchestrationContext):
     elif (metadata["area_type"], metadata["category"]) == ("MSOA", "cases-by-specimen-date"):
         logging.info(msg)
         context.set_custom_status(msg)
+
+        process_name = "MSOA"
+
         _ = yield context.call_sub_orchestrator_with_retry(
             "msoa_etl_orchestrator",
             input_=dumps({
                 'data_path': file_name,
                 'area_type': metadata["area_type"],
                 'timestamp': timestamp,
-                'process_name': "MSOA",
+                'process_name': process_name,
                 'main_data_path': file_name
             }),
             retry_options=retry_twice_opts
@@ -195,6 +204,7 @@ def main(context: DurableOrchestrationContext):
         'db_etl_update_db',
         input_=dict(
             date=f"{timestamp_raw:%Y-%m-%d}",
+            process_name=process_name,
             environment=trigger_data['environment']
         ),
         retry_options=retry_twice_opts

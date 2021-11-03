@@ -207,6 +207,7 @@ def main(context: DurableOrchestrationContext):
         'db_etl_update_db',
         input_=dict(
             date=f"{now:%Y-%m-%d}",
+            process_name=process_name,
             environment=trigger_data.get('environment', "PRODUCTION")
         ),
         retry_options=retry_options
