@@ -7,6 +7,7 @@ from typing import List
 from os import getenv
 from json import loads
 from itertools import chain
+from functools import partial
 
 # 3rd party:
 from redis import Redis
@@ -25,6 +26,7 @@ __all__ = [
 CACHE_TTL = 36 * 60 * 60  # 36 hours in seconds
 
 CREDENTIALS = loads(getenv("REDIS", "[]"))
+API_ENV = getenv("API_ENV")
 
 
 class RedisClient:
@@ -37,10 +39,14 @@ class RedisClient:
         self._pipelines: List[Pipeline] = list()
         self._db = db
 
-        for creds in CREDENTIALS:
+        for index, creds in enumerate(CREDENTIALS):
+            if API_ENV != "PRODUCTION" and index > 0:
+                continue
+
             host, port, password = creds.split(";")
             cli = Redis(host=host, port=port, password=password, db=self._db)
             pipeline = cli.pipeline()
+
             self._pipelines.append(pipeline)
             self._instances.append(cli)
 
@@ -53,13 +59,17 @@ class RedisClient:
             pipeline.close()
             cli.close()
 
+    def _keys_from_pattern(self, conn, *patterns):
+        fn = partial(conn.scan_iter, count=1000)
+        return chain.from_iterable(map(fn, patterns))
+
     def set_data(self, data: Series, ttl=CACHE_TTL):
         for pipe in self._pipelines:
             pipe.set(data['key'], data['value'], ex=ttl)
 
     def delete_pattern(self, key_patterns):
         for pipe, conn in zip(self._pipelines, self._instances):
-            for key in chain.from_iterable(map(conn.keys, key_patterns)):
+            for key in self._keys_from_pattern(conn, *key_patterns):
                 pipe.delete(key)
 
     def delete_keys(self, keys):
@@ -74,7 +84,7 @@ class RedisClient:
 
     def expire_pattern(self, ttl, key_patterns):
         for pipe, conn in zip(self._pipelines, self._instances):
-            for key in chain.from_iterable(map(conn.keys, key_patterns)):
+            for key in self._keys_from_pattern(conn, *key_patterns):
                 pipe.expire(key, ttl)
 
     def flush_db(self):
