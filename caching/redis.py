@@ -90,3 +90,7 @@ class RedisClient:
     def flush_db(self):
         for pipe in self._pipelines:
             pipe.flushdb()
+
+    def delete_hash_fields(self, key, *fields):
+        for pipe in self._pipelines:
+            pipe.hdel(key, *fields)
