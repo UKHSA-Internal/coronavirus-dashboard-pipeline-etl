@@ -3,17 +3,21 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
-from json import loads
+from json import loads, dumps
+from datetime import datetime
+from hashlib import blake2b
 
 # 3rd party:
 from azure.functions import HttpRequest, HttpResponse
-from sqlalchemy.sql import exists
+from sqlalchemy.exc import IntegrityError
 
 # Internal: 
 try:
     from __app__.db_tables.covid19 import Session, ProcessedFile
+    from __app__.data_registration import register_file
 except ImportError:
     from db_tables.covid19 import Session, ProcessedFile
+    from data_registration import register_file
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Header
@@ -28,22 +32,6 @@ __all__ = [
 ]
 
 
-def file_exists(file_name):
-    session = Session()
-    try:
-        resp = session.query(
-            exists()
-            .where(ProcessedFile.file_path == file_name)
-        ).scalar()
-
-        return resp
-    except Exception as err:
-        session.rollback()
-        raise err
-    finally:
-        session.close()
-
-
 async def main(req: HttpRequest) -> HttpResponse:
     body = req.get_body()
     data = loads(body)
@@ -53,8 +41,17 @@ async def main(req: HttpRequest) -> HttpResponse:
     if file_name is None:
         return HttpResponse(None, status_code=400)
 
-    found = file_exists(file_name=file_name)
-    if found:
+    instance_id = blake2b(file_name.encode())
+    try:
+        register_file(
+            filepath=file_name,
+            timestamp=datetime.utcnow(),
+            instance_id=instance_id.hexdigest()
+        )
+    except IntegrityError:
         return HttpResponse(None, status_code=403)
 
-    return HttpResponse(None, status_code=204)
+    response = dumps({
+        "instance_id": instance_id
+    })
+    return HttpResponse(response, status_code=204)
