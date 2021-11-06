@@ -35,8 +35,13 @@ async def main(req: HttpRequest, starter: str) -> HttpResponse:
     payload = dumps(parsed_payload, separators=(',', ':'))
 
     func_name = req.route_params["functionName"]
+    instance_id = req.params.get("instance_id", None)
 
-    instance_id = await client.start_new(func_name, client_input=payload)
+    instance_id = await client.start_new(
+        func_name,
+        client_input=payload,
+        instance_id=instance_id
+    )
 
     logging.info(f"Started orchestration for '{func_name}' with ID = '{instance_id}'.")
 
