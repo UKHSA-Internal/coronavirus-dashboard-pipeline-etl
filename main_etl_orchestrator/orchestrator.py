@@ -69,14 +69,14 @@ def main(context: DurableOrchestrationContext):
         microsecond=now.microsecond
     )
 
-    if not context.is_replaying:
-        # Sleep for a random period to allow de-sync
-        # concurrent triggers.
-        sleep_time = random() * 10
-        sleep(sleep_time)
-
-        logging.info(f"Not replaying - registering '{file_name}'")
-        register_file(filepath=file_name, timestamp=now, instance_id=context.instance_id)
+    # if not context.is_replaying:
+    #     # Sleep for a random period to allow de-sync
+    #     # concurrent triggers.
+    #     sleep_time = random() * 10
+    #     sleep(sleep_time)
+    #
+    #     logging.info(f"Not replaying - registering '{file_name}'")
+    #     register_file(filepath=file_name, timestamp=now, instance_id=context.instance_id)
 
     if not file_name.endswith("json"):
         context.set_custom_status(f"Identified as non-JSON: {file_name}.")
