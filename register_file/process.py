@@ -41,12 +41,12 @@ async def main(req: HttpRequest) -> HttpResponse:
     if file_name is None:
         return HttpResponse(None, status_code=400)
 
-    instance_id = blake2b(file_name.encode())
+    instance_id = blake2b(file_name.encode()).hexdigest()
     try:
         register_file(
             filepath=file_name,
             timestamp=datetime.utcnow(),
-            instance_id=instance_id.hexdigest()
+            instance_id=instance_id
         )
     except IntegrityError:
         return HttpResponse(None, status_code=403)
