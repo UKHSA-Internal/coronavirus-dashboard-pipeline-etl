@@ -6,7 +6,7 @@
       "name": "req",
       "type": "httpTrigger",
       "direction": "in",
-      "route": "assert_chunk_freshness",
+      "route": "register_file",
       "methods": [
         "post"
       ]
