@@ -54,4 +54,4 @@ async def main(req: HttpRequest) -> HttpResponse:
     response = dumps({
         "instance_id": instance_id
     })
-    return HttpResponse(response, status_code=204)
+    return HttpResponse(response, status_code=200, headers={"content-type": "application/json"})
