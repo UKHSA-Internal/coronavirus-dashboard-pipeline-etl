@@ -40,9 +40,6 @@ class RedisClient:
         self._db = db
 
         for index, creds in enumerate(CREDENTIALS):
-            if API_ENV != "PRODUCTION" and index > 0:
-                continue
-
             host, port, password = creds.split(";")
             cli = Redis(host=host, port=port, password=password, db=self._db)
             pipeline = cli.pipeline()
