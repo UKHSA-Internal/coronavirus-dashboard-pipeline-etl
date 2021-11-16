@@ -171,8 +171,10 @@ def process(data: DataFrame) -> DataFrame:
             var_name="metric",
             value_name="payload"
         )
-        .pipe(trim_sides)
     )
+
+    if "msoa" not in data.areaType:
+        data = trim_sides(data)
 
     data.payload = data.payload.map(convert)
 
