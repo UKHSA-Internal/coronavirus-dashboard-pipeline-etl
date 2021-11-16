@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from datetime import datetime
 
 # 3rd party:
-from pandas import DataFrame, to_datetime, read_parquet
+from pandas import DataFrame, to_datetime, read_parquet, isna
 from sqlalchemy import select, func, join, and_
 
 # Internal:
@@ -151,7 +151,7 @@ def get_release_id(datestamp: datetime, process_name: str) -> Tuple[int, datetim
 
 
 def convert(x):
-    if not x:
+    if isna(x):
         return {"value": None}
 
     try:
