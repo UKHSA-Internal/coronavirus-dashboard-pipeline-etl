@@ -45,7 +45,8 @@ __all__ = [
     'get_partition_id',
     'get_release',
     'create_partition',
-    'deploy_preprocessed_long'
+    'deploy_preprocessed_long',
+    'trim_sides'
 ]
 
 RECORD_KEY = getenv("RECORD_KEY").encode()
