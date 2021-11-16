@@ -173,7 +173,7 @@ def process(data: DataFrame) -> DataFrame:
         )
     )
 
-    if data.areaType.str.contains("msoa").all():
+    if not data.areaType.str.contains("msoa").all():
         data = trim_sides(data)
 
     data.payload = data.payload.map(convert)
