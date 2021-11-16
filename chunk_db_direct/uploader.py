@@ -19,7 +19,7 @@ try:
     from __app__.db_etl.processors.rolling import change_by_sum
     from __app__.db_etl.homogenisation import homogenise_dates
     from __app__.db_etl_upload import (
-        deploy_preprocessed_long, get_partition_id, create_partition
+        deploy_preprocessed_long, get_partition_id, create_partition, trim_sides
     )
     from __app__.db_tables.covid19 import (
         Session, ReleaseReference, AreaReference, MetricReference, ReleaseCategory
@@ -33,7 +33,7 @@ except ImportError:
         Session, ReleaseReference, AreaReference, MetricReference, ReleaseCategory
     )
     from db_etl_upload import (
-        deploy_preprocessed_long, get_partition_id, create_partition
+        deploy_preprocessed_long, get_partition_id, create_partition, trim_sides
     )
     from data_registration import set_file_releaseid
 
@@ -155,8 +155,7 @@ def convert(x):
         return {"value": None}
 
     try:
-        int_x = int(x)
-        if int_x == x:
+        if (int_x := int(x)) == x:
             return {"value": int_x}
     except Exception:
         pass
@@ -165,12 +164,18 @@ def convert(x):
 
 
 def process(data: DataFrame) -> DataFrame:
-    data = data.melt(
-        id_vars=["areaType", "areaCode", "date"],
-        var_name="metric",
-        value_name="payload"
+    data = (
+        data
+        .melt(
+            id_vars=["areaType", "areaCode", "date"],
+            var_name="metric",
+            value_name="payload"
+        )
+        .pipe(trim_sides)
     )
+
     data.payload = data.payload.map(convert)
+
     return data
 
 
