@@ -90,7 +90,7 @@ FROM (
                       LEFT JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
                       LEFT JOIN covid19.metric_reference AS mr ON mr.id = metric_id
                       LEFT JOIN covid19.geo_data AS geo ON ar.id = geo.area_id
-             WHERE mr.metric = 'cumVaccinationCompleteCoverageByVaccinationDatePercentage'
+             WHERE mr.metric = 'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage'
                AND (payload ->> 'value') NOTNULL -- value (JSON attribute)
                AND date IN (
                  SELECT MAX(date)
@@ -107,7 +107,7 @@ FROM (
                           LEFT JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
                           LEFT JOIN covid19.metric_reference AS mr ON mr.id = metric_id
                           LEFT JOIN covid19.geo_data AS geo ON ar.id = geo.area_id
-                 WHERE mr.metric = 'cumVaccinationCompleteCoverageByVaccinationDatePercentage'
+                 WHERE mr.metric = 'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage'
                    AND (payload ->> 'value') NOTNULL -- value (JSON attribute)
                    AND date IN (
                      SELECT MAX(date)
@@ -125,7 +125,7 @@ FROM (
                           LEFT JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
                           LEFT JOIN covid19.metric_reference AS mr ON mr.id = metric_id
                           LEFT JOIN covid19.geo_data AS geo ON ar.id = geo.area_id
-                 WHERE mr.metric = 'cumVaccinationCompleteCoverageByVaccinationDatePercentage'
+                 WHERE mr.metric = 'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage'
                    AND (payload ->> 'value') NOTNULL -- value (JSON attribute)
                    AND date IN (
                      SELECT MAX(date)
