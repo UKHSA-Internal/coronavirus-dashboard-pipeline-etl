@@ -107,7 +107,7 @@ def get_release_id(datestamp: datetime, process_name: str) -> Tuple[int, datetim
         )
         .where(
             and_(
-                func.DATE(ReleaseReference.timestamp) == func.DATE(datestamp.isoformat()),
+                func.DATE(ReleaseReference.timestamp) == datestamp.date(),
                 ReleaseCategory.process_name == process_name
             )
         )
@@ -128,19 +128,18 @@ def get_release_id(datestamp: datetime, process_name: str) -> Tuple[int, datetim
     finally:
         session.close()
 
+    session = Session(autocommit=True)
     try:
         release = ReleaseReference(timestamp=datestamp)
-        session.begin()
         session.add(release)
-        session.commit()
+        session.flush()
 
         category = ReleaseCategory(
             release_id=release.id,
             process_name=process_name
         )
-        session.begin()
         session.add(category)
-        session.commit()
+        session.flush()
     except Exception as err:
         session.rollback()
         raise err
