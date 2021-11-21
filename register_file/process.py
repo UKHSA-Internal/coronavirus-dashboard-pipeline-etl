@@ -3,6 +3,7 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
+import re
 from json import loads, dumps
 from datetime import datetime
 from hashlib import blake2b
@@ -32,6 +33,9 @@ __all__ = [
 ]
 
 
+file_pattern = re.compile(r"^(.+_20\d{2}[01]\d{3})\d+(\.\w+)$")
+
+
 async def main(req: HttpRequest) -> HttpResponse:
     body = req.get_body()
     data = loads(body)
@@ -41,7 +45,8 @@ async def main(req: HttpRequest) -> HttpResponse:
     if file_name is None:
         return HttpResponse(None, status_code=400)
 
-    instance_id = blake2b(file_name.encode()).hexdigest()
+    hashable_filename = str.join("", file_pattern.search(file_name).groups())
+    instance_id = blake2b(hashable_filename.encode()).hexdigest()
     try:
         register_file(
             filepath=file_name,
