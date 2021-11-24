@@ -431,7 +431,10 @@ FILL_WITH_ZEROS = {
     # Vaccine demogs
     'newPeopleVaccinatedCompleteByVaccinationDate',
     'newPeopleVaccinatedFirstDoseByVaccinationDate',
-    'newPeopleVaccinatedSecondDoseByVaccinationDate'
+    'newPeopleVaccinatedSecondDoseByVaccinationDate',
+
+    'newVirusTestsBySpecimenDate',
+    'newPCRTestsBySpecimenDate',
 }
 
 
@@ -467,6 +470,9 @@ START_WITH_ZERO = {
     'cumVaccinationCompleteCoverageByVaccinationDatePercentage',
     'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage',
     'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage',
+
+    'cumVirusTestsBySpecimenDate',
+    'cumPCRTestsBySpecimenDate',
 }
 
 
