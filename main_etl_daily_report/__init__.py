@@ -1,7 +1,7 @@
 #!/usr/bin python3
 
 """
-<Description of the programme>
+Generator of daily private report emails.
 
 Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
 Created:       08 Sep 2020
@@ -23,5 +23,5 @@ from .report import *
 __author__ = "Pouria Hadjibagheri"
 __copyright__ = "Copyright (c) 2020, Public Health England"
 __license__ = "MIT"
-__version__ = "0.0.1"
+__version__ = "2.5.0"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
