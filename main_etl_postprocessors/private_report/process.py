@@ -1,14 +1,5 @@
 #!/usr/bin python3
 
-"""
-<Description of the programme>
-
-Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
-Created:       08 Sep 2021
-License:       MIT
-Contributors:  Pouria Hadjibagheri
-"""
-
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
@@ -32,12 +23,6 @@ except ImportError:
     from db_tables.covid19 import Session, PrivateReport
     from main_etl_postprocessors.private_report.queries import MAIN_QUERY, OUTPUT_DATA
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Header
-__author__ = "Pouria Hadjibagheri"
-__copyright__ = "Copyright (c) 2021, Public Health England"
-__license__ = "MIT"
-__version__ = "0.0.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
@@ -79,6 +64,9 @@ METRICS = [
     'newPeopleVaccinatedSecondDoseByPublishDate',
     'cumPeopleVaccinatedSecondDoseByPublishDate',
     'cumVaccinationSecondDoseUptakeByPublishDatePercentage',
+    'newPeopleVaccinatedThirdInjectionByPublishDate',
+    'cumPeopleVaccinatedThirdInjectionByPublishDate',
+    'cumVaccinationThirdInjectionUptakeByPublishDatePercentage',
     'newVaccinesGivenByPublishDate',
     'cumVaccinesGivenByPublishDate'
 ]
@@ -186,6 +174,23 @@ structure = [
             "name": "Vaccination uptake &mdash; 2nd dose (%)",
             "label": "cumVaccinationSecondDoseUptakeByPublishDatePercentage",
             "metric": "cumVaccinationSecondDoseUptakeByPublishDatePercentage"
+        },
+    ],
+    [
+        {
+            "name": "New people vaccinated &mdash; 3rd dose + booster",
+            "label": "newPeopleVaccinatedThirdInjectionByPublishDate",
+            "metric": "newPeopleVaccinatedThirdInjectionByPublishDate",
+        },
+        {
+            "name": "Total people vaccinated &mdash; 3rd dose + booster",
+            "label": "cumPeopleVaccinatedThirdInjectionByPublishDate",
+            "metric": "cumPeopleVaccinatedThirdInjectionByPublishDate",
+        },
+        {
+            "name": "Vaccination uptake &mdash; 3rd dose + booster (%)",
+            "label": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage",
+            "metric": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage"
         },
     ],
     [
