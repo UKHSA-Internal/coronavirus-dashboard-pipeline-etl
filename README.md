@@ -33,4 +33,4 @@ This service is developed and maintained by [UK Health Security Agency](https://
 
 ---
 
-Copyright (c) 2020-2021 Public Health England
+Copyright (c) 2020-2021 UK Health Security Agency
