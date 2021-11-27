@@ -1,31 +1,5 @@
 #!/usr/bin python3
 
-"""
-<Description of the programme>
-
-Author:        Pouria Hadjibagheri <pouria.hadjibagheri@phe.gov.uk>
-Created:       08 Sep 2021
-License:       MIT
-Contributors:  Pouria Hadjibagheri
-"""
-
-# Imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Python:
-
-# 3rd party:
-
-# Internal: 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Header
-__author__ = "Pouria Hadjibagheri"
-__copyright__ = "Copyright (c) 2021, Public Health England"
-__license__ = "MIT"
-__version__ = "0.0.1"
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 MAIN_QUERY = """\
 WITH data AS (
     SELECT MAX(release_id) AS release_id,
