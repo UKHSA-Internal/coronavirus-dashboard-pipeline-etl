@@ -9,6 +9,7 @@ from typing import Dict, Callable, Union, Any
 
 # Internal:
 from .vaccinations import process_vaccinations
+from .testing import process_testing
 from .timestamp_boxplots import process as process_boxplots
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +26,8 @@ def main(payload):
     # ToDo: This needs to be implemented as a piping process.
 
     handlers: HandlerType = {
-        "vaccination": process_vaccinations
+        "vaccination": process_vaccinations,
+        "tests": process_testing
     }
 
     category = payload["category"]
