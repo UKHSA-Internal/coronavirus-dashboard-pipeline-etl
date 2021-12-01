@@ -216,8 +216,8 @@ VALUE_COLUMNS = (
 
     'newLFDTests',
     'cumLFDTests',
-    'newVirusTests',
-    'cumVirusTests',
+    'newVirusTestsByPublishDate',
+    'cumVirusTestsByPublishDate',
 
     "newOnsCareHomeDeathsByRegistrationDate",
     "cumOnsCareHomeDeathsByRegistrationDate",
@@ -513,7 +513,7 @@ SUM_CHANGE_DIRECTION = {
     'newAdmissions',
     'newDeaths28DaysByPublishDate',
     'newPCRTestsByPublishDate',
-    'newVirusTests'
+    'newVirusTestsByPublishDate'
 }
 
 
