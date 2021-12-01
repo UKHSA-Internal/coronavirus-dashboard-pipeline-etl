@@ -103,8 +103,8 @@ UK_structure = [
     [
         {
             "name": "Virus tests conducted",
-            "label": "newVirusTests",
-            "metric": "newVirusTests"
+            "label": "newVirusTestsByPublishDate",
+            "metric": "newVirusTestsByPublishDate"
         },
         {
             "name": "PCR tests conducted",

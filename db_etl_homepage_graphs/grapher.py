@@ -32,7 +32,7 @@ metrics = [
     'newAdmissions',
     'newCasesByPublishDate',
     'newDeaths28DaysByPublishDate',
-    'newVirusTests'
+    'newVirusTestsByPublishDate'
 ]
 
 
