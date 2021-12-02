@@ -265,6 +265,10 @@ VALUE_COLUMNS = (
     "cumVaccinationFirstDoseUptakeByPublishDatePercentage",
     "cumVaccinationSecondDoseUptakeByPublishDatePercentage",
     "cumVaccinationCompleteCoverageByPublishDatePercentage",
+
+    "cumPeopleVaccinatedThirdInjectionByVaccinationDate",
+    "newPeopleVaccinatedThirdInjectionByVaccinationDate",
+    "cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage",
 )
 
 
@@ -424,14 +428,11 @@ FILL_WITH_ZEROS = {
     'newCasesLFDOnlyBySpecimenDate',
     'newCasesLFDConfirmedPCRBySpecimenDate',
 
-    'newPeopleVaccinatedFirstDoseByVaccinationDate',
-    'newPeopleVaccinatedSecondDoseByVaccinationDate',
-    'newPeopleVaccinatedCompleteByVaccinationDate',
-
     # Vaccine demogs
-    'newPeopleVaccinatedCompleteByVaccinationDate',
     'newPeopleVaccinatedFirstDoseByVaccinationDate',
     'newPeopleVaccinatedSecondDoseByVaccinationDate',
+    'newPeopleVaccinatedCompleteByVaccinationDate',
+    'newPeopleVaccinatedThirdInjectionByVaccinationDate',
 
     'newVirusTestsBySpecimenDate',
     'newPCRTestsBySpecimenDate',
@@ -451,25 +452,16 @@ START_WITH_ZERO = {
     'cumCasesLFDOnlyBySpecimenDate',
     'cumCasesLFDConfirmedPCRBySpecimenDate',
 
-    # 'cumVaccinationFirstDoseUptakeByPublishDatePercentage',
-    # 'cumVaccinationSecondDoseUptakeByPublishDatePercentage',
-    # 'cumVaccinationCompleteCoverageByPublishDatePercentage',
-
+    # Vaccine demogs
     'cumPeopleVaccinatedFirstDoseByVaccinationDate',
     'cumPeopleVaccinatedSecondDoseByVaccinationDate',
+    'cumPeopleVaccinatedThirdInjectionByVaccinationDate',
     'cumPeopleVaccinatedCompleteByVaccinationDate',
     'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage',
     'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage',
+    'cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage',
     'cumVaccinationCompleteCoverageByVaccinationDatePercentage',
     'VaccineRegisterPopulationByVaccinationDate',
-
-    # Vaccine demogs
-    'cumPeopleVaccinatedCompleteByVaccinationDate',
-    'cumPeopleVaccinatedFirstDoseByVaccinationDate',
-    'cumPeopleVaccinatedSecondDoseByVaccinationDate',
-    'cumVaccinationCompleteCoverageByVaccinationDatePercentage',
-    'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage',
-    'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage',
 
     'cumVirusTestsBySpecimenDate',
     'cumPCRTestsBySpecimenDate',
