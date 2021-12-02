@@ -27,7 +27,9 @@ FROM (
            CASE 
              WHEN today.metric = 'newPeopleVaccinatedFirstDoseByVaccinationDate'
                THEN 'newPeopleVaccinatedFirstDoseByPublishDate'
-             ELSE 'newPeopleVaccinatedSecondDoseByPublishDate'
+             WHEN today.metric = 'newPeopleVaccinatedSecondDoseByVaccinationDate'
+               THEN 'newPeopleVaccinatedSecondDoseByPublishDate'
+             ELSE 'newPeopleVaccinatedThirdInjectionByPublishDate'
            END AS metric,
            today.release_id,
            today.date,
@@ -55,7 +57,8 @@ FROM (
                  JOIN covid19.release_category   AS rc ON rc.release_id = rr.id
         WHERE metric IN (
                 'newPeopleVaccinatedFirstDoseByVaccinationDate', 
-                'newPeopleVaccinatedSecondDoseByVaccinationDate'
+                'newPeopleVaccinatedSecondDoseByVaccinationDate',
+                'newPeopleVaccinatedThirdInjectionByVaccinationDate'
             )
           AND (payload ->> 'value') NOTNULL
           AND process_name = 'VACCINATION'
@@ -77,7 +80,8 @@ FROM (
                  JOIN covid19.release_category   AS rc ON rc.release_id = rr.id
         WHERE metric IN (
                 'newPeopleVaccinatedFirstDoseByVaccinationDate', 
-                'newPeopleVaccinatedSecondDoseByVaccinationDate'
+                'newPeopleVaccinatedSecondDoseByVaccinationDate',
+                'newPeopleVaccinatedThirdInjectionByVaccinationDate'
             )
           AND (payload ->> 'value') NOTNULL
           AND process_name = 'VACCINATION'
@@ -104,7 +108,9 @@ FROM (
            CASE 
              WHEN MAX(metric) = 'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage'
                THEN 'cumVaccinationFirstDoseUptakeByPublishDatePercentage'
-             ELSE 'cumVaccinationSecondDoseUptakeByPublishDatePercentage'
+             WHEN MAX(metric) = 'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage'
+               THEN 'cumVaccinationSecondDoseUptakeByPublishDatePercentage'
+             ELSE 'cumVaccinationThirdInjectionUptakeByPublishDatePercentage'
            END AS metric,
            area_type,
            area_code,
@@ -118,7 +124,8 @@ FROM (
              JOIN covid19.release_category   AS rc ON rc.release_id = rr.id
     WHERE metric IN (
             'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage',
-            'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage'
+            'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage',
+            'cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage'
         )
       AND (payload ->> 'value') NOTNULL
       AND process_name = 'VACCINATION'
