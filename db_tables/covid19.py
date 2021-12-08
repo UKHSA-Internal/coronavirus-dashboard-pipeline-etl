@@ -41,7 +41,8 @@ __all__ = [
     'MetricAssetToMetric',
     'PrivateReport',
     'Despatch',
-    'DespatchToRelease'
+    'DespatchToRelease',
+    'ReportRecipient'
 ]
 
 DB_INSERT_MAX_ROWS = 8_000
@@ -387,3 +388,17 @@ class PrivateReport(base):
         PrimaryKeyConstraint(id, slug_id),
         {'schema': 'covid19'}
     )
+
+
+class ReportRecipient(base):
+    __tablename__ = "report_recipients"
+
+    id = Column("id", UUID(), unique=True, nullable=False, primary_key=True, default=uuid4)
+    recipient = Column("recipient", VARCHAR(255), nullable=False, unique=True)
+    note = Column("note", TEXT(), nullable=True)
+    date_added = Column("date_added", TIMESTAMP(timezone=False), nullable=False, default=datetime.utcnow)
+    created_by = Column("created_by", INTEGER(), nullable=False)
+    approved_by = Column("approved_by", INTEGER(), nullable=True)
+    deactivated = Column("deactivated", BOOLEAN(), nullable=False, default=False)
+
+    __table_args__ = {'schema': 'covid19'}
