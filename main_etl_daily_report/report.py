@@ -20,18 +20,18 @@ from functools import reduce
 
 # 3rd party:
 from pandas import DataFrame
-from sqlalchemy import text
+from sqlalchemy import text, select, and_, not_
 from requests import post
 from jinja2 import FileSystemLoader, Environment
 
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.db_tables.covid19 import Session
+    from __app__.db_tables.covid19 import Session, ReportRecipient
     from __app__.main_etl_postprocessors.private_report import get_record_id
 except ImportError:
     from storage import StorageClient
-    from db_tables.covid19 import Session
+    from db_tables.covid19 import Session, ReportRecipient
     from main_etl_postprocessors.private_report import get_record_id
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,6 +321,24 @@ def extract_latest_data(date):
     return output
 
 
+def get_email_recipients():
+    session = Session()
+
+    query = session.execute(
+        select([
+            ReportRecipient.recipient
+        ])
+        .where(
+            and_(
+                ReportRecipient.deactivated == False,
+                not_(ReportRecipient.approved_by == None)
+            )
+        )
+    )
+
+    return [item[0] for item in query]
+
+
 def main(payload):
     logging.info(
         f"Daily report triggered in environment '{ENVIRONMENT}' with "
@@ -355,7 +373,8 @@ def main(payload):
         url=URL,
         data=dumps({
             "body": html_data,
-            **{key: str.join("; ", value) for key, value in email_data.items()}
+            "to": "COVID19.Dashboard.Data@phe.gov.uk",
+            "bcc": str.join("; ", get_email_recipients())
         }),
         headers={"token": TOKEN, "Content-Type": "application/json"}
     )
