@@ -27,7 +27,7 @@ def main(payload):
 
     handlers: HandlerType = {
         "vaccination": process_vaccinations,
-        "tests": process_testing
+        # "tests": process_testing  # ToDo: Deprecated - to be removed.
     }
 
     category = payload["category"]
