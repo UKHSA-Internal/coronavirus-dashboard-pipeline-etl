@@ -237,7 +237,7 @@ FROM (
             JOIN covid19.metric_reference AS mr ON mr.id = metric_id
             JOIN covid19.area_reference AS ref ON ref.id = area_id
         WHERE ts.date > (NOW() - INTERVAL '10 days')
-          AND mr.metric = ANY('{cumVaccinationFirstDoseUptakeByVaccinationDatePercentage,cumVaccinationSecondDoseUptakeByVaccinationDatePercentage}'::VARCHAR[])
+          AND mr.metric = ANY('{cumVaccinationFirstDoseUptakeByVaccinationDatePercentage,cumVaccinationSecondDoseUptakeByVaccinationDatePercentage,cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage}'::VARCHAR[])
     )
 ) AS ts
 WHERE rank = 1
