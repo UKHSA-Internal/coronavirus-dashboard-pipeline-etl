@@ -76,11 +76,11 @@ def trim_sides(data):
 
         last_valid = dm.payload.last_valid_index()
 
-        if last_valid < 2:
+        try:
+            dm.loc[last_valid - 1:, :] = NaN
+            data.loc[dm.index] = dm
+        except KeyError:
             continue
-
-        dm.loc[last_valid - 1:, :] = NaN
-        data.loc[dm.index] = dm
 
     return data.dropna(how="all", axis=0)
 
