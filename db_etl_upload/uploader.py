@@ -69,7 +69,10 @@ def trim_sides(data):
         except (TypeError, IndexError):
             first_nonzero = dm.payload.first_valid_index()
 
-        dm.loc[:first_nonzero + 1] = NaN
+        try:
+            dm.loc[:first_nonzero + 1] = NaN
+        except KeyError:
+            continue
 
         if not dm.payload.dropna().size:
             continue
