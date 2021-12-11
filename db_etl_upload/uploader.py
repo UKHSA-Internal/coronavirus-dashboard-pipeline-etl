@@ -76,6 +76,9 @@ def trim_sides(data):
 
         last_valid = dm.payload.last_valid_index()
 
+        if last_valid < 2:
+            continue
+
         dm.loc[last_valid - 1:, :] = NaN
         data.loc[dm.index] = dm
 
