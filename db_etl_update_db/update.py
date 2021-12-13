@@ -82,18 +82,16 @@ def perms_query():
 def execute_task(query):
     session = Session()
     try:
-        session.begin()
+        query_str = query["query"]
 
         if (prep := query["preparation"]) is not None:
-            session.execute(prep)
+            query_str += f"{prep}\n{query_str}"
 
-        query_str = query["query"]
+        query_str = f"BEGIN;\n{query_str}\nCOMMIT;"
         if query["mapped"]:
             query_str = text(query_str)
 
         session.execute(query_str)
-
-        session.commit()
         session.flush()
 
     except Exception as err:
