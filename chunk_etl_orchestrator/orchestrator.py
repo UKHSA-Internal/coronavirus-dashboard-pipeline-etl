@@ -17,9 +17,11 @@ from azure.durable_functions import (
 try:
     from __app__.utilities.data_files import parse_filepath, category_label
     from __app__.data_registration import register_file
+    from __app__.db_etl_update_db.update import DatabaseTaskMode
 except ImportError:
     from utilities.data_files import parse_filepath, category_label
     from data_registration import register_file
+    from db_etl_update_db.update import DatabaseTaskMode
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -200,15 +202,27 @@ def main(context: DurableOrchestrationContext):
         "Deployment to the DB is complete, submitting postprocessing tasks."
     )
 
-    settings_task = context.call_activity_with_retry(
+    settings_tasks = yield context.call_activity_with_retry(
         'db_etl_update_db',
         input_=dict(
             date=f"{timestamp_raw:%Y-%m-%d}",
+            category=process_name,
             process_name=process_name,
-            environment=trigger_data['environment']
+            environment=trigger_data['environment'],
+            mode=DatabaseTaskMode.GET_TASKS
         ),
         retry_options=retry_twice_opts
     )
+
+    db_update_tasks = list()
+    for task in settings_tasks:
+        db_task = context.call_activity_with_retry(
+            'db_etl_update_db',
+            input_=task,
+            retry_options=retry_twice_opts
+        )
+
+        db_update_tasks.append(db_task)
 
     context.set_custom_status("Submitting main postprocessing tasks")
     post_processes = context.call_activity_with_retry(
@@ -231,7 +245,7 @@ def main(context: DurableOrchestrationContext):
         retry_options=retry_twice_opts
     )
 
-    _ = yield context.task_all([graphs_task, settings_task, post_processes])
+    _ = yield context.task_all([graphs_task, *db_update_tasks, post_processes])
 
     context.set_custom_status(
         "Metadata updated / graphs created / main postprocessing tasks complete. ALL DONE."

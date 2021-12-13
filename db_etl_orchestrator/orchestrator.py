@@ -27,6 +27,7 @@ try:
         ReleaseReference, AreaReference, MetricReference, ReleaseCategory
     )
     from __app__.data_registration import set_file_releaseid
+    from __app__.db_etl_update_db.update import DatabaseTaskMode
 except ImportError:
     from storage import StorageClient
     from utilities.data_files import category_label, parse_filepath
@@ -34,6 +35,7 @@ except ImportError:
         ReleaseReference, AreaReference, MetricReference, ReleaseCategory
     )
     from data_registration import set_file_releaseid
+    from db_etl_update_db.update import DatabaseTaskMode
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,7 +195,7 @@ def main(context: DurableOrchestrationContext):
     _ = yield context.task_all(tasks)
     context.set_custom_status("Upload to database is complete.")
 
-    if category != "main":
+    if category.lower() != "main":
         # Categories other than main may have DB level processes. These
         # need to be performed before stats and graphs are generated.
         # Processes for stats and graphs are therefore moved to chunk
@@ -203,15 +205,27 @@ def main(context: DurableOrchestrationContext):
         )
         return f"DONE: {trigger_payload}"
 
-    settings_task = context.call_activity_with_retry(
+    settings_tasks = yield context.call_activity_with_retry(
         'db_etl_update_db',
         input_=dict(
             date=f"{now:%Y-%m-%d}",
+            category=process_name,
             process_name=process_name,
-            environment=trigger_data.get('environment', "PRODUCTION")
+            environment=trigger_data.get('environment', "PRODUCTION"),
+            mode=DatabaseTaskMode.GET_TASKS
         ),
         retry_options=retry_options
     )
+
+    db_update_tasks = list()
+    for task in settings_tasks:
+        db_task = context.call_activity_with_retry(
+            'db_etl_update_db',
+            input_=task,
+            retry_options=retry_options
+        )
+
+        db_update_tasks.append(db_task)
 
     graphs_task = context.call_activity_with_retry(
         'db_etl_homepage_graphs',
@@ -222,7 +236,7 @@ def main(context: DurableOrchestrationContext):
         retry_options=retry_options
     )
 
-    _ = yield context.task_all([settings_task, graphs_task])
+    _ = yield context.task_all([*db_update_tasks, graphs_task])
 
     context.set_custom_status("Metadata updated / graphs created.")
 
