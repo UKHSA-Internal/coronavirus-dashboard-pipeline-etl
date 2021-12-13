@@ -3,6 +3,7 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
+import logging
 from datetime import datetime
 from enum import IntEnum
 from itertools import chain
@@ -105,13 +106,14 @@ def execute_task(query):
 
 
 def main(payload):
+    logging.info(f"DB setting updater triggered - payload: {payload}")
     category = payload.get("category")
     mode = payload.get("mode")
 
     if mode == DatabaseTaskMode.GET_TASKS:
         tasks = list()
 
-        for task in chain([stats_query(payload['date'], category), *perms_query()]):
+        for task in chain([stats_query(payload['date'], category)], perms_query()):
             tasks.append({
                 **payload,
                 "category": category,
@@ -120,11 +122,14 @@ def main(payload):
                 "task": task,
             })
 
+            logging.info(f"Generated task: {tasks[-1]}")
+
         return tasks
 
     elif mode == DatabaseTaskMode.RUN_TASKS:
         task = payload["task"]
         execute_task(query=task)
+        logging.info(f"Executed task: {task}")
 
         return f"DONE - {payload}"
 
