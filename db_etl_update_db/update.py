@@ -3,10 +3,7 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
-import logging
 from datetime import datetime
-from enum import IntEnum
-from itertools import chain
 
 # 3rd party:
 from sqlalchemy import text
@@ -14,26 +11,61 @@ from sqlalchemy import text
 # Internal:
 try:
     from __app__.db_tables.covid19 import Session
-    from __app__.db_etl_update_db.queries import (
-        STATS_QUERY, PERMISSIONS_QUERY
-    )
 except ImportError:
     from db_tables.covid19 import Session
-    from db_etl_update_db.queries import (
-        STATS_QUERY, PERMISSIONS_QUERY
-    )
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'main',
-    'DatabaseTaskMode'
+    'main'
 ]
 
 
-class DatabaseTaskMode(IntEnum):
-    GET_TASKS = 0
-    RUN_TASKS = 1
+STATS_QUERY = """\
+INSERT INTO covid19.release_stats (release_id, record_count)
+SELECT ts.release_id AS id, COUNT(*) AS counter
+FROM covid19.time_series AS ts
+WHERE 
+      ts.release_id IN (
+          SELECT rr.id 
+          FROM covid19.release_reference AS rr
+          WHERE rr.timestamp::DATE = '{datestamp}'::DATE
+      )
+  AND ts.partition_id = ANY('{partitions}'::VARCHAR[])
+GROUP BY ts.release_id
+ON CONFLICT ( release_id ) DO
+    UPDATE SET record_count = EXCLUDED.record_count;\
+"""
+
+
+PERMISSIONS_QUERY = """\
+BEGIN;
+SET LOCAL citus.multi_shard_modify_mode TO 'sequential';
+GRANT  USAGE                                                ON SCHEMA covid19 TO   reader;
+REVOKE CREATE                                               ON SCHEMA covid19 FROM reader;
+REVOKE TRUNCATE                         ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+REVOKE UPDATE, DELETE, INSERT           ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+GRANT  SELECT                           ON ALL TABLES       IN SCHEMA covid19 TO   reader;
+GRANT  SELECT                           ON ALL SEQUENCES    IN SCHEMA covid19 TO   reader;
+REVOKE EXECUTE                          ON ALL FUNCTIONS    IN SCHEMA covid19 FROM reader;
+REVOKE TRIGGER                          ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+COMMIT;\
+"""
+
+
+def update_permissions():
+    session = Session()
+    connection = session.connection()
+    try:
+        connection.execute(text(PERMISSIONS_QUERY))
+        session.flush()
+    except Exception as err:
+        session.rollback()
+        raise err
+    finally:
+        session.close()
+
+    return None
 
 
 def get_partition_ids(date, category):
@@ -46,7 +78,7 @@ def get_partition_ids(date, category):
         "msoa"
     ]
 
-    if "msoa" in category.lower():
+    if category == "msoa":
         partition_names = ["msoa"]
 
     partitions = [
@@ -57,43 +89,17 @@ def get_partition_ids(date, category):
     return partitions
 
 
-def stats_query(date, category):
-    query = STATS_QUERY.format(
-        datestamp=date,
-        partitions=f'{{{str.join(",", get_partition_ids(date, category))}}}'
-    )
-
-    return {
-        "query": query,
-        "preparation": None,
-        "mapped": True
-    }
-
-
-def perms_query():
-    for row in PERMISSIONS_QUERY.splitlines():
-        yield {
-            "query": row,
-            "preparation": "SET LOCAL citus.multi_shard_modify_mode TO 'sequential';",
-            "mapped": False
-        }
-
-
-def execute_task(query):
+def update_stats(date, category):
     session = Session()
+    connection = session.connection()
     try:
-        query_str = query["query"]
-
-        if (prep := query["preparation"]) is not None:
-            query_str += f"{prep}\n{query_str}"
-
-        query_str = f"BEGIN;\n{query_str}\nCOMMIT;"
-        if query["mapped"]:
-            query_str = text(query_str)
-
-        session.execute(query_str)
+        connection.execute(
+            text(STATS_QUERY.format(
+                datestamp=date,
+                partitions=f'{{{str.join(",", get_partition_ids(date, category))}}}'
+            ))
+        )
         session.flush()
-
     except Exception as err:
         session.rollback()
         raise err
@@ -104,44 +110,13 @@ def execute_task(query):
 
 
 def main(payload):
-    logging.info(f"DB setting updater triggered - payload: {payload}")
     category = payload.get("category")
-    mode = payload.get("mode")
 
-    if mode == DatabaseTaskMode.GET_TASKS:
-        tasks = list()
+    update_permissions()
+    update_stats(payload['date'], category)
 
-        for task in chain([stats_query(payload['date'], category)], perms_query()):
-            tasks.append({
-                **payload,
-                "category": category,
-                "mode": DatabaseTaskMode.RUN_TASKS,
-                "date": payload["date"],
-                "task": task,
-            })
-
-            logging.info(f"Generated task: {tasks[-1]}")
-
-        return tasks
-
-    elif mode == DatabaseTaskMode.RUN_TASKS:
-        task = payload["task"]
-        execute_task(query=task)
-        logging.info(f"Executed task: {task}")
-
-        return f"DONE - {payload}"
+    return f"DONE - {payload['date']}"
 
 
 if __name__ == "__main__":
-    from json import dumps, loads
-
-    test_tasks = main({
-        "date": datetime.utcnow().strftime("%Y-%m-%d"),
-        "category": "POSITIVITY & PEOPLE TESTED",
-        "mode": DatabaseTaskMode.GET_TASKS
-    })
-
-    serialised_tasks = dumps(test_tasks)
-
-    for tsk in loads(serialised_tasks):
-        main(tsk)
+    main({"date": "2021-03-28"})
