@@ -18,12 +18,14 @@ ON CONFLICT ( release_id ) DO
 
 
 PERMISSIONS_QUERY = """\
-GRANT  USAGE                                                ON SCHEMA covid19 TO   reader;
-REVOKE CREATE                                               ON SCHEMA covid19 FROM reader;
-REVOKE TRUNCATE                         ON ALL TABLES       IN SCHEMA covid19 FROM reader;
-REVOKE UPDATE, DELETE, INSERT           ON ALL TABLES       IN SCHEMA covid19 FROM reader;
-GRANT  SELECT                           ON ALL TABLES       IN SCHEMA covid19 TO   reader;
-GRANT  SELECT                           ON ALL SEQUENCES    IN SCHEMA covid19 TO   reader;
-REVOKE EXECUTE                          ON ALL FUNCTIONS    IN SCHEMA covid19 FROM reader;
-REVOKE TRIGGER                          ON ALL TABLES       IN SCHEMA covid19 FROM reader;\
+GRANT  USAGE                                ON SCHEMA covid19 TO   reader;
+REVOKE CREATE                               ON SCHEMA covid19 FROM reader;
+REVOKE TRUNCATE         ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+REVOKE UPDATE           ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+REVOKE DELETE           ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+REVOKE INSERT           ON ALL TABLES       IN SCHEMA covid19 FROM reader;
+GRANT  SELECT           ON ALL TABLES       IN SCHEMA covid19 TO   reader;
+GRANT  SELECT           ON ALL SEQUENCES    IN SCHEMA covid19 TO   reader;
+REVOKE EXECUTE          ON ALL FUNCTIONS    IN SCHEMA covid19 FROM reader;
+REVOKE TRIGGER          ON ALL TABLES       IN SCHEMA covid19 FROM reader;\
 """
