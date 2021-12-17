@@ -1,3 +1,21 @@
+<style>
+	.banner > .content > *:last-of-type {
+			margin-bottom: 0;
+	}
+</style>
+{%- for item in announcements -%}
+<ul style="background: #fede02; padding: 1rem; line-height: 1.3; list-style-type: none; margin: 0 0 5px;">
+	<li class="banner">
+		<strong class="timestamp">
+			<span>{{ item.date }}</span>
+		</strong>
+		<div class="content">
+			{{ item.body }}
+		</div>
+	</li>
+</ul>
+{%- endfor -%}
+
 <p><span style="color: rgb(226,80,65)"><u><strong>Official - SENSITIVE</strong></u></span></p>
 <h1 style="margin: 1.2em 0; font-size: 20px;">COVID-19 data &mdash; Pre-release:</h1>
 

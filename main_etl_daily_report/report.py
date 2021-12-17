@@ -23,6 +23,7 @@ from pandas import DataFrame
 from sqlalchemy import text, select, and_, not_
 from requests import post
 from jinja2 import FileSystemLoader, Environment
+from markdown import markdown
 
 # Internal:
 try:
@@ -233,6 +234,42 @@ WHERE area_name = '{area_name}'
 GROUP BY metric, payload;\
 """
 
+ANNOUNCEMENTS = """\
+WITH latest_release AS (
+    SELECT MAX(rr.timestamp)::DATE
+    FROM covid19.release_reference AS rr
+    WHERE rr.released IS TRUE
+)
+SELECT id::TEXT,
+       launch::DATE::TEXT,
+       expire::DATE::TEXT,
+       COALESCE(date, launch::DATE)::TEXT AS date,
+       body
+FROM covid19.announcement AS an
+WHERE
+    (
+        (
+                an.deploy_with_release IS TRUE
+            AND an.launch::DATE <= (SELECT * FROM latest_release)
+        )
+      OR (
+                an.deploy_with_release IS FALSE
+            AND an.launch <= NOW()
+        )
+    )
+  AND (
+        (
+                an.remove_with_release IS TRUE
+            AND an.expire::DATE > (SELECT * FROM latest_release)
+        )
+      OR (
+                an.remove_with_release IS FALSE
+            AND an.expire > NOW()
+        )
+    )
+ORDER BY an.launch DESC, an.expire DESC;\
+"""
+
 
 def extract_latest_data(date):
     output = {
@@ -321,6 +358,28 @@ def extract_latest_data(date):
     return output
 
 
+def get_announcements():
+    session = Session()
+    conn = session.connection()
+    try:
+        resp = conn.execute(text(ANNOUNCEMENTS))
+        values = resp.fetchall()
+    except Exception as err:
+        session.rollback()
+        raise err
+    finally:
+        session.close()
+
+    results = list()
+    for item in values:
+        results.append({
+            "body": markdown(item["body"].strip()),
+            "date": datetime.fromisoformat(item["date"]).strftime("%-d %B %Y")
+        })
+
+    return results
+
+
 def get_email_recipients():
     session = Session()
 
@@ -358,15 +417,12 @@ def main(payload):
     html_data = template.render(
         results=data,
         timestamp=datetime.now().strftime(r"%A, %d %b %Y at %H:%M:%S GMT"),
-        slug_id=get_record_id(datetime.fromisoformat(timestamp))
+        slug_id=get_record_id(datetime.fromisoformat(timestamp)),
+        announcements=get_announcements(),
     )
 
     # with open("sample.html", "w") as fp:
     #     print(html_data, file=fp)
-
-    logging.info(f"\tLoading email recipients' data.")
-    with StorageClient(container="pipeline", path="assets/email_recipients.json") as client:
-        email_data = loads(client.download().readall().decode())
 
     logging.info(f"\tSubmitting the request to send out the email.")
     response = post(
@@ -404,15 +460,3 @@ if __name__ == "__main__":
         "environment": "PRODUCTION",
         "legacy": False
     })
-    # pass
-    # from pandas import read_feather
-    # from io import BytesIO
-    #
-    # with StorageClient("pipeline", "etl/processed/2021-03-09_1456/overview_K02000001.ft") as cli:
-    #     data_io = BytesIO(cli.download().readall())
-    #     data_io.seek(0)
-    #
-    #
-    # # print(read_feather(data_io))
-    # # with open("/Users/pouria/Downloads/processed_2021-01-21.csv", "r") as output_sample:
-    # print(main_test(data_io))
