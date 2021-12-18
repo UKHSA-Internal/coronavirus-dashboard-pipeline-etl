@@ -4,13 +4,7 @@ STATS_QUERY = """\
 INSERT INTO covid19.release_stats (release_id, record_count)
 SELECT ts.release_id AS id, COUNT(*) AS counter
 FROM covid19.time_series AS ts
-WHERE 
-      ts.release_id IN (
-          SELECT rr.id 
-          FROM covid19.release_reference AS rr
-          WHERE rr.timestamp::DATE = '{datestamp}'::DATE
-      )
-  AND ts.partition_id = ANY('{partitions}'::VARCHAR[])
+WHERE ts.partition_id = ANY('{partitions}'::VARCHAR[])
 GROUP BY ts.release_id
 ON CONFLICT ( release_id ) DO
     UPDATE SET record_count = EXCLUDED.record_count;\
