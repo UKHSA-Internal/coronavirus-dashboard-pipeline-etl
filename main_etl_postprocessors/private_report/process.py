@@ -48,9 +48,10 @@ METRICS = [
     'cumCasesByPublishDate',
     'newDeaths28DaysByPublishDate',
     'cumDeaths28DaysByPublishDate',
-    'newVirusTests',
-    'newVirusTestsChange',
-    'newVirusTestsChangePercentage',
+    'newVirusTestsByPublishDate',
+    'newVirusTestsByPublishDateChange',
+    'newVirusTestsByPublishDateChangePercentage',
+    'uniqueCasePositivityBySpecimenDateRollingSum',
     'newPCRTestsByPublishDate',
     'newAntibodyTestsByPublishDate',
     'plannedPCRCapacityByPublishDate',
@@ -111,7 +112,12 @@ structure = [
             "name": "Antibody tests processed",
             "label": "newAntibodyTestsByPublishDate",
             "metric": "newAntibodyTestsByPublishDate"
-        }
+        },
+        {
+            "name": "Positivity ratio (%)",
+            "label": "uniqueCasePositivityBySpecimenDateRollingSum",
+            "metric": "uniqueCasePositivityBySpecimenDateRollingSum"
+        },
     ],
     [
         {
@@ -386,7 +392,7 @@ def process(payload):
 if __name__ == "__main__":
     from datetime import timedelta
 
-    delta = 0  # days
+    delta = 1  # days
     process({
         "timestamp": (datetime.now() - timedelta(days=delta)).isoformat()
     })
