@@ -118,9 +118,14 @@ VALUE_COLUMNS = (
     # "capacityPillarOneTwoFour",  # plannedPillarOneTwoFourCapacityByPublishDate
     # "newPillarOneTwoFourTestsByPublishDate",  # Deprecated
 
-    "femaleNegatives",
+    # "femaleNegatives",  # Deprecated
+    # "previouslyReportedCumCasesBySpecimenDate",  # Deprecated
+    # "changeInCumCasesBySpecimenDate",  # Deprecated
+    # "cumNegativesBySpecimenDate",  # Deprecated
+    # "newNegativesBySpecimenDate",  # Deprecated
+    # "maleNegatives",  # Deprecated
+
     "maleCases",
-    "previouslyReportedCumCasesBySpecimenDate",
     "cumCasesByPublishDate",
     "newAdmissionsByAge",
     "cumPillarTwoTestsByPublishDate",
@@ -133,7 +138,6 @@ VALUE_COLUMNS = (
     "suspectedCovidOccupiedMVBeds",
     "nonCovidOccupiedMVBeds",
 
-    "changeInCumCasesBySpecimenDate",
     "cumPillarThreeTestsByPublishDate",
     "cumTestsByPublishDate",
     "previouslyReportedNewCasesBySpecimenDate",
@@ -144,7 +148,6 @@ VALUE_COLUMNS = (
     "newPillarFourTestsByPublishDate",
     "cumCasesBySpecimenDate",
     "cumAdmissions",
-    "cumNegativesBySpecimenDate",
     "newCasesByPublishDate",
     "femaleCases",
     "cumAdmissionsByAge",
@@ -152,10 +155,8 @@ VALUE_COLUMNS = (
     "cumPillarFourTestsByPublishDate",
     "newTestsByPublishDate",
     "newPillarTwoTestsByPublishDate",
-    "newNegativesBySpecimenDate",
     "cumPeopleTestedByPublishDate",
     "cumPillarOneTestsByPublishDate",
-    "maleNegatives",
     "hospitalCases",
 
     "newDeathsByPublishDate",
@@ -340,8 +341,8 @@ POPULATION_ADJUSTED_RATES_BROAD = {
 POPULATION_ADJUSTED_RATES_5YEAR = {
     'maleCases',
     'femaleCases',
-    'maleNegatives',
-    'femaleNegatives',
+    # 'maleNegatives',   # Deprecated
+    # 'femaleNegatives',  # Deprecated
     'maleDeaths',
     'femaleDeaths',
     "femaleDeaths28Days",
@@ -399,11 +400,11 @@ DERIVED_FROM_NESTED = {
 
 
 DERIVED_BY_SUMMATION = {
-    "cumPeopleTestedBySpecimenDate":
-        ("cumCasesBySpecimenDate", "cumNegativesBySpecimenDate"),
-
-    "newPeopleTestedBySpecimenDate":
-        ("newCasesBySpecimenDate", "newNegativesBySpecimenDate")
+    # "cumPeopleTestedBySpecimenDate":
+    #     ("cumCasesBySpecimenDate", "cumNegativesBySpecimenDate"),  # Deprecated
+    #
+    # "newPeopleTestedBySpecimenDate":
+    #     ("newCasesBySpecimenDate", "newNegativesBySpecimenDate")  # Deprecated
 }
 
 
@@ -419,9 +420,8 @@ FILL_WITH_ZEROS = {
     'newDeathsByPublishDate',
     'newDeathsByDeathDate',
     'newCasesBySpecimenDate',
-    'newNegativesBySpecimenDate',
+    # 'newNegativesBySpecimenDate',  # Deprecated
     'newCasesBySpecimenDate',
-    'newNegativesBySpecimenDate',
     'newLFDTests',
     'newDailyNsoDeathsByDeathDate',
     'newCasesPCROnlyBySpecimenDate',
@@ -513,8 +513,8 @@ SUM_CHANGE_DIRECTION = {
 OUTLIERS = [
     'maleCases',
     'femaleCases',
-    'maleNegatives',
-    'femaleNegatives',
+    # 'maleNegatives',  # Deprecated
+    # 'femaleNegatives',  # Deprecated
     'newAdmissionsByAge',
     'cumAdmissionsByAge',
     # 'cumDischargesByAge',
@@ -1453,29 +1453,4 @@ def iter_chunks(data: List[dict]) -> Tuple[int, str]:
         yield counter, dumps(data[index: index + chunk_size], separators=(",", ":"))
         counter += 1
         logging.info(f"\t Chunk { counter } was uploaded.")
-
-
-if __name__ == "__main__":
-    pass
-    # if DEBUG:
-        # Local test
-        # from sys import stdout
-        #
-        # root = logging.getLogger()
-        # root.setLevel(logging.DEBUG)
-        # handler = logging.StreamHandler(stdout)
-        # handler.setLevel(logging.DEBUG)
-        # formatter = logging.Formatter('[%(asctime)s] %(levelname)s | %(message)s')
-        # handler.setFormatter(formatter)
-        # root.addHandler(handler)
-        #
-        # # with open("/Users/pouria/Downloads/data_202012141815.json") as dt_file:
-        # #     data_file = dt_file.read()
-        #
-        # run(dumps(dict(
-        #     data_path="etl/transit/2020-12-30_1505/utla_E08000030.json",
-        #     timestamp="2020-12-30T15:05:43.1236675Z"
-        # )))
-
-
 
