@@ -69,6 +69,8 @@ release_categories = Enum(
     'MSOA: VACCINATION - EVENT DATE',
     'POSITIVITY & PEOPLE TESTED',
     'HEALTHCARE',
+    'TESTING: MAIN',
+    'CASES: MAIN',
     create_type=False
 )
 

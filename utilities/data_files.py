@@ -40,6 +40,7 @@ category2process_name = {
     ("positivity", None): "POSITIVITY & PEOPLE TESTED",
     ("healthcare", None): "HEALTHCARE",
     ("tests", None): 'TESTING: MAIN',
+    ("cases", None): 'CASES: MAIN',
     ("main", None): "MAIN",
     ("msoa", None): "MSOA",
     ('cases-by-specimen-date', 'MSOA'): "MSOA",
