@@ -77,8 +77,8 @@ FROM (
                date,
                value,
                RANK() OVER (
-                   PARTITION BY (metric, priority)
-                   ORDER BY date DESC
+                   PARTITION BY (area_id, metric)
+                   ORDER BY priority, date DESC
                ) AS rank
         FROM (
             -- Data at UTLA level
