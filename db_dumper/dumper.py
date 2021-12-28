@@ -48,7 +48,6 @@ shared_tables = [
     'public.auth_user',
     'public.auth_user_groups',
     'public.auth_user_user_permissions',
-    'public.django_admin_log',
     'public.django_content_type',
     'public.django_migrations',
     'public.guardian_groupobjectpermission',
@@ -56,7 +55,6 @@ shared_tables = [
     'public.service_admin_oversightrecord',
     'public.service_admin_service',
     'public.service_admin_service_oversight_records',
-    # 'public.django_session',
 ]
 
 
