@@ -19,7 +19,7 @@ azure-functions-durable
 redis==3.5.3
 PyYAML==5.4.1
 jinja2==2.11.3
-requests==2.25.1
+requests==2.27.0
 dicttoxml==1.7.4
 docxtpl==0.11.3
 reportlab==3.5.59
