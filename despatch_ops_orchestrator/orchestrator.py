@@ -4,7 +4,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
 import logging
-from json import loads
+from json import loads, dumps
 from itertools import product
 
 # 3rd party:
@@ -16,7 +16,8 @@ from orjson import loads
 # Internal:
 try:
     from __app__.storage import StorageClient
-    from __app__.despatch_ops_cache_buster import get_operations
+    from __app__.cache_buster_activity import get_operations
+    from __app__.cache_buster_orchestrator import FLUSH_DESPATCH
     from __app__.despatch_ops_release import ReleaseTimestamps
     from __app__.despatch_ops_workers.map_geojson import Device
     from __app__.db_tables.covid19 import (
@@ -25,7 +26,8 @@ try:
     )
 except ImportError:
     from storage import StorageClient
-    from despatch_ops_cache_buster import get_operations
+    from cache_buster_activity import get_operations
+    from cache_buster_orchestrator import FLUSH_DESPATCH
     from despatch_ops_release import ReleaseTimestamps
     from despatch_ops_workers.map_geojson import Device
     from db_tables.covid19 import (
@@ -170,6 +172,10 @@ def main(context: DurableOrchestrationContext):
 
     _ = yield context.call_sub_orchestrator_with_retry(
         'cache_buster_orchestrator',
+        input_=dumps({
+            "to": FLUSH_DESPATCH,
+            "timestamp": trigger_data.get('timestamp')
+        }),
         retry_options=retry_options
     )
 
