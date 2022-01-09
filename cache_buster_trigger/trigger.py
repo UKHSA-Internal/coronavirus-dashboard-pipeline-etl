@@ -32,7 +32,7 @@ async def main(message: ServiceBusMessage, starter: str) -> NoReturn:
     instance_id = await client.start_new(
         "cache_buster_orchestrator",
         client_input=raw_message,
-        instance_id=message.get("instance_id", None)
+        instance_id=message.message_id
     )
 
     logging.info(
