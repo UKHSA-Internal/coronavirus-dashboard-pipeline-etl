@@ -80,7 +80,7 @@ class RedisClient:
                 pipe.expire(key, expiry)
 
     def expire_pattern(self, ttl: List[int], key_patterns: List[str]):
-        for pipe, conn, expiry in zip(ttl, self._pipelines, self._instances, ttl):
+        for pipe, conn, expiry in zip(self._pipelines, self._instances, ttl):
             for key in self._keys_from_pattern(conn, *key_patterns):
                 pipe.expire(key, expiry)
 
