@@ -63,7 +63,7 @@ CACHE_OPERATIONS = {
 
 def get_operations() -> Iterator:
     for db, operations in CACHE_OPERATIONS.items():
-        yield {"db": db, "operations": operations}
+        yield {"db": int(db), "operations": operations}
 
 
 def main(payload):
