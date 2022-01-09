@@ -168,17 +168,10 @@ def main(context: DurableOrchestrationContext):
     _ = yield context.task_all(tasks)
     context.set_custom_status("Timestamps updated - clearing Redis cache.")
 
-    tasks = list()
-    for payload in get_operations():
-        task = context.call_activity_with_retry(
-            "despatch_ops_cache_buster",
-            retry_options=retry_options,
-            input_=payload
-        )
-
-        tasks.append(task)
-
-    _ = yield context.task_all(tasks)
+    _ = yield context.call_sub_orchestrator_with_retry(
+        'cache_buster_orchestrator',
+        retry_options=retry_options
+    )
 
     context.set_custom_status(f"ALL DONE: {trigger_payload}")
 
