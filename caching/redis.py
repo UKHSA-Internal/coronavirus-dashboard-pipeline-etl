@@ -64,30 +64,30 @@ class RedisClient:
         for pipe in self._pipelines:
             pipe.set(data['key'], data['value'], ex=ttl)
 
-    def delete_pattern(self, key_patterns):
+    def delete_pattern(self, key_patterns: List[str]):
         for pipe, conn in zip(self._pipelines, self._instances):
             for key in self._keys_from_pattern(conn, *key_patterns):
                 pipe.delete(key)
 
-    def delete_keys(self, keys):
+    def delete_keys(self, keys: List[str]):
         for pipe in self._pipelines:
             for key in keys:
                 pipe.delete(key)
 
-    def expire_keys(self, keys, ttl):
-        for pipe in self._pipelines:
+    def expire_keys(self, ttl: List[int], keys: List[str]):
+        for pipe, expiry in zip(self._pipelines, ttl):
             for key in keys:
-                pipe.expire(key, ttl)
+                pipe.expire(key, expiry)
 
-    def expire_pattern(self, ttl, key_patterns):
-        for pipe, conn in zip(self._pipelines, self._instances):
+    def expire_pattern(self, ttl: List[int], key_patterns: List[str]):
+        for pipe, conn, expiry in zip(ttl, self._pipelines, self._instances, ttl):
             for key in self._keys_from_pattern(conn, *key_patterns):
-                pipe.expire(key, ttl)
+                pipe.expire(key, expiry)
 
     def flush_db(self):
         for pipe in self._pipelines:
             pipe.flushdb()
 
-    def delete_hash_fields(self, key, *fields):
+    def delete_hash_fields(self, key: str, *fields):
         for pipe in self._pipelines:
             pipe.hdel(key, *fields)
