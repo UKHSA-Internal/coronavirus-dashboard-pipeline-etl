@@ -20,7 +20,9 @@ except ImportError:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'main'
+    'main',
+    'FLUSH_DESPATCH',
+    'PURGE_STORAGE_CACHE',
 ]
 
 FLUSH_DESPATCH = "DESPATCH"
