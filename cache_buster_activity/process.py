@@ -37,7 +37,13 @@ CACHE_OPERATIONS = {
         "delete_pattern": {
             "key_patterns": [
                 "*v[12]/data*",
-                "*/generic/soa/msoa/*"
+                "*/generic/soa/msoa/*",
+                "*announcement*",
+                "*banner*",
+            ],
+            'ttl': [
+                15,
+                180
             ]
         },
     },
@@ -45,6 +51,10 @@ CACHE_OPERATIONS = {
         "delete_pattern": {
             "key_patterns": [
                 "[^area]*"
+            ],
+            'ttl': [
+                15,
+                180
             ]
         }
     }
