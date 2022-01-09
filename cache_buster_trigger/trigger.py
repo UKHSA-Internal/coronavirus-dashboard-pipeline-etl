@@ -4,7 +4,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
 from typing import NoReturn
-from json import loads
 import logging
 
 # 3rd party:
@@ -25,8 +24,7 @@ async def main(message: ServiceBusMessage, starter: str) -> NoReturn:
     logging.info(f"--- ServiceBus event has triggered the function. Starting the process.")
 
     raw_message = message.get_body().decode()
-    message = loads(raw_message)
-    logging.info(f"Message: {message}")
+    logging.info(f"Message: {raw_message}")
 
     client = DurableOrchestrationClient(starter)
     instance_id = await client.start_new(
