@@ -1,0 +1,14 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "message",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "topicName": "etl_operations",
+      "subscriptionName": "repopulate_cache",
+      "accessRights": "listen",
+      "connection": "AzureServiceBus"
+    }
+  ]
+}
