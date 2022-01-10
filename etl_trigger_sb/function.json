@@ -6,7 +6,7 @@
       "type": "serviceBusTrigger",
       "direction": "in",
       "topicName": "etl_operations",
-      "subscriptionName": "resubmit_process",
+      "subscriptionName": "generic_tasks",
       "accessRights": "listen",
       "connection": "AzureServiceBus"
     },
