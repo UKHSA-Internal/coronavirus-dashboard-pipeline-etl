@@ -29,17 +29,16 @@ async def main(message: ServiceBusMessage, starter: str) -> NoReturn:
     logging.info(f"--- Service Bus has triggered the function. Starting the process.")
 
     raw_message = message.get_body().decode()
-    message = loads(raw_message)
-    logging.info(f"Message: {message}")
+    logging.info(f"Message: {raw_message}")
 
     client = DurableOrchestrationClient(starter)
 
     instance_id = await client.start_new(
-        message.subject,
+        message.label,
         client_input=raw_message,
         instance_id=message.message_id
     )
 
-    logging.info(f"Started orchestration for '{message.subject}' with ID = '{instance_id}'.")
+    logging.info(f"Started orchestration for '{message.label}' with ID = '{instance_id}'.")
 
     return None
