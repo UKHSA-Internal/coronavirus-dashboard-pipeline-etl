@@ -270,6 +270,11 @@ VALUE_COLUMNS = (
     "cumPeopleVaccinatedThirdInjectionByVaccinationDate",
     "newPeopleVaccinatedThirdInjectionByVaccinationDate",
     "cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage",
+
+    "newReinfectionsBySpecimenDate",
+    "cumReinfectionsBySpecimenDate",
+    "newFirstEpisodesBySpecimenDate",
+    "cumFirstEpisodesBySpecimenDate",
 )
 
 
@@ -355,6 +360,8 @@ POPULATION_ADJUSTED_RATES_5YEAR = {
 INCIDENCE_RATE_FIELDS = {
     "newCasesBySpecimenDate",
     "cumCasesBySpecimenDate",
+    "cumReinfectionsBySpecimenDate",
+    "cumFirstEpisodesBySpecimenDate",
     "cumCasesByPublishDate",
     "cumPeopleTestedByPublishDate",
     "cumAdmissions",
@@ -382,6 +389,8 @@ INCIDENCE_RATE_FIELDS = {
 ROLLING_RATE = {
     "newCasesBySpecimenDate",
     "newCasesByPublishDate",
+    "newReinfectionsBySpecimenDate",
+    "newFirstEpisodesBySpecimenDate",
     "newDeathsByDeathDate",
     "newDeaths28DaysByDeathDate",
     "newDeaths60DaysByDeathDate",
@@ -422,6 +431,8 @@ FILL_WITH_ZEROS = {
     'newCasesBySpecimenDate',
     # 'newNegativesBySpecimenDate',  # Deprecated
     'newCasesBySpecimenDate',
+    'newReinfectionsBySpecimenDate',
+    'newFirstEpisodesBySpecimenDate',
     'newLFDTests',
     'newDailyNsoDeathsByDeathDate',
     'newCasesPCROnlyBySpecimenDate',
@@ -443,6 +454,8 @@ START_WITH_ZERO = {
     'cumDeathsByPublishDate',
     'cumDeathsByDeathDate',
     'cumCasesBySpecimenDate',
+    'cumReinfectionsBySpecimenDate',
+    'cumFirstEpisodesBySpecimenDate',
     'cumNegativesBySpecimenDate',
     'cumLFDTests',
     'cumDeaths28DaysByDeathDate',
@@ -502,6 +515,8 @@ RATE_PRECISION = 1  # Decimal places
 SUM_CHANGE_DIRECTION = {
     'newCasesBySpecimenDate',
     'newCasesByPublishDate',
+    'newReinfectionsBySpecimenDate',
+    'newFirstEpisodesBySpecimenDate',
     'newAdmissions',
     'newDeaths28DaysByPublishDate',
     'newPCRTestsByPublishDate',
