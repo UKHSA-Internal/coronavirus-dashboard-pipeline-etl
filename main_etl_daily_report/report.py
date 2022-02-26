@@ -58,9 +58,9 @@ env = Environment(loader=file_loader)
 England_structure = [
     [
         {
-            "name": "Patients admitted",
+            "name": "Patients admitted (last 7 days)",
             "label": "newAdmissions",
-            "metric": "newAdmissions"
+            "metric": "newAdmissionsRollingSum"
         },
         {
             "name": "Patients in hospital",
@@ -79,9 +79,9 @@ England_structure = [
 UK_structure = [
     [
         {
-            "name": "New positive cases",
+            "name": "New positive cases (last 7 days)",
             "label": "newCases",
-            "metric": "newCasesByPublishDate"
+            "metric": "newCasesByPublishDateRollingSum"
         },
         {
             "name": "Total positive cases",
@@ -91,9 +91,9 @@ UK_structure = [
     ],
     [
         {
-            "name": "New deaths within 28 days of a positive test",
+            "name": "New deaths within 28 days of a positive test (last 7 days)",
             "label": "newDeaths",
-            "metric": "newDeaths28DaysByPublishDate"
+            "metric": "newDeaths28DaysByPublishDateRollingSum"
         },
         {
             "name": "Total deaths within 28 days of a positive test",
@@ -103,37 +103,15 @@ UK_structure = [
     ],
     [
         {
-            "name": "Virus tests conducted",
+            "name": "Virus tests conducted (last 7 days)",
             "label": "newVirusTestsByPublishDate",
-            "metric": "newVirusTestsByPublishDate"
-        },
-        {
-            "name": "PCR tests conducted",
-            "label": "newPCRTestsByPublishDate",
-            "metric": "newPCRTestsByPublishDate"
-        },
-        {
-            "name": "Antibody tests processed",
-            "label": "newAntibodyTestsByPublishDate",
-            "metric": "newAntibodyTestsByPublishDate"
-        }
-    ],
-    [
-        {
-            "name": "PCR testing capacity",
-            "label": "plannedPCRCapacityByPublishDate",
-            "metric": "plannedPCRCapacityByPublishDate"
-        },
-        {
-            "name": "Antibody testing capacity",
-            "label": "plannedAntibodyCapacityByPublishDate",
-            "metric": "plannedAntibodyCapacityByPublishDate"
+            "metric": "newVirusTestsByPublishDateRollingSum"
         },
     ],
     [
         {
-            "name": "Patients admitted",
-            "label": "newAdmissions",
+            "name": "Patients admitted (last 7 days)",
+            "label": "newAdmissionsRollingSum",
             "metric": "newAdmissions"
         },
         {
