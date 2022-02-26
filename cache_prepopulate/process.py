@@ -27,6 +27,8 @@ __all__ = [
 ]
 
 
+REDIS_LANDING_PAGE_DB = 2
+
 query_path = (
     Path(__file__)
     .parent
@@ -65,7 +67,7 @@ def main(payload):
 
     data = retrieve_data(timestamp)
 
-    with RedisClient(db=2) as client:
+    with RedisClient(db=REDIS_LANDING_PAGE_DB) as client:
         data.apply(client.set_data, axis=1)
 
     logging.info(f"Done pre-populating the cache.")
@@ -81,8 +83,8 @@ if __name__ == '__main__':
     #
     from datetime import timedelta
 
-    main({"timestamp": (datetime.now() - timedelta(days=0)).isoformat()})
+    # main({"timestamp": (datetime.now() - timedelta(days=1)).isoformat()})
 
     # Remove non-area data
-    # with RedisClient() as redis_client:
-    #     redis_client.delete('[^area-]*')
+    with RedisClient(db=0) as redis_client:
+        redis_client.delete_pattern(['*log*', '*announcement*', '*metric*'])
