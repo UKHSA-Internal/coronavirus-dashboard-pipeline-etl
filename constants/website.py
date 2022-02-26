@@ -27,11 +27,11 @@ __version__ = "0.0.1"
 
 headline_metrics = {
     'cases': {
-        "metric": 'newCasesByPublishDate',
+        "metric": 'newCasesBySpecimenDate',
         "caption": "Cases",
     },
     'deaths': {
-        "metric": 'newDeaths28DaysByPublishDate',
+        "metric": 'newDeaths28DaysBySpecimenDate',
         "caption": "Deaths",
     },
     'healthcare': {
@@ -39,7 +39,7 @@ headline_metrics = {
         "caption": "Healthcare",
     },
     'testing': {
-        "metric": 'newPCRTestsByPublishDate',
+        "metric": 'newVirusTestsByPublishDate',
         "caption": "Testing",
     }
 }
