@@ -37,18 +37,18 @@ file_loader = FileSystemLoader(path.join(curr_dir, "templates"))
 env = Environment(loader=file_loader)
 
 METRICS = [
-    'newAdmissions',
+    'newAdmissionsRollingSum',
     'newAdmissionsChange',
     'newAdmissionsChangePercentage',
     'hospitalCases',
     'covidOccupiedMVBeds',
-    'newCasesByPublishDate',
+    'newCasesByPublishDateRollingSum',
     'newCasesByPublishDateChange',
     'newCasesByPublishDateChangePercentage',
-    'cumCasesByPublishDate',
+    'cumCasesByPublishDateRollingSum',
     'newDeaths28DaysByPublishDate',
     'cumDeaths28DaysByPublishDate',
-    'newVirusTestsByPublishDate',
+    'newVirusTestsByPublishDateRollingSum',
     'newVirusTestsByPublishDateChange',
     'newVirusTestsByPublishDateChangePercentage',
     'uniqueCasePositivityBySpecimenDateRollingSum',
@@ -75,9 +75,9 @@ METRICS = [
 structure = [
     [
         {
-            "name": "New positive cases",
+            "name": "New positive cases (last 7 days)",
             "label": "newCases",
-            "metric": "newCasesByPublishDate",
+            "metric": "newCasesByPublishDateRollingSum",
         },
         {
             "name": "Total positive cases",
@@ -87,9 +87,9 @@ structure = [
     ],
     [
         {
-            "name": "New deaths within 28 days of a positive test",
+            "name": "New deaths within 28 days of a positive test (last 7 days)",
             "label": "newDeaths",
-            "metric": "newDeaths28DaysByPublishDate"
+            "metric": "newDeaths28DaysByPublishDateRollingSum"
         },
         {
             "name": "Total deaths within 28 days of a positive test",
@@ -99,19 +99,9 @@ structure = [
     ],
     [
         {
-            "name": "Virus tests conducted",
+            "name": "Virus tests conducted (last 7 days)",
             "label": "newVirusTestsByPublishDate",
-            "metric": "newVirusTestsByPublishDate"
-        },
-        {
-            "name": "PCR tests conducted",
-            "label": "newPCRTestsByPublishDate",
-            "metric": "newPCRTestsByPublishDate"
-        },
-        {
-            "name": "Antibody tests processed",
-            "label": "newAntibodyTestsByPublishDate",
-            "metric": "newAntibodyTestsByPublishDate"
+            "metric": "newVirusTestsByPublishDateRollingSum"
         },
         {
             "name": "Positivity ratio (%)",
@@ -121,21 +111,9 @@ structure = [
     ],
     [
         {
-            "name": "PCR testing capacity",
-            "label": "plannedPCRCapacityByPublishDate",
-            "metric": "plannedPCRCapacityByPublishDate"
-        },
-        {
-            "name": "Antibody testing capacity",
-            "label": "plannedAntibodyCapacityByPublishDate",
-            "metric": "plannedAntibodyCapacityByPublishDate"
-        },
-    ],
-    [
-        {
-            "name": "Patients admitted",
+            "name": "Patients admitted (last 7 days)",
             "label": "newAdmissions",
-            "metric": "newAdmissions"
+            "metric": "newAdmissionsRollingSum"
         },
         {
             "name": "Patients in hospital",
