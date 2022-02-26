@@ -36,7 +36,7 @@ housekeeping_tasks = (
         directory='etl',
         regex_pattern=r"^(?P<from_path>etl/(?P<filename>.+(?P<date>\d{4}-\d{2}-\d{2}).+\.ft))$",
         date_format="%Y-%m-%d",
-        offset_days=3,
+        offset_days=4,
         archive_directory=None,
         mode=ProcessMode.DISPOSE_ONLY
     ),
@@ -46,7 +46,7 @@ housekeeping_tasks = (
         directory='assets/frontpage/scales',
         regex_pattern=r"^(?P<from_path>assets/frontpage/scales/(?P<filename>.*(?P<date>\d{4}-\d{2}-\d{2}).+))$",
         date_format="%Y-%m-%d",
-        offset_days=3,
+        offset_days=4,
         archive_directory=None,
         mode=ProcessMode.DISPOSE_ONLY
     ),
@@ -56,7 +56,7 @@ housekeeping_tasks = (
         directory='homepage',
         regex_pattern=r"^(?P<from_path>homepage/(?P<filename>(?P<date>\d{4}-\d{2}-\d{2})/.+))$",
         date_format="%Y-%m-%d",
-        offset_days=3,
+        offset_days=4,
         archive_directory='summary_thumbnails',
         mode=ProcessMode.ARCHIVE_AND_DISPOSE
     ),
@@ -66,7 +66,7 @@ housekeeping_tasks = (
         directory='og-images',
         regex_pattern=r"^(?P<from_path>og-images/(?P<filename>og-[a-z]+_(?P<date>\d{4}\d{2}\d{2}).png))$",
         date_format="%Y%m%d",
-        offset_days=3,
+        offset_days=4,
         archive_directory='og_images',
         mode=ProcessMode.ARCHIVE_AND_DISPOSE
     ),
@@ -76,7 +76,7 @@ housekeeping_tasks = (
         directory='easy_read',
         regex_pattern=r"^(?P<from_path>easy_read/(?P<filename>(?P<date>\d{4}-\d{2}-\d{2})/.+))$",
         date_format="%Y-%m-%d",
-        offset_days=3,
+        offset_days=4,
         archive_directory='easy_read',
         mode=ProcessMode.ARCHIVE_AND_DISPOSE
     ),
