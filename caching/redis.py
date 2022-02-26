@@ -3,11 +3,13 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
+import logging
 from typing import List
 from os import getenv
 from json import loads
 from itertools import chain
 from functools import partial
+from datetime import datetime
 
 # 3rd party:
 from redis import Redis
@@ -23,7 +25,6 @@ __all__ = [
     "RedisClient"
 ]
 
-CACHE_TTL = 36 * 60 * 60  # 36 hours in seconds
 
 CREDENTIALS = loads(getenv("REDIS", "[]"))
 API_ENV = getenv("API_ENV")
@@ -34,7 +35,16 @@ class RedisClient:
     Client for handling operations on multiple Redis instances.
     """
 
+    cache_ttl = 36 * 60 * 60  # 36 hours in seconds
+
+    # This is to prevent data from expiring
+    # during the weekend.
+    if datetime.utcnow().isoweekday() >= 5:
+        cache_ttl = 84 * 60 * 60  # 84 hours in seconds
+
     def __init__(self, db=0):
+        logging.info(f"Initialised logging client - default TTL: {self.cache_ttl} seconds")
+
         self._instances: List[Redis] = list()
         self._pipelines: List[Pipeline] = list()
         self._db = db
@@ -60,7 +70,10 @@ class RedisClient:
         fn = partial(conn.scan_iter, count=1000)
         return chain.from_iterable(map(fn, patterns))
 
-    def set_data(self, data: Series, ttl=CACHE_TTL):
+    def set_data(self, data: Series, ttl=None):
+        if ttl is None:
+            ttl = self.cache_ttl
+
         for pipe in self._pipelines:
             pipe.set(data['key'], data['value'], ex=ttl)
 
