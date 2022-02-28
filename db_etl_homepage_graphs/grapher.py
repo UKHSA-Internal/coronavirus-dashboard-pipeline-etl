@@ -28,11 +28,11 @@ __all__ = [
 ]
 
 
-metrics = [
+METRICS = [
     'newAdmissions',
     'newCasesBySpecimenDate',
-    'newDeaths28DaysByDeathDate',
-    'newVirusTestsBySpecimenDate'
+    # 'newDeaths28DaysByDeathDate',
+    'newVirusTestsByPublishDate'
 ]
 
 
@@ -129,7 +129,7 @@ def main(payload):
     category = payload.get("category", "main")
 
     if category == "main":
-        for metric in metrics:
+        for metric in METRICS:
             get_timeseries(payload['date'], metric)
 
     if payload.get("category") == "vaccination":
@@ -139,4 +139,4 @@ def main(payload):
 
 
 if __name__ == "__main__":
-    main({"date": "2021-05-17"})
+    main({"date": "2022-02-28"})
