@@ -31,7 +31,7 @@ __all__ = [
 METRICS = [
     'newAdmissions',
     'newCasesBySpecimenDate',
-    # 'newDeaths28DaysByDeathDate',
+    'newDeaths28DaysByDeathDate',
     'newVirusTestsByPublishDate'
 ]
 
