@@ -199,6 +199,9 @@ def get_record_id(record_date: datetime):
 
 
 def store_data(data: DataFrame):
+    if not data.size:
+        return None
+
     session = Session()
     connection = session.connection()
     try:
@@ -370,7 +373,7 @@ def process(payload):
 if __name__ == "__main__":
     from datetime import timedelta
 
-    delta = 1  # days
+    delta = 0  # days
     process({
         "timestamp": (datetime.now() - timedelta(days=delta)).isoformat()
     })
