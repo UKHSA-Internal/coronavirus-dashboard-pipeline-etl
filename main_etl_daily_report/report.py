@@ -111,8 +111,8 @@ UK_structure = [
     [
         {
             "name": "Patients admitted (last 7 days)",
-            "label": "newAdmissionsRollingSum",
-            "metric": "newAdmissions"
+            "label": "newAdmissions",
+            "metric": "newAdmissionsRollingSum"
         },
         {
             "name": "Patients in hospital",
