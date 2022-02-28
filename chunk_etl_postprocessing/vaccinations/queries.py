@@ -134,3 +134,13 @@ FROM (
 LEFT JOIN covid19.metric_reference AS mr ON mr.metric = df.metric;\
 """
 
+
+PREVIOUS_PUBLICATION_DATE = """\
+SELECT rr.timestamp::DATE
+FROM covid19.release_reference AS rr
+  LEFT JOIN covid19.release_category AS rc ON rc.release_id = rr.id
+WHERE rr.timestamp::DATE != NOW()::DATE
+  AND rc.process_name = 'VACCINATION'
+ORDER BY rr.timestamp DESC
+LIMIT 1;\
+"""

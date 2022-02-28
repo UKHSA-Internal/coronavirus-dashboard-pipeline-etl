@@ -14,12 +14,14 @@ from sqlalchemy import text
 try:
     from __app__.db_tables.covid19 import Session
     from __app__.db_etl_upload import generate_row_hash, to_sql
-    from .queries import PUBLISH_DATE_CALCULATION, PERCENTAGE_DATA
+    from .queries import (
+        PUBLISH_DATE_CALCULATION, PERCENTAGE_DATA, PREVIOUS_PUBLICATION_DATE
+    )
 except ImportError:
     from db_tables.covid19 import Session
     from db_etl_upload import generate_row_hash, to_sql
     from chunk_etl_postprocessing.vaccinations.queries import (
-        PUBLISH_DATE_CALCULATION, PERCENTAGE_DATA
+        PUBLISH_DATE_CALCULATION, PERCENTAGE_DATA, PREVIOUS_PUBLICATION_DATE
     )
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,10 +31,25 @@ __all__ = [
 ]
 
 
+def get_previous_partition_date():
+    session = Session()
+    conn = session.connection()
+    try:
+        resp = conn.execute(text(PREVIOUS_PUBLICATION_DATE))
+        data = resp.fetchone()
+    except Exception as err:
+        session.rollback()
+        raise err
+    finally:
+        session.close()
+
+    return f"{data[0]:%Y_%-m_%-d}"
+
+
 def derive_publish_date_metrics(timestamp, area_type):
     query = PUBLISH_DATE_CALCULATION.format(
         today=f"{timestamp:%Y_%-m_%-d}",
-        yesterday=f"{timestamp - timedelta(days=1):%Y_%-m_%-d}",
+        yesterday=get_previous_partition_date(),
         area_type=area_type
     )
 
