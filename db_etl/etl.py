@@ -520,7 +520,8 @@ SUM_CHANGE_DIRECTION = {
     'newAdmissions',
     'newDeaths28DaysByPublishDate',
     'newPCRTestsByPublishDate',
-    'newVirusTestsByPublishDate'
+    'newVirusTestsByPublishDate',
+    'newDeaths28DaysByDeathDate',
 }
 
 
