@@ -86,5 +86,6 @@ if __name__ == '__main__':
     # main({"timestamp": (datetime.now() - timedelta(days=1)).isoformat()})
 
     # Remove non-area data
-    with RedisClient(db=0) as redis_client:
-        redis_client.delete_pattern(['*log*', '*announcement*', '*metric*'])
+    for db_ind in range(4, -1, -1):
+        with RedisClient(db=db_ind) as redis_client:
+            redis_client.delete_pattern(['*log*', '*announcement*'])
