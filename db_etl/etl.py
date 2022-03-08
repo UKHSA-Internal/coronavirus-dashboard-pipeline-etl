@@ -447,6 +447,9 @@ FILL_WITH_ZEROS = {
 
     'newVirusTestsBySpecimenDate',
     'newPCRTestsBySpecimenDate',
+
+    "newDeaths28DaysByPublishDate",
+    "newDeaths60DaysByPublishDate",
 }
 
 
