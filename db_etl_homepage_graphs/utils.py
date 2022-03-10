@@ -22,8 +22,8 @@ __all__ = [
 
 
 IsImproving: Dict[str, Callable[[Union[int, float]], bool]] = {
-    "newCasesBySpecimenDate": lambda x: x < 0,
-    "newDeaths28DaysByDeathDate": lambda x: x < 0,
+    "newCasesByPublishDate": lambda x: x < 0,
+    "newDeaths28DaysByPublishDate": lambda x: x < 0,
     "newVirusTestsByPublishDate": lambda x: 0,
     "newAdmissions": lambda x: x < 0,
 }
