@@ -31,6 +31,7 @@ def main(payload):
         ("healthcare", None): run_direct,
         ("tests", None): run_direct,
         ("cases", None): run_direct,
+        ("deaths", None): run_direct,
         ("vaccinations-by-vaccination-date", "MSOA"): run_direct_msoas,
         ("vaccinations-by-vaccination-date", None): {
             "age-demographics": run_demographics

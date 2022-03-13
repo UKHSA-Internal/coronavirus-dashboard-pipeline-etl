@@ -41,6 +41,7 @@ category2process_name = {
     ("healthcare", None): "HEALTHCARE",
     ("tests", None): 'TESTING: MAIN',
     ("cases", None): 'CASES: MAIN',
+    ("deaths", None): 'DEATHS: MAIN',
     ("main", None): "MAIN",
     ("msoa", None): "MSOA",
     ('cases-by-specimen-date', 'MSOA'): "MSOA",
