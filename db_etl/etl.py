@@ -450,6 +450,9 @@ FILL_WITH_ZEROS = {
 
     "newDeaths28DaysByPublishDate",
     "newDeaths60DaysByPublishDate",
+
+    "changeInNewDeaths28DaysByDeathDate",
+    "previouslyReportedNewDeaths28DaysByDeathDate",
 }
 
 
