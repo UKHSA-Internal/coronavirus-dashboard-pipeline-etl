@@ -42,6 +42,15 @@ def main(payload):
         ("deaths28days-by-death-date", None): {
             "age-demographics": run_demographics
         },
+        ("deaths28days-by-death-date", None): {
+            "age-demographics": run_demographics
+        },
+        ("first-episodes-by-specimen-date", None): {
+            "age-demographics": run_demographics
+        },
+        ("reinfections-by-specimen-date", None): {
+            "age-demographics": run_demographics
+        },
     }
 
     category = payload["category"]
