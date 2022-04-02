@@ -56,10 +56,10 @@ category2process_name = {
         "age-demographics": "AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE"
     },
     ("first-episodes-by-specimen-date", None): {
-        "age_demographics": "AGE-DEMOGRAPHICS: CASES - FIRST EPISODES"
+        "age-demographics": "AGE-DEMOGRAPHICS: CASES - FIRST EPISODES"
     },
     ("reinfections-by-specimen-date", None): {
-        "age_demographics": "AGE-DEMOGRAPHICS: CASES - REINFECTIONS"
+        "age-demographics": "AGE-DEMOGRAPHICS: CASES - REINFECTIONS"
     },
 }
 
