@@ -1265,6 +1265,22 @@ def run_demographics(payload_dict):
                 "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
             }
         },
+        "first-episodes-by-specimen-date": {
+            "age-demographics": {
+                "metric_name": "newFirstEpisodesBySpecimenDateAgeDemographics",
+                "base_metric": "newFirstEpisodesBySpecimenDate",
+                "db_payload_metric": "cases",
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+            }
+        },
+        "reinfections-by-specimen-date": {
+            "age-demographics": {
+                "metric_name": "newReinfectionsBySpecimenDateAgeDemographics",
+                "base_metric": "newReinfectionsBySpecimenDate",
+                "db_payload_metric": "cases",
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+            }
+        },
     }
 
     payload = RawDataPayload(**payload_dict["base"])
