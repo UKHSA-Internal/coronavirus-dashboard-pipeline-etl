@@ -54,15 +54,21 @@ category2process_name = {
     },
     ("vaccinations-by-vaccination-date", None): {
         "age-demographics": "AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE"
-    }
+    },
+    ("first-episodes-by-specimen-date", None): {
+        "age_demographics": "AGE-DEMOGRAPHICS: CASES - FIRST EPISODES"
+    },
+    ("reinfections-by-specimen-date", None): {
+        "age_demographics": "AGE-DEMOGRAPHICS: CASES - REINFECTIONS"
+    },
 }
 
 filename_pattern = re.compile(
     r"""
     ^(?P<prefix>[0-9-]{10})/
     (?P<area_type>MSOA)?_?
-    (?P<category>[a-zA-Z0-9-]*)_?
-    (?P<subcategory>[a-zA-Z0-9-]*)_
+    (?P<category>[a-z0-9-]*)_?
+    (?P<subcategory>[a-z0-9-]*)_
     (?P<timestamp>\d{12})\.parquet$
     """,
     re.IGNORECASE | re.VERBOSE
