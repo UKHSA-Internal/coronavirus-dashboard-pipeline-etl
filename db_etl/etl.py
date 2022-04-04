@@ -453,6 +453,10 @@ FILL_WITH_ZEROS = {
 
     "changeInNewDeaths28DaysByDeathDate",
     "previouslyReportedNewDeaths28DaysByDeathDate",
+
+    'newPeopleVaccinatedFirstDoseByPublishDate',
+    'newPeopleVaccinatedSecondDoseByPublishDate',
+    'newPeopleVaccinatedThirdInjectionByPublishDate',
 }
 
 
@@ -528,6 +532,9 @@ SUM_CHANGE_DIRECTION = {
     'newPCRTestsByPublishDate',
     'newVirusTestsByPublishDate',
     'newDeaths28DaysByDeathDate',
+    'newPeopleVaccinatedFirstDoseByPublishDate',
+    'newPeopleVaccinatedSecondDoseByPublishDate',
+    'newPeopleVaccinatedThirdInjectionByPublishDate',
 }
 
 
