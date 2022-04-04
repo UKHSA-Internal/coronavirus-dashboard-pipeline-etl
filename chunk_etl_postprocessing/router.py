@@ -26,7 +26,7 @@ def main(payload):
     # ToDo: This needs to be implemented as a piping process.
 
     handlers: HandlerType = {
-        "vaccination": process_vaccinations,
+        # "vaccination": process_vaccinations,  # ToDo: Deprecated - to be removed.
         # "tests": process_testing  # ToDo: Deprecated - to be removed.
     }
 
