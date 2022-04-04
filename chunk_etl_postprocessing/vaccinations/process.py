@@ -114,7 +114,7 @@ def process_vaccinations(payload):
     area_types = ["utla", "ltla"]
 
     for area_type in area_types:
-        derive_publish_date_metrics(timestamp, area_type)
+        # derive_publish_date_metrics(timestamp, area_type)  # ToDo: Deprecated - awaiting removal.
         derive_publish_date_percentages(timestamp, area_type)
 
     return f"DONE: {payload['timestamp']}"
