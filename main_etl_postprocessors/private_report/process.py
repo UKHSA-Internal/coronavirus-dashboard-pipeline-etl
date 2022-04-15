@@ -59,13 +59,13 @@ METRICS = [
     'newAdmissions',
     'hospitalCases',
     'covidOccupiedMVBeds',
-    'newPeopleVaccinatedFirstDoseByPublishDate',
+    'newPeopleVaccinatedFirstDoseByPublishDateRollingSum',
     'cumPeopleVaccinatedFirstDoseByPublishDate',
     'cumVaccinationFirstDoseUptakeByPublishDatePercentage',
-    'newPeopleVaccinatedSecondDoseByPublishDate',
+    'newPeopleVaccinatedSecondDoseByPublishDateRollingSum',
     'cumPeopleVaccinatedSecondDoseByPublishDate',
     'cumVaccinationSecondDoseUptakeByPublishDatePercentage',
-    'newPeopleVaccinatedThirdInjectionByPublishDate',
+    'newPeopleVaccinatedThirdInjectionByPublishDateRollingSum',
     'cumPeopleVaccinatedThirdInjectionByPublishDate',
     'cumVaccinationThirdInjectionUptakeByPublishDatePercentage',
     'newVaccinesGivenByPublishDate',
@@ -128,9 +128,9 @@ structure = [
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 1st dose",
-            "label": "newPeopleVaccinatedFirstDoseByPublishDate",
-            "metric": "newPeopleVaccinatedFirstDoseByPublishDate"
+            "name": "New people vaccinated &mdash; 1st dose (last 7 days)",
+            "label": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum",
+            "metric": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum"
         },
         {
             "name": "Total people vaccinated &mdash; 1st dose",
@@ -145,9 +145,9 @@ structure = [
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 2nd dose",
-            "label": "newPeopleVaccinatedSecondDoseByPublishDate",
-            "metric": "newPeopleVaccinatedSecondDoseByPublishDate",
+            "name": "New people vaccinated &mdash; 2nd dose (last 7 days)",
+            "label": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
+            "metric": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
         },
         {
             "name": "Total people vaccinated &mdash; 2nd dose",
@@ -162,9 +162,9 @@ structure = [
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 3rd dose + booster",
-            "label": "newPeopleVaccinatedThirdInjectionByPublishDate",
-            "metric": "newPeopleVaccinatedThirdInjectionByPublishDate",
+            "name": "New people vaccinated &mdash; 3rd dose + booster (last 7 days)",
+            "label": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
+            "metric": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
         },
         {
             "name": "Total people vaccinated &mdash; 3rd dose + booster",
