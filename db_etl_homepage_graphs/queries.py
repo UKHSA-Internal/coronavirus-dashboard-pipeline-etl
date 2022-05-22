@@ -140,7 +140,8 @@ JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
 JOIN covid19.area_reference    AS ar ON ar.id = main.area_id
 WHERE
       partition_id = :partition_id
-  AND area_type = 'overview'
+  AND area_type = 'nation'
+  AND area_name = 'England'
   AND date > ( NOW() - INTERVAL '6 months')
   AND metric = :metric
 ORDER BY date DESC;\
@@ -158,7 +159,8 @@ JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
 JOIN covid19.area_reference    AS ar ON ar.id = ts.area_id
 WHERE
       partition_id = :partition_id
-  AND area_type = 'overview'
+  AND area_type = 'nation'
+  AND area_name = 'England'
   AND date > ( DATE( :datestamp ) - INTERVAL '30 days' )
   AND metric = :metric
 ORDER BY date DESC
