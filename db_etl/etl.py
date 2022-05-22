@@ -383,6 +383,9 @@ INCIDENCE_RATE_FIELDS = {
     "cumOnsDeathsByRegistrationDate",
 
     "cumWeeklyNsoDeathsByRegDate",
+
+    'cumCasesPillarOneBySpecimenDate',
+    'cumCasesPillarTwoBySpecimenDate',
 }
 
 
@@ -398,6 +401,8 @@ ROLLING_RATE = {
     'newCasesPCROnlyBySpecimenDate',
     'newCasesLFDOnlyBySpecimenDate',
     'newCasesLFDConfirmedPCRBySpecimenDate',
+    'newCasesPillarOneBySpecimenDate',
+    'newCasesPillarTwoBySpecimenDate',
 }
 
 
@@ -488,6 +493,9 @@ START_WITH_ZERO = {
 
     'cumVirusTestsBySpecimenDate',
     'cumPCRTestsBySpecimenDate',
+
+    'cumCasesPillarOneBySpecimenDate',
+    'cumCasesPillarTwoBySpecimenDate',
 }
 
 
@@ -535,6 +543,8 @@ SUM_CHANGE_DIRECTION = {
     'newPeopleVaccinatedFirstDoseByPublishDate',
     'newPeopleVaccinatedSecondDoseByPublishDate',
     'newPeopleVaccinatedThirdInjectionByPublishDate',
+    'newCasesPillarOneBySpecimenDate',
+    'newCasesPillarTwoBySpecimenDate',
 }
 
 
