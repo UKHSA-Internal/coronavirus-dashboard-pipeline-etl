@@ -32,6 +32,8 @@ METRICS = [
     'newAdmissions',
     'newCasesByPublishDate',
     'newDeaths28DaysByPublishDate',
+    'newCasesBySpecimenDate',
+    'newDeaths28DaysByDeathDate',
     'newVirusTestsByPublishDate'
 ]
 
