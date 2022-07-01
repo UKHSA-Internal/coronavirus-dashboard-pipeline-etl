@@ -35,12 +35,7 @@ class RedisClient:
     Client for handling operations on multiple Redis instances.
     """
 
-    cache_ttl = 36 * 60 * 60  # 36 hours in seconds
-
-    # This is to prevent data from expiring
-    # during the weekend.
-    if datetime.utcnow().isoweekday() >= 5:
-        cache_ttl = 84 * 60 * 60  # 84 hours in seconds
+    cache_ttl = 12 * 24 * 60 * 60  # 12 days in seconds
 
     def __init__(self, db=0):
         logging.info(f"Initialised logging client - default TTL: {self.cache_ttl} seconds")
