@@ -38,3 +38,4 @@ opencensus-ext-logging
 opencensus-ext-requests
 matplotlib
 Markdown
+protobuf>=3.19.3,==3.*
