@@ -142,7 +142,7 @@ WHERE
       partition_id = :partition_id
   AND area_type = 'nation'
   AND area_name = 'England'
-  AND date > ( NOW() - INTERVAL '6 months')
+  AND date BETWEEN ( DATE( :datestamp ) - INTERVAL '6 months') AND ( DATE( :datestamp ) - INTERVAL '5 days' )
   AND metric = :metric
 ORDER BY date DESC;\
 """
@@ -161,7 +161,7 @@ WHERE
       partition_id = :partition_id
   AND area_type = 'nation'
   AND area_name = 'England'
-  AND date > ( DATE( :datestamp ) - INTERVAL '30 days' )
+  AND date BETWEEN ( DATE( :datestamp ) - INTERVAL '30 days' ) AND ( DATE(:datestamp) - INTERVAL '5 days' )
   AND metric = :metric
 ORDER BY date DESC
 OFFSET 0
