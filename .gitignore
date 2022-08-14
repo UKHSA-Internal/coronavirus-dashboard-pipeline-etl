@@ -1314,3 +1314,5 @@ local.settings.prod.json
 /_db_deploy/
 /_main_etl_deploy_to_db/
 /_headline_graphs/
+
+**/*env*
