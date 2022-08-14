@@ -58,13 +58,26 @@ def main(context: DurableOrchestrationContext):
         context.set_custom_status(f"Submitting {len(tasks)} tasks for {FLUSH_DESPATCH}.")
 
     elif trigger_payload['to'] == PURGE_STORAGE_CACHE:
-        task = context.call_activity_with_retry(
+        task_bust_cache = context.call_activity_with_retry(
             "cache_buster_storage_activity",
             retry_options=retry_options,
             input_=trigger_payload
         )
 
-        tasks.append(task)
+        task_update_apiv2_archieves = context.call_activity_with_retry(
+            "despatch_ops_workers",
+            retry_options=retry_options,
+            input_=dict(
+                **trigger_payload,
+                handler='archive_dates',
+                payload=dict(
+                    data_type="MAIN",
+                    timestamp=trigger_payload["date"]
+                )
+            ),
+        )
+
+        tasks.extend([task_update_apiv2_archieves, task_bust_cache])
 
         context.set_custom_status(f"Submitting tasks for {PURGE_STORAGE_CACHE}.")
 
