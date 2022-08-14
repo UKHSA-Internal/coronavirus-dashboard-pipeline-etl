@@ -69,7 +69,8 @@ def get_timeseries(date: str, metric: str):
         resp = conn.execute(
             text(values_query),
             partition_id=partition_id,
-            metric=metric
+            metric=metric,
+            datestamp=ts
         )
         values = resp.fetchall()
 
@@ -141,4 +142,4 @@ def main(payload):
 
 
 if __name__ == "__main__":
-    main({"date": "2022-02-28"})
+    main({"date": "2022-08-10"})
