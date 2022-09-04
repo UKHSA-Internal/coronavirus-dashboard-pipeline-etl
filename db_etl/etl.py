@@ -444,6 +444,10 @@ FILL_WITH_ZEROS = {
     'newCasesLFDOnlyBySpecimenDate',
     'newCasesLFDConfirmedPCRBySpecimenDate',
 
+    # Variants
+    'cumWeeklySequenced',
+    'newWeeklyPercentage',
+
     # Vaccine demogs
     'newPeopleVaccinatedFirstDoseByVaccinationDate',
     'newPeopleVaccinatedSecondDoseByVaccinationDate',
