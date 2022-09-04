@@ -51,6 +51,9 @@ def main(payload):
         ("reinfections-by-specimen-date", None): {
             "age-demographics": run_demographics
         },
+        ("variants", None): {
+            "episodes": run_demographics
+        },
     }
 
     category = payload["category"]
