@@ -116,7 +116,8 @@ nested = {
     "femaleNegatives",
     "maleNegatives",
     "newCasesBySpecimenDateAgeDemographics",
-    "newDeaths28DaysByDeathDateAgeDemographics"
+    "newDeaths28DaysByDeathDateAgeDemographics",
+    "variants"
 }
 
 id_vars = [
