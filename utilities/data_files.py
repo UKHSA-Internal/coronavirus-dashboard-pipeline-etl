@@ -61,6 +61,9 @@ category2process_name = {
     ("reinfections-by-specimen-date", None): {
         "age-demographics": "AGE-DEMOGRAPHICS: CASES - REINFECTIONS"
     },
+    ("variants", None): {
+        "episodes": "EPISODE VARIANTS - EPISODES"
+    },
 }
 
 filename_pattern = re.compile(
