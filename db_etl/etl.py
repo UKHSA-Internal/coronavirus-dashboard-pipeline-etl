@@ -1298,6 +1298,12 @@ def run_demographics(payload_dict):
                 "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
             }
         },
+        "variants": {
+            "episodes": {
+                "metric_name": "variants",
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'variant']
+            }
+        }
     }
 
     payload = RawDataPayload(**payload_dict["base"])
