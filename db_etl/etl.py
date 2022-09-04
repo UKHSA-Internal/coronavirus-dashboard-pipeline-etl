@@ -1216,44 +1216,44 @@ def get_prepped_age_breakdown_population():
 def metric_specific_processes(df, base_metric, db_payload_metric):
     if base_metric is None:
         return df
-    else:
-        df = (
-            df
-            .pipe(
-                calculate_age_rates,
-                population_data=get_prepped_age_breakdown_population(),
-                max_date=df.date.max(),
-                rolling_rate=[base_metric]
-            )
+
+    df = (
+        df
+        .pipe(
+            calculate_age_rates,
+            population_data=get_prepped_age_breakdown_population(),
+            max_date=df.date.max(),
+            rolling_rate=[base_metric]
         )
+    )
 
-        new_names = {
-            col: col.replace(base_metric, "")
-            for col in df.columns if col.startswith(base_metric) and base_metric != col
-        }
+    new_names = {
+        col: col.replace(base_metric, "")
+        for col in df.columns if col.startswith(base_metric) and base_metric != col
+    }
 
-        new_names = {
-            col: new_col[0].lower() + new_col[1:]
-            for col, new_col in new_names.items()
-        }
+    new_names = {
+        col: new_col[0].lower() + new_col[1:]
+        for col, new_col in new_names.items()
+    }
 
-        cutoff_date = f"{datetime.now() - timedelta(days=5):%Y-%m-%d}"
+    cutoff_date = f"{datetime.now() - timedelta(days=5):%Y-%m-%d}"
 
-        df = (
-            df
-            .rename(columns={**new_names, base_metric: db_payload_metric})
-            .loc[df.date <= cutoff_date, :]  # Drop the last 5 days (event date data)
-        )
+    df = (
+        df
+        .rename(columns={**new_names, base_metric: db_payload_metric})
+        .loc[df.date <= cutoff_date, :]  # Drop the last 5 days (event date data)
+    )
 
-        # Convert non-decimal columns to integer type
-        # to prevent `.0` in JSON payloads.
-        df.loc[:, [db_payload_metric, "rollingSum"]] = (
-            df
-            .loc[:, [db_payload_metric, "rollingSum"]]
-            .astype("Int64")
-        )
+    # Convert non-decimal columns to integer type
+    # to prevent `.0` in JSON payloads.
+    df.loc[:, [db_payload_metric, "rollingSum"]] = (
+        df
+        .loc[:, [db_payload_metric, "rollingSum"]]
+        .astype("Int64")
+    )
 
-        return df
+    return df
 
 
 def run_demographics(payload_dict):
@@ -1263,7 +1263,10 @@ def run_demographics(payload_dict):
         "vaccinations-by-vaccination-date": {
             "age-demographics": {
                 "metric_name": "vaccinationsAgeDemographics",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
+                "frequency": "D",
+                "nesting_param": "age"
             }
         },
         "cases-by-specimen-date": {
@@ -1271,7 +1274,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newCasesBySpecimenDateAgeDemographics",
                 "base_metric": "newCasesBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
+                "frequency": "D",
+                "nesting_param": "age"
             }
         },
         "deaths28days-by-death-date": {
@@ -1279,7 +1285,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newDeaths28DaysByDeathDateAgeDemographics",
                 "base_metric": "newDeaths28DaysByDeathDate",
                 "db_payload_metric": "deaths",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
+                "frequency": "D",
+                "nesting_param": "age"
             }
         },
         "first-episodes-by-specimen-date": {
@@ -1287,7 +1296,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newFirstEpisodesBySpecimenDateAgeDemographics",
                 "base_metric": "newFirstEpisodesBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
+                "frequency": "D",
+                "nesting_param": "age"
             }
         },
         "reinfections-by-specimen-date": {
@@ -1295,13 +1307,19 @@ def run_demographics(payload_dict):
                 "metric_name": "newReinfectionsBySpecimenDateAgeDemographics",
                 "base_metric": "newReinfectionsBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
+                "frequency": "D",
+                "nesting_param": "age"
             }
         },
         "variants": {
             "episodes": {
                 "metric_name": "variants",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'variant']
+                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'variant'],
+                "homogenisation_metrics": ["areaType", "areaCode", "date", "variant"],
+                "frequency": "W",
+                "nesting_param": "variant"
             }
         }
     }
@@ -1345,12 +1363,19 @@ def run_demographics(payload_dict):
 
     result = (
         data
-        .pipe(homogenise_demographics_dates)
+        .pipe(
+            homogenise_demographics_dates,
+            base_metrics=metadata.get("homogenisation_metrics"),
+            frequency=metadata.get("frequency"),
+            nesting_param=metadata.get("nesting_param")
+        )
         .set_index(main_metrics)
         .pipe(
             normalise_demographics_records,
             zero_filled=FILL_WITH_ZEROS,
-            cumulative=START_WITH_ZERO
+            cumulative=START_WITH_ZERO,
+            base_metrics=metadata.get("homogenisation_metrics"),
+            nesting_param=metadata.get("nesting_param")
         )
         .pipe(
             metric_specific_processes,
