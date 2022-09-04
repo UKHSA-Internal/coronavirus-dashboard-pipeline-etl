@@ -91,7 +91,10 @@ def normalise_records(d: DataFrame, zero_filled: Iterable[str] = tuple(),
     return d
 
 
-def normalise_demographics_records(d: DataFrame, zero_filled: Iterable[str] = tuple(),
+def normalise_demographics_records(d: DataFrame,
+                                   nesting_param: str,
+                                   base_metrics: Iterable[str],
+                                   zero_filled: Iterable[str] = tuple(),
                                    cumulative: Iterable[str] = tuple()) -> DataFrame:
     """
 
@@ -108,7 +111,7 @@ def normalise_demographics_records(d: DataFrame, zero_filled: Iterable[str] = tu
     zero_filled = set(zero_filled).intersection(d.columns)
     cumulative = set(cumulative).intersection(d.columns)
 
-    d = d.reset_index().sort_values(["areaType", "areaCode", "date", "age"])
+    d = d.reset_index().sort_values(base_metrics)
 
     d.loc[:, zero_filled] = (
         d
@@ -124,19 +127,19 @@ def normalise_demographics_records(d: DataFrame, zero_filled: Iterable[str] = tu
             d.loc[d.areaCode == areaCode, 'areaName'] = area_name
 
     # All cumulative metrics should have the same starting
-    # point across different age bands.
+    # point across different bands.
     d.loc[d.date == d.date.min(), cumulative] = (
         d
         .loc[d.date == d.date.min(), cumulative]
         .where(d.loc[d.date == d.date.min(), cumulative].notnull(), 0)
     )
 
-    for col, areaCode, age in product(cumulative, d.areaCode.unique(), d.age.unique()):
-        dm = d.loc[((d.areaCode == areaCode) & (d.age == age)), [col, 'date']]
+    for col, areaCode, nested_value in product(cumulative, d.areaCode.unique(), d[nesting_param].unique()):
+        dm = d.loc[((d.areaCode == areaCode) & (d[nesting_param] == nested_value)), [col, 'date']]
 
         indices = (
                 (d.areaCode == areaCode) &
-                (d.age == age) &
+                (d[nesting_param] == nested_value) &
                 (d.date < dm.dropna(axis=0).date.max()) &
                 (d.date >= dm.dropna(axis=0).date.min())
         )
