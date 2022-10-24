@@ -1,4 +1,4 @@
-name: Deploy ETL Functions to Azure Sandbox Environment
+name: Deploy ETL Functions to Azure Sandbox Environment.
 
 on:
  push:
