@@ -238,3 +238,72 @@ def plot_vaccinations(data):
 
     return fig.to_image(format="svg").decode()
 
+
+def plot_vaccinations_50_plus(data):
+    # data dictionary needs to have the keys:
+    # 'vaccination_date' and 'vaccination_date_percentage_dose'
+    vaccination_date = data["vaccination_date"]
+    vaccination_date_percentage_dose = data["vaccination_date_percentage_dose"]
+    # third_dose = data["third_dose"]
+
+    vaccination_date_matrix = get_vaccination_matrices(vaccination_date, 1)
+    vaccination_date_percentage_dose_matrix = get_vaccination_matrices(vaccination_date_percentage_dose, 2)
+    # third_dose_matrix = get_vaccination_matrices(third_dose, 3)
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Heatmap(
+            z=vaccination_date_matrix,
+            hoverongaps=False,
+            showscale=False,
+            ygap=3,
+            xgap=3,
+            colorscale=[
+                [0, "rgba(216,216,216,1)"],
+                [.5, "rgba(119,196,191,1)"],
+                [.9, "rgba(119,196,191,1)"],
+                [1, "rgba(119,196,191,1)"],
+            ]
+        )
+    )
+
+    fig.add_trace(
+        go.Heatmap(
+            z=vaccination_date_percentage_dose_matrix,
+            hoverongaps=False,
+            showscale=False,
+            ygap=3,
+            xgap=3,
+            colorscale=[
+                [0, "rgba(216,216,216,1)"],
+                [.5, "rgba(0,156,145,1)"],
+                [.9, "rgba(0,156,145,1)"],
+                [1, "rgba(0,156,145,1)"],
+            ]
+        )
+    )
+
+    # fig.add_trace(
+    #     go.Heatmap(
+    #         z=third_dose_matrix,
+    #         hoverongaps=False,
+    #         showscale=False,
+    #         ygap=3,
+    #         xgap=3,
+    #         colorscale=[
+    #             [0, "rgba(216,216,216,1)"],
+    #             [.5, "rgba(0,65,61,1)"],
+    #             [.9, "rgba(0,65,61,1)"],
+    #             [1, "rgba(0,65,61,1)"],
+    #         ]
+    #     )
+    # )
+
+    fig.update_layout(
+        width=400,
+        height=400,
+        **WAFFLE_LAYOUT
+    )
+
+    return fig.to_image(format="svg").decode()
