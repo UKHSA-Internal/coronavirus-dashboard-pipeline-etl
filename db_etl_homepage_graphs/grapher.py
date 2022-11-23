@@ -41,20 +41,34 @@ METRICS = [
 
 
 def store_data(date: str, metric: str, svg: str, area_type: str = None,
-               area_code: str = None, fiftyplus: bool = False):
+               area_code: str = None):
     kws = dict(
         container="downloads",
         content_type="image/svg+xml",
         cache_control="public, max-age=30, s-maxage=90, must-revalidate",
         compressed=False
     )
-    over50 = '_50plus' if fiftyplus else ''
 
-    if not fiftyplus:
-        path = f"homepage/{date}/thumbnail_{metric}.svg"
+    path = f"homepage/{date}/thumbnail_{metric}.svg"
 
     if area_code is not None:
-        path = f"homepage/{date}/{metric}/{area_type}/{area_code}{over50}_thumbnail.svg"
+        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_thumbnail.svg"
+
+    with StorageClient(path=path, **kws) as cli:
+        cli.upload(svg)
+
+
+def store_data_50_plus(date: str, metric: str, svg: str, area_type: str = None,
+               area_code: str = None):
+    kws = dict(
+        container="downloads",
+        content_type="image/svg+xml",
+        cache_control="public, max-age=30, s-maxage=90, must-revalidate",
+        compressed=False
+    )
+
+    if area_code is not None:
+        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_50plus_thumbnail.svg"
 
     with StorageClient(path=path, **kws) as cli:
         cli.upload(svg)
@@ -101,15 +115,26 @@ def get_timeseries(date: str, metric: str):
 
 
 def transform_50_plus(item):
-    # TODO: create the function
-    # These keys are expected: 'vaccination_date' and 'vaccination_date_percentage_dose'
-    # in the output (calculated from 'payload')
+    vaccination_date = 0
+    vaccination_date_percentage_dose = 0
+
+    for obj in item['payload']:
+        if obj.get('age', None) == '50+':
+            vaccination_date = int(obj.get(
+                'cumPeopleVaccinatedAutumn22ByVaccinationDate',
+                0
+            ))
+            vaccination_date_percentage_dose = int(obj.get(
+                'cumVaccinationAutumn22UptakeByVaccinationDatePercentage',
+                0
+            ))
+
     return {
-        "area_type": 'string',
-        "area_code": 'string',
-        "date": 'string',
-        "vaccination_date":  'payload',
-        "vaccination_date_percentage_dose": 'payload'
+        "area_type": item['area_type'],
+        "area_code": item['area_code'],
+        "date": item['date'],
+        "vaccination_date": vaccination_date,
+        "vaccination_date_percentage_dose": vaccination_date_percentage_dose
     }
 
 
@@ -118,7 +143,6 @@ def get_vaccinations(date):
     partition = f"{ts:%Y_%-m_%-d}"
 
     vax_query = queries.VACCINATIONS_QUERY.format(partition_date=partition)
-    vax_query_50_plus = queries.VACCINATIONS_QUERY_50_PLUS.format(partition=partition)
 
     session = Session()
     conn = session.connection()
@@ -128,9 +152,6 @@ def get_vaccinations(date):
             datestamp=ts
         )
         values = resp.fetchall()
-
-        resp50 = conn.execute(text(vax_query_50_plus))
-        values_50_plus = resp50.fetchall()
     except Exception as err:
         session.rollback()
         raise err
@@ -146,14 +167,31 @@ def get_vaccinations(date):
             area_code=item["area_code"]
         )
 
-    # Create 'waffle' for the 50+
+    return True
+
+
+def get_vaccinations_50_plus(date):
+    ts = datetime.strptime(date, "%Y-%m-%d")
+    partition = f"{ts:%Y_%-m_%-d}"
+
+    vax_query_50_plus = queries.VACCINATIONS_QUERY_50_PLUS.format(partition=partition)
+
+    session = Session()
+    conn = session.connection()
+    try:
+        resp50 = conn.execute(text(vax_query_50_plus))
+        values_50_plus = resp50.fetchall()
+    except Exception as err:
+        session.rollback()
+        raise err
+    finally:
+        session.close()
+
     for item in values_50_plus:
-        # item has got values as json
-        # they have to be extracted/converted
-        store_data(
+        store_data_50_plus(
             date,
             "vaccinations",
-            plot_vaccinations(transform_50_plus(item)),
+            plot_vaccinations_50_plus(transform_50_plus(item)),
             area_type=item["area_type"],
             area_code=item["area_code"]
         )
@@ -170,6 +208,7 @@ def main(payload):
 
     if payload.get("category") == "vaccination":
         get_vaccinations(payload['date'])
+        get_vaccinations_50_plus(payload['date'])
 
     return f'DONE: {payload["date"]}'
 
