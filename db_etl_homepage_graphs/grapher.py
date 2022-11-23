@@ -114,17 +114,23 @@ def get_timeseries(date: str, metric: str):
     return True
 
 
-def transform_50_plus(item):
+def get_value_50_plus(item):
+    ''' Get the values form the element (dict) in a list
+        where its key 'age' is '50+' and put them in new dict keys:
+        - cumPeopleVaccinatedAutumn22ByVaccinationDate
+        - cumVaccinationAutumn22UptakeByVaccinationDatePercentage
+    '''
+
     vaccination_date = 0
     vaccination_date_percentage_dose = 0
 
     for obj in item['payload']:
         if obj.get('age', None) == '50+':
-            vaccination_date = int(obj.get(
+            vaccination_date = round(obj.get(
                 'cumPeopleVaccinatedAutumn22ByVaccinationDate',
                 0
             ))
-            vaccination_date_percentage_dose = int(obj.get(
+            vaccination_date_percentage_dose = round(obj.get(
                 'cumVaccinationAutumn22UptakeByVaccinationDatePercentage',
                 0
             ))
@@ -191,7 +197,7 @@ def get_vaccinations_50_plus(date):
         store_data_50_plus(
             date,
             "vaccinations",
-            plot_vaccinations_50_plus(transform_50_plus(item)),
+            plot_vaccinations_50_plus(get_value_50_plus(item)),
             area_type=item["area_type"],
             area_code=item["area_code"]
         )
