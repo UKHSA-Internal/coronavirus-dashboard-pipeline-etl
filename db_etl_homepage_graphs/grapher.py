@@ -70,8 +70,8 @@ def store_data_50_plus(date: str, metric: str, svg: str, area_type: str = None,
     if area_code is not None:
         path = f"homepage/{date}/{metric}/{area_type}/{area_code}_50plus_thumbnail.svg"
 
-    with StorageClient(path=path, **kws) as cli:
-        cli.upload(svg)
+        with StorageClient(path=path, **kws) as cli:
+            cli.upload(svg)
 
 
 def get_timeseries(date: str, metric: str):
