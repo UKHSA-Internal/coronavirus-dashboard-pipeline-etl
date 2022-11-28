@@ -156,7 +156,6 @@ FROM (
         )
     ) AS tsltla
 WHERE metric = 'vaccinationsAgeDemographics'
-AND area_type = 'nation'
 AND date > ( DATE(NOW()) - INTERVAL '30 days' );\
 """
 
