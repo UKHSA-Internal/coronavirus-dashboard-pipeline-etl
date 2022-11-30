@@ -26,27 +26,50 @@ class TestWaffleCharts(unittest.TestCase):
     def replacement_store(date, metric, csv, area_type=None, area_code=None):
         logging.debug(f" {date}, {metric}, {area_type}, {area_code}")
 
-        if area_code is not None and area_type == 'nation':
-            downloads_dir = os.path.join(test_dir, "downloads", date, metric, area_type)
+        path = f"homepage/{date}/thumbnail_{metric}.svg"
+        downloads_dir = os.path.join(test_dir, "downloads", "homepage", date)
+        if not os.path.exists(downloads_dir):
+            os.makedirs(downloads_dir)
+
+        path = os.path.join(downloads_dir, f"thumbnail_{metric}.svg")
+
+        if area_code is not None:
+            downloads_dir = os.path.join(
+                test_dir, "downloads", "homepage", date, metric, area_type
+            )
             if not os.path.exists(downloads_dir):
                 os.makedirs(downloads_dir)
 
             path = os.path.join(downloads_dir, f"{area_code}_thumbnail.svg")
 
+        with open(path, "w") as fh:
+            fh.write(csv)
+
+    def replacement_store_50_plus(date, metric, csv, area_type=None, area_code=None):
+        logging.debug(f" {date}, {metric}, {area_type}, {area_code}")
+
+        if area_code is not None:
+            downloads_dir = os.path.join(
+                test_dir, "downloads", "homepage", date, metric, area_type
+            )
+            if not os.path.exists(downloads_dir):
+                os.makedirs(downloads_dir)
+
+            path = os.path.join(downloads_dir, f"{area_code}_50_plus_thumbnail.svg")
+
             with open(path, "w") as fh:
                 fh.write(csv)
 
-    @patch('db_etl_homepage_graphs.grapher.store_data', replacement_store)
-    def test_get_vaccinations(self):
-        logging.debug("STARTED")
+    # TODO: Remove after get_vaccinations() have been deleted
+    # @patch('db_etl_homepage_graphs.grapher.store_data', replacement_store)
+    # def test_get_vaccinations(self):
 
+    #     get_vaccinations("2022-11-24")
 
-        get_vaccinations("2022-11-17")
-
-    @patch('db_etl_homepage_graphs.grapher.store_data_50_plus', replacement_store)
+    @patch('db_etl_homepage_graphs.grapher.store_data_50_plus', replacement_store_50_plus)
     def test_get_vaccinations_50_plus(self):
 
-        get_vaccinations_50_plus("2022-11-17")
+        get_vaccinations_50_plus("2022-11-24")
 
 
 if __name__ == '__main__':

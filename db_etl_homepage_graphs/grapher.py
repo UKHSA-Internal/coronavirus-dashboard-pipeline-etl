@@ -193,14 +193,29 @@ def get_vaccinations_50_plus(date):
     finally:
         session.close()
 
+    # This used for tracking most recent values
+    saved_data = {}
+
     for item in values_50_plus:
-        store_data_50_plus(
-            date,
-            "vaccinations",
-            plot_vaccinations_50_plus(get_value_50_plus(item)),
-            area_type=item["area_type"],
-            area_code=item["area_code"]
-        )
+        # Checking if it's the newest data for the region
+        if (
+            item['area_type'] not in saved_data
+            or item['area_code'] not in saved_data[item['area_type']]
+            or item['date'] > saved_data[item['area_type']][item['area_code']]
+        ):
+            # Updating saved files dict
+            if item['area_type'] not in saved_data:
+                saved_data[item['area_type']] = {item['area_code']: item['date']}
+            elif item['area_code'] not in saved_data[item['area_type']]:
+                saved_data[item['area_type']][item['area_code']] = item['date']
+
+            store_data_50_plus(
+                date,
+                "vaccinations",
+                plot_vaccinations_50_plus(get_value_50_plus(item)),
+                area_type=item["area_type"],
+                area_code=item["area_code"]
+            )
 
     return True
 
