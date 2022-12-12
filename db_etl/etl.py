@@ -1322,7 +1322,7 @@ def run_demographics(payload_dict):
                 "metric_name": "variants",
                 "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'variant'],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "variant"],
-                "frequency": "D",
+                "frequency": "W",
                 "nesting_param": "variant"
             }
         }
