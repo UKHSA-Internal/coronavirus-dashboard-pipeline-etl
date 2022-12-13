@@ -39,4 +39,4 @@ opencensus-ext-logging
 opencensus-ext-requests==0.7.6
 matplotlib==3.5.1
 Markdown==3.3.6
-protobuf==3.19.4
+protobuf==4.21.11
