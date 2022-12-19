@@ -3,9 +3,7 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
-from typing import Awaitable
 from datetime import datetime
-from asyncio import gather, get_event_loop
 
 # 3rd party:
 from sqlalchemy import text
