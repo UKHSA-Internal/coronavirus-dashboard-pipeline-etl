@@ -10,9 +10,6 @@ from operator import itemgetter
 from plotly import graph_objects as go
 from numpy import zeros, NaN
 from pandas import Series
-
-# Internal: 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
@@ -239,7 +236,14 @@ def plot_vaccinations(data):
     return fig.to_image(format="svg").decode()
 
 
-def plot_vaccinations_50_plus(data):
+def plot_vaccinations_50_plus(data: dict):
+    """
+    The function to generate SVG image based on the values in the 'data'
+
+    :param data: the values for the 2 metrics are used to generate the image
+    :return: an image in the SVG format
+    :rtype: str
+    """
     vaccination_date = data["vaccination_date"]
     vaccination_date_percentage_dose = data["vaccination_date_percentage_dose"]
 

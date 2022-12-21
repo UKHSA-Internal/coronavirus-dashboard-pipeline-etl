@@ -56,8 +56,19 @@ def store_data(date: str, metric: str, svg: str, area_type: str = None,
         cli.upload(svg)
 
 
-def store_data_50_plus(date: str, metric: str, svg: str, area_type: str = None,
-               area_code: str = None):
+def upload_file(date: str, metric: str, svg: str, area_type: str = None,
+                area_code: str = None):
+    """
+    This is used to save svg files into Azure Data Storage. The images are waffle charts
+    used on the main page, and currently are related to people of age 50 and over.
+    All the params, apart from 'svg', are used only to create the path to the file.
+
+    :param date: date of the current release
+    :param metric: metric that the image was generated for
+    :param svg: data of the image
+    :param area_type: type of the area for which the chart was created
+    :param area_code: area code
+    """
     kws = dict(
         container="downloads",
         content_type="image/svg+xml",
@@ -112,18 +123,22 @@ def get_timeseries(date: str, metric: str):
     return True
 
 
-def get_value_50_plus(item):
-    ''' Get the values form the element (dict) in a list
-        where its key 'age' is '50+' and put them in new dict keys:
-        - cumPeopleVaccinatedAutumn22ByVaccinationDate
-        - cumVaccinationAutumn22UptakeByVaccinationDatePercentage
-    '''
+def get_value_50_plus(item: dict):
+    """
+    Get the values for the item in a list where its key 'age' is '50+'
+    and put them in new dict. New keys:
+    - cumPeopleVaccinatedAutumn22ByVaccinationDate
+    - cumVaccinationAutumn22UptakeByVaccinationDatePercentage
 
+    :param item: data from DB (1 row)
+    :return: a dictionary with all the data to generate a svg file and the path to it
+    :rtype: dict
+    """
     vaccination_date = 0
     vaccination_date_percentage_dose = 0
 
     for obj in item['payload']:
-        if obj.get('age', None) == '50+':
+        if obj.get('age') == '50+':
             vaccination_date = int(obj.get(
                 'cumPeopleVaccinatedAutumn22ByVaccinationDate',
                 0
@@ -137,6 +152,7 @@ def get_value_50_plus(item):
         "area_type": item['area_type'],
         "area_code": item['area_code'],
         "date": item['date'],
+        # These are the new keys/values that have to be provided to generate the image
         "vaccination_date": vaccination_date,
         "vaccination_date_percentage_dose": vaccination_date_percentage_dose
     }
@@ -174,7 +190,16 @@ def get_vaccinations(date):
     return True
 
 
-def get_vaccinations_50_plus(date):
+def get_vaccinations_50_plus(date: str):
+    """
+    The function to get the data from database. It will also call other functions
+    to generate SVG images (waffle charts)
+    It returns True as the original function does
+
+    :param date: date of the latest release
+    :return: True
+    :rtype: boolean
+    """
     ts = datetime.strptime(date, "%Y-%m-%d")
     partition = f"{ts:%Y_%-m_%-d}"
 
@@ -191,7 +216,7 @@ def get_vaccinations_50_plus(date):
     finally:
         session.close()
 
-    # This used for tracking most recent values
+    # This is used to track the most recent value that will be used to generate the files
     saved_data = {}
 
     for item in values_50_plus:
@@ -201,13 +226,13 @@ def get_vaccinations_50_plus(date):
             or item['area_code'] not in saved_data[item['area_type']]
             or item['date'] > saved_data[item['area_type']][item['area_code']]
         ):
-            # Updating saved files dict
+            # Updating the existing data or creating a new entry
             if item['area_type'] not in saved_data:
                 saved_data[item['area_type']] = {item['area_code']: item['date']}
             elif item['area_code'] not in saved_data[item['area_type']]:
                 saved_data[item['area_type']][item['area_code']] = item['date']
 
-            store_data_50_plus(
+            upload_file(
                 date,
                 "vaccinations",
                 plot_vaccinations_50_plus(get_value_50_plus(item)),

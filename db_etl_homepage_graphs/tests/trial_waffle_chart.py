@@ -16,7 +16,12 @@ from db_etl_homepage_graphs.grapher import get_vaccinations, get_vaccinations_50
 logging.basicConfig(level=logging.DEBUG)
 
 
+# TODO: It's been used, but should be converted to a proper tool, or removed otherwise.
+# It might be useful for local development.
 class TestWaffleCharts(unittest.TestCase):
+    """
+    This started as a test, but it's a tool to manually generate waffle chart images now.
+    """
     def setUp(self) -> None:
         return super().setUp()
 
