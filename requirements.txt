@@ -1,5 +1,5 @@
 cython==0.29.20 
-pandas==1.0.5 
+pandas 
 certifi==2020.6.20 
 cryptography==38.0.1
 chardet==3.0.4 
@@ -24,7 +24,7 @@ requests==2.25.1
 dicttoxml==1.7.4
 docxtpl==0.11.3
 reportlab==3.5.59
-plotly==4.14.3
+plotly
 kaleido==0.1.0
 svglib==1.0.1
 lxml==4.6.2
