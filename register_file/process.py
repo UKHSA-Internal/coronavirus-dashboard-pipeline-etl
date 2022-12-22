@@ -11,6 +11,7 @@ from hashlib import blake2b
 # 3rd party:
 from azure.functions import HttpRequest, HttpResponse
 from sqlalchemy.exc import IntegrityError
+import psycopg2
 
 # Internal: 
 try:
