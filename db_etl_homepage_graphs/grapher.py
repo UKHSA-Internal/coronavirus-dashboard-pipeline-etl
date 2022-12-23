@@ -139,13 +139,11 @@ def get_value_50_plus(item: dict):
 
     for obj in item['payload']:
         if obj.get('age') == '50+':
-            vaccination_date = int(obj.get(
-                'cumPeopleVaccinatedAutumn22ByVaccinationDate',
-                0
+            vaccination_date = int(round(
+                obj.get('cumPeopleVaccinatedAutumn22ByVaccinationDate', 0), 1
             ))
-            vaccination_date_percentage_dose = int(obj.get(
-                'cumVaccinationAutumn22UptakeByVaccinationDatePercentage',
-                0
+            vaccination_date_percentage_dose = int(round(
+                obj.get('cumVaccinationAutumn22UptakeByVaccinationDatePercentage', 0), 1
             ))
 
     return {
