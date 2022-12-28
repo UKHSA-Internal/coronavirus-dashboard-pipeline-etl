@@ -8,7 +8,7 @@
 
 import logging
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from hashlib import blake2s
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
@@ -101,6 +101,8 @@ def to_sql(data: list):
     session = Session()
     connection = session.connection()
 
+    logging.debug("Writing/updating nested metrics to DB")
+
     try:
         for row in data:
             insert_statement = insert(MainData.__table__).values(row)
@@ -120,7 +122,7 @@ def to_sql(data: list):
         session.close()
 
 
-def from_sql(partition: str, date: datetime):
+def from_sql(partition: str, date: date):
     """
     This gets all the vaccination data needed from the DB
 
@@ -300,46 +302,60 @@ def simple_db_query(query: str):
 
 
 # The 'input' is not used ATM, it might be removed with the next changes
-def main(input):
+def main(input: dict):
     """ The function to create new metrics (if necessary) listed in METRICS_TO_CONVERT
         constant. If they already exist, it will only retrieve their IDs.
         It collects relevant data, transforms it and then saves it (the new metrics
         will be concatenation of the nested metric name and the age range).
         Nothing will be removed.
+
+        :param input: dict that contain 'timestamp' key
+        :return: message that the function is completed
+        :rtype: str
     """
-    # Getting the date -----------------------------------------------------------------------
-    latest_published_as_dt = get_latest_published()
-    ts = datetime.strptime(latest_published_as_dt.isoformat(), "%Y-%m-%dT%H:%M:%S.%f")
-    partition = f"{ts:%Y_%-m_%-d}"
+    logging.debug("Starting working on the nested metrics")
+
+    # Getting the date -------------------------------------------------------------------
+    datestamp = date.fromisoformat(input.get('timestamp'[:26]))
+    if not datestamp:
+        logging.debug("No timestamp was provided for the nested metrics converter")
+        return
+
+    partition = f"{datestamp:%Y_%-m_%-d}"
+    logging.debug(f"The partition id (date related part): {partition}")
 
 
-    # Get dates of the 2 latest releases -------------------------------------------------
-    query = (
-        "SELECT DISTINCT(timestamp::DATE) "
-        "FROM covid19.release_reference "
-        "ORDER BY timestamp DESC "
-        "LIMIT 2;"
-    )
-    date_list = simple_db_query(query)
-    latest_release_date = date_list[0][0]
-    previous_release_date = date_list[1][0]
-    logging.debug(f"Fetched release dates: {latest_release_date}, {previous_release_date}")
+    # TODO: Because of the differences in the DBs, for now it won't work for all of them
+    # # Get dates of the 2 latest releases -------------------------------------------------
+    # query = (
+    #     "SELECT DISTINCT(timestamp::DATE) "
+    #     "FROM covid19.release_reference "
+    #     "ORDER BY timestamp DESC "
+    #     "LIMIT 2;"
+    # )
+    # date_list = simple_db_query(query)
+    # latest_release_date = date_list[0][0]
+    # previous_release_date = date_list[1][0]
+    # logging.debug(f"Fetched release dates: {latest_release_date}, {previous_release_date}")
 
 
     # Retrieving data (since the previous release) ---------------------------------------
-    values = from_sql(partition, previous_release_date - timedelta(days=1))
-    logging.debug(f"Retrieved {len(values)} rows from the DB")
+    # TODO: This will be used when the DBs will have the same release day
+    # values = from_sql(partition, previous_release_date - timedelta(days=1))
+    values = from_sql(partition, datestamp - timedelta(days=8))
+    logging.debug(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
     # Preparing the data for saving back to the DB ---------------------------------------
     new_list = convert_values(values)
-    logging.debug(f"Number of rows to save/update: {len(new_list)}")
+    logging.debug(f"Number of new nested metric rows to save/update: {len(new_list)}")
 
 
     # Saving data ------------------------------------------------------------------------
     to_sql(new_list)
+    logging.debug("Process converting the nested metrics has compelted")
 
-    return f"DONE: {input['timestamp']}"
+    return f"DONE nested metrics: {input['timestamp']}"
 
 
 # This is not needed for prod, but useful for local development

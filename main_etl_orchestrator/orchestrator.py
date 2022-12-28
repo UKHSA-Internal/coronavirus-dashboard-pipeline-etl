@@ -180,11 +180,13 @@ def main(context: DurableOrchestrationContext):
     logging.info("Done with latest main_etl_postprocessors.")
 
     # Save some nested metrics as normal metrics
-    context.set_custom_status("Extracting some nested metrics")
+    context.set_custom_status(
+        f"Extracting the nested metrics (timestamp: {raw_timestamp:0<26})"
+    )
     _ = yield context.call_activity_with_retry(
         "main_etl_nested_metrics_converter",
         input_=dict(
-            timestamp=raw_timestamp,
+            timestamp=f"{raw_timestamp:0<26}",
         ),
         retry_options=retry_twice_opts
     )
