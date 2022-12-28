@@ -364,5 +364,5 @@ def main(input: dict):
 
 
 # This is not needed for prod, but useful for local development
-if __name__ == '__main__':
-    main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
+# if __name__ == '__main__':
+#     main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
