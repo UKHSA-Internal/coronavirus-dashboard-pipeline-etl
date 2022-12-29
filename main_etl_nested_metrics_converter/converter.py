@@ -1,4 +1,4 @@
-# This commented out section was used in the local development
+# # This commented out section was used in the local development
 # import pathlib
 # import site
 
@@ -320,12 +320,8 @@ def main(raw_timestamp: Union[str, None]) -> str:
         return "No timestamp was provided for the nested metrics converter"
 
     # Getting the date -------------------------------------------------------------------
-    timestamp = datetime.fromisoformat(raw_timestamp[:26])
-    datestamp = datetime.date(
-        year=timestamp.year,
-        month=timestamp.month,
-        day=timestamp.day
-    )
+    ts = datetime.fromisoformat(raw_timestamp[:26])
+    datestamp = date(year=ts.year, month=ts.month, day=ts.day)
 
     partition = f"{datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
@@ -361,9 +357,9 @@ def main(raw_timestamp: Union[str, None]) -> str:
     to_sql(new_list)
     logging.info("All converted nested metrics have been saved to DB")
 
-    return f"Process converting the nested metrics has compelted: {input['timestamp']}"
+    return f"Process converting the nested metrics has compelted: {datestamp}"
 
 
 # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
+#     main("2022-12-28T15:15:15.123456")
