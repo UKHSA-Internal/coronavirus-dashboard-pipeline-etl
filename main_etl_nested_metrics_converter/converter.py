@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta
 from hashlib import blake2s
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
+from typing import Union
 
 # According to Azure docs it might be needed to import the modules using '__app__'
 try:
@@ -302,29 +303,29 @@ def simple_db_query(query: str):
 
 
 # The 'input' is not used ATM, it might be removed with the next changes
-def main(input: dict):
+def main(raw_timestamp: Union[str, None]) -> str:
     """ The function to create new metrics (if necessary) listed in METRICS_TO_CONVERT
         constant. If they already exist, it will only retrieve their IDs.
         It collects relevant data, transforms it and then saves it (the new metrics
         will be concatenation of the nested metric name and the age range).
         Nothing will be removed.
 
-        :param input: dict that contain 'timestamp' key
+        :param input: timestamp passed from the orchestrator function
         :return: message that the function is completed
         :rtype: str
     """
     logging.info("Starting working on the nested metrics")
 
+    if not raw_timestamp:
+        return "No timestamp was provided for the nested metrics converter"
+
     # Getting the date -------------------------------------------------------------------
-    timestamp = datetime.fromisoformat(input.get('timestamp'[:26]))
+    timestamp = datetime.fromisoformat(raw_timestamp[:26])
     datestamp = datetime.date(
         year=timestamp.year,
         month=timestamp.month,
         day=timestamp.day
     )
-    if not datestamp:
-        logging.info("No timestamp was provided for the nested metrics converter")
-        return
 
     partition = f"{datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
@@ -358,9 +359,9 @@ def main(input: dict):
 
     # Saving data ------------------------------------------------------------------------
     to_sql(new_list)
-    logging.info("Process converting the nested metrics has compelted")
+    logging.info("All converted nested metrics have been saved to DB")
 
-    return f"DONE nested metrics: {input['timestamp']}"
+    return f"Process converting the nested metrics has compelted: {input['timestamp']}"
 
 
 # This is not needed for prod, but useful for local development

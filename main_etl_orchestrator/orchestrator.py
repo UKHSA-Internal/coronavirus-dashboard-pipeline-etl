@@ -181,16 +181,14 @@ def main(context: DurableOrchestrationContext):
 
     # Save some nested metrics as normal metrics
     context.set_custom_status(
-        f"Extracting the nested metrics (timestamp: {raw_timestamp:0<26})"
+        f"Extracting the nested metrics (timestamp: {retrieve_payload['timestamp']})"
     )
-    _ = yield context.call_activity_with_retry(
+    output = yield context.call_activity_with_retry(
         "main_etl_nested_metrics_converter",
-        input_=dict(
-            timestamp=f"{raw_timestamp:0<26}",
-        ),
+        input_=retrieve_payload['timestamp'],
         retry_options=retry_twice_opts
     )
-    logging.info("Done with main_etl_nested_metrics_converter.")
+    logging.info(output or "main_etl_nested_metrics_converter has failed")
 
     # ====================================================================================
 
