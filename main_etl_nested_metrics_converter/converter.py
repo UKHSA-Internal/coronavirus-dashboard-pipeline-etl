@@ -101,7 +101,7 @@ def to_sql(data: list):
     session = Session()
     connection = session.connection()
 
-    logging.debug("Writing/updating nested metrics to DB")
+    logging.info("Writing/updating nested metrics to DB")
 
     try:
         for row in data:
@@ -247,8 +247,8 @@ def convert_values(data: list):
                 )
                 new_metric_data.append(new_metric)
 
-    logging.debug(f"Number of new hash keys: {len(new_hash_keys)}")
-    logging.debug(f"These new metrics have been created: {new_metric_created}")
+    logging.info(f"Number of new hash keys: {len(new_hash_keys)}")
+    logging.info(f"These new metrics have been created: {new_metric_created}")
 
     return new_metric_data
 
@@ -313,16 +313,21 @@ def main(input: dict):
         :return: message that the function is completed
         :rtype: str
     """
-    logging.debug("Starting working on the nested metrics")
+    logging.info("Starting working on the nested metrics")
 
     # Getting the date -------------------------------------------------------------------
-    datestamp = date.fromisoformat(input.get('timestamp'[:26]))
+    timestamp = datetime.fromisoformat(input.get('timestamp'[:26]))
+    datestamp = datetime.date(
+        year=timestamp.year,
+        month=timestamp.month,
+        day=timestamp.day
+    )
     if not datestamp:
-        logging.debug("No timestamp was provided for the nested metrics converter")
+        logging.info("No timestamp was provided for the nested metrics converter")
         return
 
     partition = f"{datestamp:%Y_%-m_%-d}"
-    logging.debug(f"The partition id (date related part): {partition}")
+    logging.info(f"The partition id (date related part): {partition}")
 
 
     # TODO: Because of the differences in the DBs, for now it won't work for all of them
@@ -336,28 +341,28 @@ def main(input: dict):
     # date_list = simple_db_query(query)
     # latest_release_date = date_list[0][0]
     # previous_release_date = date_list[1][0]
-    # logging.debug(f"Fetched release dates: {latest_release_date}, {previous_release_date}")
+    # logging.info(f"Fetched release dates: {latest_release_date}, {previous_release_date}")
 
 
     # Retrieving data (since the previous release) ---------------------------------------
     # TODO: This will be used when the DBs will have the same release day
     # values = from_sql(partition, previous_release_date - timedelta(days=1))
     values = from_sql(partition, datestamp - timedelta(days=8))
-    logging.debug(f"Retrieved {len(values)} rows from DB for nested metrics converter")
+    logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
     # Preparing the data for saving back to the DB ---------------------------------------
     new_list = convert_values(values)
-    logging.debug(f"Number of new nested metric rows to save/update: {len(new_list)}")
+    logging.info(f"Number of new nested metric rows to save/update: {len(new_list)}")
 
 
     # Saving data ------------------------------------------------------------------------
     to_sql(new_list)
-    logging.debug("Process converting the nested metrics has compelted")
+    logging.info("Process converting the nested metrics has compelted")
 
     return f"DONE nested metrics: {input['timestamp']}"
 
 
 # This is not needed for prod, but useful for local development
-if __name__ == '__main__':
-    main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
+# if __name__ == '__main__':
+#     main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
