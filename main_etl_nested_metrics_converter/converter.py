@@ -1,4 +1,4 @@
-# This commented out section was used in the local development
+# # This commented out section was used in the local development
 # import pathlib
 # import site
 
@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta
 from hashlib import blake2s
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
+from typing import Union
 
 # According to Azure docs it might be needed to import the modules using '__app__'
 try:
@@ -302,29 +303,25 @@ def simple_db_query(query: str):
 
 
 # The 'input' is not used ATM, it might be removed with the next changes
-def main(input: dict):
+def main(raw_timestamp: Union[str, None]) -> str:
     """ The function to create new metrics (if necessary) listed in METRICS_TO_CONVERT
         constant. If they already exist, it will only retrieve their IDs.
         It collects relevant data, transforms it and then saves it (the new metrics
         will be concatenation of the nested metric name and the age range).
         Nothing will be removed.
 
-        :param input: dict that contain 'timestamp' key
+        :param input: timestamp passed from the orchestrator function
         :return: message that the function is completed
         :rtype: str
     """
     logging.info("Starting working on the nested metrics")
 
+    if not raw_timestamp:
+        return "No timestamp was provided for the nested metrics converter"
+
     # Getting the date -------------------------------------------------------------------
-    timestamp = datetime.fromisoformat(input.get('timestamp'[:26]))
-    datestamp = datetime.date(
-        year=timestamp.year,
-        month=timestamp.month,
-        day=timestamp.day
-    )
-    if not datestamp:
-        logging.info("No timestamp was provided for the nested metrics converter")
-        return
+    ts = datetime.fromisoformat(raw_timestamp[:26])
+    datestamp = date(year=ts.year, month=ts.month, day=ts.day)
 
     partition = f"{datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
@@ -347,7 +344,7 @@ def main(input: dict):
     # Retrieving data (since the previous release) ---------------------------------------
     # TODO: This will be used when the DBs will have the same release day
     # values = from_sql(partition, previous_release_date - timedelta(days=1))
-    values = from_sql(partition, datestamp - timedelta(days=8))
+    values = from_sql(partition, datestamp - timedelta(days=10))
     logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
@@ -358,11 +355,11 @@ def main(input: dict):
 
     # Saving data ------------------------------------------------------------------------
     to_sql(new_list)
-    logging.info("Process converting the nested metrics has compelted")
+    logging.info("All converted nested metrics have been saved to DB")
 
-    return f"DONE nested metrics: {input['timestamp']}"
+    return f"Process converting the nested metrics has compelted: {datestamp}"
 
 
 # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main({"timestamp": datetime.fromisoformat("2022-12-15T15:15:15.123456")})
+#     main("2022-12-28T15:15:15.123456")
