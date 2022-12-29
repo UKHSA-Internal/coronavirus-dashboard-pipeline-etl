@@ -348,7 +348,7 @@ def main(raw_timestamp: Union[str, None]) -> str:
     # Retrieving data (since the previous release) ---------------------------------------
     # TODO: This will be used when the DBs will have the same release day
     # values = from_sql(partition, previous_release_date - timedelta(days=1))
-    values = from_sql(partition, datestamp - timedelta(days=8))
+    values = from_sql(partition, datestamp - timedelta(days=10))
     logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
