@@ -6,7 +6,7 @@
 
 # 3rd party:
 
-# Internal: 
+# Internal:
 try:
     from .dtypes import Manifest, ProcessMode
 except ImportError:
@@ -56,7 +56,7 @@ housekeeping_tasks = (
         directory='homepage',
         regex_pattern=r"^(?P<from_path>homepage/(?P<filename>(?P<date>\d{4}-\d{2}-\d{2})/.+))$",
         date_format="%Y-%m-%d",
-        offset_days=10,
+        offset_days=20,
         archive_directory='summary_thumbnails',
         mode=ProcessMode.ARCHIVE_AND_DISPOSE
     ),
