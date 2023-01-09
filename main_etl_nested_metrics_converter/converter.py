@@ -305,7 +305,7 @@ def simple_db_query(query: str):
 
 
 # The 'input' is not used ATM, it might be removed with the next changes
-def main(raw_timestamp: Union[str, None]) -> str:
+def main(rawtimestamp: Union[str, None]) -> str:
     """ The function to create new metrics (if necessary) listed in METRICS_TO_CONVERT
         constant. If they already exist, it will only retrieve their IDs.
         It collects relevant data, transforms it and then saves it (the new metrics
@@ -318,11 +318,11 @@ def main(raw_timestamp: Union[str, None]) -> str:
     """
     logging.info("Starting working on the nested metrics")
 
-    if not raw_timestamp:
+    if not rawtimestamp:
         return "No timestamp was provided for the nested metrics converter"
 
     # Getting the date -------------------------------------------------------------------
-    ts = datetime.fromisoformat(raw_timestamp[:26])
+    ts = datetime.fromisoformat(rawtimestamp[:26])
     datestamp = date(year=ts.year, month=ts.month, day=ts.day)
 
     partition = f"{datestamp:%Y_%-m_%-d}"
