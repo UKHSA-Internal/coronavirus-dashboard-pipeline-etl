@@ -305,7 +305,7 @@ def simple_db_query(query: str):
 
 
 # The 'input' is not used ATM, it might be removed with the next changes
-def main(rawtimestamp: Union[str, None]) -> str:
+def main(rawtimestamp: str) -> str:
     """ The function to create new metrics (if necessary) listed in METRICS_TO_CONVERT
         constant. If they already exist, it will only retrieve their IDs.
         It collects relevant data, transforms it and then saves it (the new metrics
@@ -316,7 +316,7 @@ def main(rawtimestamp: Union[str, None]) -> str:
         :return: message that the function is completed
         :rtype: str
     """
-    logging.info("Starting working on the nested metrics")
+    logging.info("Starting working on the nested metrics, 'rawtimestamp': {rawtimestamp}")
 
     if not rawtimestamp:
         return "No timestamp was provided for the nested metrics converter"
