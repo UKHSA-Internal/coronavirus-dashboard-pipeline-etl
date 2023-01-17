@@ -177,6 +177,15 @@ def main(context: DurableOrchestrationContext):
         ),
         retry_options=retry_twice_opts
     )
+
+    context.set_custom_status("Extracting the nested metrics")
+
+    output = yield context.call_activity_with_retry(
+        "main_etl_nested_metrics_converter",
+        input_=retrieve_payload['timestamp'],
+        retry_options=retry_twice_opts
+    )
+    logging.info(output or "main_etl_nested_metrics_converter has failed")
     logging.info("Done with latest main_etl_postprocessors.")
 
     # ====================================================================================
