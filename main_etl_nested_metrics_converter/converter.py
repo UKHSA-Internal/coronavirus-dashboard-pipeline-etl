@@ -175,7 +175,7 @@ def get_or_create_new_metric_id(metric: str):
     # Try to get the metric ID from the DB
     try:
         resp = connection.execute(
-            select(MetricReference.id).where(MetricReference.metric == metric)
+            select([MetricReference.id]).where(MetricReference.metric == metric)
         )
         obj = resp.fetchone()
     except Exception as err:
@@ -316,7 +316,7 @@ def main(rawtimestamp: str) -> str:
         :return: message that the function is completed
         :rtype: str
     """
-    logging.info("Starting working on the nested metrics, 'rawtimestamp': {rawtimestamp}")
+    logging.info(f"Starting working on the nested metrics, 'rawtimestamp': {rawtimestamp}")
 
     if not rawtimestamp:
         return "No timestamp was provided for the nested metrics converter"
