@@ -1,0 +1,11 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "rawtimestamp",
+      "activity": "main_etl_nested_metrics_converter",
+      "type": "activityTrigger",
+      "direction": "in"
+    }
+  ]
+}
