@@ -12,17 +12,12 @@ import logging
 from collections import namedtuple
 from datetime import date, datetime, timedelta
 from hashlib import blake2s
+from os import getenv
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
-from typing import Union
 
-# According to Azure docs it might be needed to import the modules using '__app__'
-try:
-    from __app__.db_tables.covid19 import MainData, MetricReference, Session
-    from __app__.storage import StorageClient
-except ImportError:
-    from db_tables.covid19 import MainData, MetricReference, Session
-    from storage import StorageClient
+from db_tables.covid19 import MainData, MetricReference, Session
+from main_etl_nested_metrics_converter import queries
 
 
 __all__ = [
@@ -30,44 +25,9 @@ __all__ = [
 ]
 
 
-METRIC_IDS_QUERY="""\
-SELECT metric, id
-FROM covid19.metric_reference
-WHERE metric = ANY('{metrics_string}');\
-"""
-VACCINATIONS_QUERY = """\
-SELECT partition_id, release_id, area_id, date, payload
-FROM (
-        SELECT *
-        FROM covid19.time_series_p{partition}_other AS tsother
-                JOIN covid19.release_reference AS rr ON rr.id = release_id
-                JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                JOIN covid19.area_reference AS ar ON ar.id = tsother.area_id
-        WHERE metric = 'vaccinationsAgeDemographics'
-        AND date > ( DATE('{date}'))
-        UNION
-        (
-            SELECT *
-            FROM covid19.time_series_p{partition}_utla AS tsutla
-                    JOIN covid19.release_reference AS rr ON rr.id = release_id
-                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                    JOIN covid19.area_reference AS ar ON ar.id = tsutla.area_id
-            WHERE metric = 'vaccinationsAgeDemographics'
-            AND date > ( DATE('{date}'))
-        )
-        UNION
-        (
-            SELECT *
-            FROM covid19.time_series_p{partition}_ltla AS tsltla
-                    JOIN covid19.release_reference AS rr ON rr.id = release_id
-                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                    JOIN covid19.area_reference AS ar ON ar.id = tsltla.area_id
-            WHERE metric = 'vaccinationsAgeDemographics'
-            AND date > ( DATE('{date}'))
-        )
-    ) AS tsltla
-ORDER BY date DESC;\
-"""
+RECORD_KEY = getenv("RECORD_KEY", "").encode()
+
+
 # The list of nested metrics that should be converted to regular ones
 METRICS_TO_CONVERT = [
     "cumPeopleVaccinatedAutumn22ByVaccinationDate",
@@ -104,7 +64,12 @@ def to_sql(data: list):
     session = Session()
     connection = session.connection()
 
-    logging.info("Writing/updating nested metrics to DB")
+    # These 3 are used only for logging
+    done_10th = 1
+    count = 0
+    all_rows = len(data)
+
+    logging.info(f"Writing/updating nested metrics to DB ({all_rows} rows)")
 
     try:
         for row in data:
@@ -116,6 +81,12 @@ def to_sql(data: list):
 
             connection.execute(statement)
             session.flush()
+
+            count += 1
+
+            if count >= all_rows / 10 * done_10th:
+                logging.info(f"Nested metrics, rows saved: {count} ({done_10th * 10}%)")
+                done_10th += 1
 
     except Exception as err:
         session.rollback()
@@ -138,7 +109,7 @@ def from_sql(partition: str, date: date):
     session = Session()
     connection = session.connection()
 
-    values_query = VACCINATIONS_QUERY.format(partition=partition, date=date)
+    values_query = queries.VACCINATIONS_QUERY.format(partition=partition, date=date)
 
     try:
         resp = connection.execute(
@@ -187,6 +158,7 @@ def get_or_create_new_metric_id(metric: str):
     # If the metric doesn't exist in the DB, then create it
     if not obj or (obj and not obj[0]):
         try:
+            # TODO: use sqlalchemy 'insert' with 'returning' statements here
             INSERT_NEW_METRIC_QUERY = (
                 "INSERT INTO covid19.metric_reference(metric, released, source_metric) "
                 f"VALUES ('{metric}', false, false) "
@@ -235,7 +207,8 @@ def convert_values(data: list):
                     f"{str(row.partition_id)}{row.date.isoformat()}"
                 )
                 hash = blake2s(digest_size=12)
-                hash.update(enc_string.encode('UTF-8'))
+                hash = blake2s(enc_string.encode('UTF-8'), key=RECORD_KEY, digest_size=12)
+                # hash.update(enc_string.encode('UTF-8'))
                 hash_string = hash.hexdigest()
                 new_hash_keys.add(hash_string)
 
@@ -254,29 +227,6 @@ def convert_values(data: list):
     logging.info(f"These new metrics have been created: {new_metric_created}")
 
     return new_metric_data
-
-
-def get_latest_published():
-    """
-    This downloads 'latest_published' file from the blob storage
-    and returns its content converted into datetime object
-
-    :return: the timestamp of the latest release
-    :rtype: datetime
-    """
-    path = 'info/latest_published'
-
-    with StorageClient(container="pipeline", path=path) as cli:
-        date = cli.download().read()
-
-    date_string = date.decode("UTF-8")
-    date_string = date_string.replace('Z', '')
-
-    # for some reasons fromisoformat() expects milliseconds as 6 digits
-    if len(date_string) > 26:
-        date_string = date_string[:26]
-
-    return datetime.fromisoformat(date_string)
 
 
 def simple_db_query(query: str):
@@ -323,30 +273,21 @@ def main(rawtimestamp: str) -> str:
 
     # Getting the date -------------------------------------------------------------------
     ts = datetime.fromisoformat(rawtimestamp[:26])
-    datestamp = date(year=ts.year, month=ts.month, day=ts.day)
+    current_release_datestamp = date(year=ts.year, month=ts.month, day=ts.day)
 
-    partition = f"{datestamp:%Y_%-m_%-d}"
+    partition = f"{current_release_datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
 
-
-    # TODO: Because of the differences in the DBs, for now it won't work for all of them
-    # # Get dates of the 2 latest releases -------------------------------------------------
-    # query = (
-    #     "SELECT DISTINCT(timestamp::DATE) "
-    #     "FROM covid19.release_reference "
-    #     "ORDER BY timestamp DESC "
-    #     "LIMIT 2;"
-    # )
-    # date_list = simple_db_query(query)
-    # latest_release_date = date_list[0][0]
-    # previous_release_date = date_list[1][0]
-    # logging.info(f"Fetched release dates: {latest_release_date}, {previous_release_date}")
-
+    # Get previous release date --------------------------------------------------------
+    # This is the datestamp for the lastest release of
+    # 'AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE' (release_category -> process_name)
+    previous_release_datestamp = simple_db_query(queries.PREVIOUS_RELEASE_QUERY)[0].date
+    logging.info(
+        f"Fetched the previous release date for the metric: {previous_release_datestamp}"
+    )
 
     # Retrieving data (since the previous release) ---------------------------------------
-    # TODO: This will be used when the DBs will have the same release day
-    # values = from_sql(partition, previous_release_date - timedelta(days=1))
-    values = from_sql(partition, datestamp - timedelta(days=10))
+    values = from_sql(partition, previous_release_datestamp - timedelta(days=1))
     logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
@@ -359,9 +300,12 @@ def main(rawtimestamp: str) -> str:
     to_sql(new_list)
     logging.info("All converted nested metrics have been saved to DB")
 
-    return f"Process converting the nested metrics has compelted: {datestamp}"
+    return (
+        "Process converting the nested metrics has compelted: "
+        f"{current_release_datestamp}"
+    )
 
 
-# This is not needed for prod, but useful for local development
+# # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main("2022-12-28T15:15:15.123456")
+#     main("2023-01-19T16:15:14.123456")
