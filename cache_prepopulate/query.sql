@@ -43,7 +43,7 @@ FROM (
         JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
         JOIN covid19.area_reference    AS ref ON ref.id = area_id
         JOIN covid19.area_priorities   AS ap ON ref.area_type = ap.area_type
-    WHERE ts.date > (NOW() - INTERVAL '18 days')
+    WHERE ts.date > (NOW() - INTERVAL '25 days')
       AND (
         (
             -- UK level data.
@@ -95,7 +95,7 @@ FROM (
             JOIN covid19.metric_reference  AS mr ON mr.id = metric_id
             JOIN covid19.area_reference    AS ref ON ref.id = area_id
             JOIN covid19.area_priorities   AS ap ON ref.area_type = ap.area_type
-        WHERE ts.date > (NOW() - INTERVAL '18 days')
+        WHERE ts.date > (NOW() - INTERVAL '25 days')
           AND (
             (
                 -- UK level data.
@@ -157,7 +157,7 @@ FROM (
                 JOIN covid19.metric_reference AS mr ON mr.id = metric_id
                 JOIN covid19.area_reference AS ref ON ref.id = area_id
                 JOIN covid19.area_priorities AS ap ON ref.area_type = ap.area_type
-            WHERE ts.date > (NOW() - INTERVAL '10 days')
+            WHERE ts.date > (NOW() - INTERVAL '25 days')
               AND metric = ANY ('{newDeaths28DaysByDeathDate,newDeaths28DaysByDeathDateChange,newDeaths28DaysByDeathDateChangePercentage,newDeaths28DaysByDeathDateRollingSum,newDeaths28DaysByDeathDateDirection,newCasesBySpecimenDate, newCasesBySpecimenDateChange, newCasesBySpecimenDateChangePercentage, newCasesBySpecimenDateRollingSum, newCasesBySpecimenDateDirection,newVirusTestsByPublishDate,newVirusTestsByPublishDateChange,newVirusTestsByPublishDateChangePercentage,newVirusTestsByPublishDateRollingSum,newVirusTestsByPublishDateDirection,newPeopleVaccinatedFirstDoseByPublishDate,newPeopleVaccinatedSecondDoseByPublishDate,cumPeopleVaccinatedFirstDoseByPublishDate,cumPeopleVaccinatedSecondDoseByPublishDate,cumVaccinationFirstDoseUptakeByPublishDatePercentage,cumVaccinationSecondDoseUptakeByPublishDatePercentage,newDeaths28DaysByPublishDate,newDeaths28DaysByPublishDateChange,newDeaths28DaysByPublishDateChangePercentage,newDeaths28DaysByPublishDateRollingSum,newDeaths28DaysByPublishDateDirection,newDeaths28DaysByDeathDateRollingRate,newCasesBySpecimenDateRollingSum,newCasesBySpecimenDateRollingRate,newCasesBySpecimenDateChange,newCasesBySpecimenDateChangePercentage,newCasesBySpecimenDateDirection,newCasesBySpecimenDate,newCasesByPublishDate,newCasesByPublishDateChange,newCasesByPublishDateChangePercentage,newCasesByPublishDateRollingSum,newCasesByPublishDateDirection,newPeopleVaccinatedThirdInjectionByPublishDate, cumPeopleVaccinatedThirdInjectionByPublishDate, cumVaccinationThirdInjectionUptakeByPublishDatePercentage,newPeopleVaccinatedThirdInjectionByPublishDateRollingSum,newPeopleVaccinatedFirstDoseByPublishDateRollingSum,newPeopleVaccinatedSecondDoseByPublishDateRollingSum,newDailyNsoDeathsByDeathDate,newDailyNsoDeathsByRegistrationDate,newDailyNsoDeathsByDeathDateChangePercentage,newDailyNsoDeathsByDeathDateChange,newDailyNsoDeathsByDeathDateRollingSum,newDailyNsoDeathsByDeathDateDirection}'::VARCHAR[])
             UNION
             (
@@ -184,7 +184,7 @@ FROM (
                     JOIN covid19.metric_reference AS mr ON mr.id = metric_id
                     JOIN covid19.area_reference AS ref ON ref.id = area_id
                     JOIN covid19.area_priorities AS ap ON ref.area_type = ap.area_type
-                WHERE ts.date > (NOW() - INTERVAL '10 days')
+                WHERE ts.date > (NOW() - INTERVAL '25 days')
                   AND metric = ANY ('{newDeaths28DaysByDeathDate,newDeaths28DaysByDeathDateChange,newDeaths28DaysByDeathDateChangePercentage,newDeaths28DaysByDeathDateRollingSum,newDeaths28DaysByDeathDateDirection,newCasesBySpecimenDate, newCasesBySpecimenDateChange, newCasesBySpecimenDateChangePercentage, newCasesBySpecimenDateRollingSum, newCasesBySpecimenDateDirection,newVirusTestsByPublishDate,newVirusTestsByPublishDateChange,newVirusTestsByPublishDateChangePercentage,newVirusTestsByPublishDateRollingSum,newVirusTestsByPublishDateDirection,newPeopleVaccinatedFirstDoseByPublishDate,newPeopleVaccinatedSecondDoseByPublishDate,cumPeopleVaccinatedFirstDoseByPublishDate,cumPeopleVaccinatedSecondDoseByPublishDate,cumVaccinationFirstDoseUptakeByPublishDatePercentage,cumVaccinationSecondDoseUptakeByPublishDatePercentage,newDeaths28DaysByPublishDate,newDeaths28DaysByPublishDateChange,newDeaths28DaysByPublishDateChangePercentage,newDeaths28DaysByPublishDateRollingSum,newDeaths28DaysByPublishDateDirection,newDeaths28DaysByDeathDateRollingRate,newCasesBySpecimenDateRollingSum,newCasesBySpecimenDateRollingRate,newCasesBySpecimenDateChange,newCasesBySpecimenDateChangePercentage,newCasesBySpecimenDateDirection,newCasesBySpecimenDate,newCasesByPublishDate,newCasesByPublishDateChange,newCasesByPublishDateChangePercentage,newCasesByPublishDateRollingSum,newCasesByPublishDateDirection,newPeopleVaccinatedThirdInjectionByPublishDate, cumPeopleVaccinatedThirdInjectionByPublishDate, cumVaccinationThirdInjectionUptakeByPublishDatePercentage,newPeopleVaccinatedThirdInjectionByPublishDateRollingSum,newPeopleVaccinatedFirstDoseByPublishDateRollingSum,newPeopleVaccinatedSecondDoseByPublishDateRollingSum,newDailyNsoDeathsByDeathDate,newDailyNsoDeathsByRegistrationDate,newDailyNsoDeathsByDeathDateChangePercentage,newDailyNsoDeathsByDeathDateChange,newDailyNsoDeathsByDeathDateRollingSum,newDailyNsoDeathsByDeathDateDirection}'::VARCHAR[])
             )
         ) AS ts2
