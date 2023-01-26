@@ -187,9 +187,9 @@ def get_data(timestamp: datetime):
 
 def generate_landing_page_map(payload):
     timestamp = datetime.fromisoformat(payload["timestamp"])
-    data = get_data(timestamp)
-    image = plot_map(data)
-    store_image(image)
+    # data = get_data(timestamp)
+    # image = plot_map(data)
+    # store_image(image)
 
     return f"DONE: landing page map at '{payload['timestamp']}'"
 
