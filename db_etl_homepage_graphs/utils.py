@@ -11,7 +11,7 @@ from plotly import graph_objects as go
 from numpy import zeros, NaN
 from pandas import Series
 
-# Internal: 
+# Internal:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -28,6 +28,7 @@ IsImproving: Dict[str, Callable[[Union[int, float]], bool]] = {
     "newDeaths28DaysByDeathDate": lambda x: x < 0,
     "newVirusTestsByPublishDate": lambda x: 0,
     "newAdmissions": lambda x: x < 0,
+    "newDailyNsoDeathsByDeathDate": lambda x: x < 0,
 }
 
 
