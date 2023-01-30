@@ -119,6 +119,9 @@ def plot_map(data):
         10000
     ]
 
+    max_value = max(data['newCasesBySpecimenDateRollingRate'])
+    colour_scale_binning = list(filter(lambda x: x < max_value, colour_scale_binning))
+
     data = data.assign(
         categories=cut(
             data["newCasesBySpecimenDateRollingRate"],
