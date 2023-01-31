@@ -6,7 +6,7 @@
 
 # 3rd party:
 
-# Internal: 
+# Internal:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -127,6 +127,37 @@ FROM (
     GROUP BY area_type, area_code
 ) AS third ON first.date = third.date AND first.area_code = third.area_code
 GROUP BY first.area_type, first.area_code;\
+"""
+
+
+VACCINATIONS_QUERY_50_PLUS = """\
+SELECT area_type, area_code, date, payload
+FROM (
+        SELECT *
+        FROM covid19.time_series_p{partition}_other AS tsother
+                JOIN covid19.release_reference AS rr ON rr.id = release_id
+                JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                JOIN covid19.area_reference AS ar ON ar.id = tsother.area_id
+        UNION
+        (
+            SELECT *
+            FROM covid19.time_series_p{partition}_utla AS tsutla
+                    JOIN covid19.release_reference AS rr ON rr.id = release_id
+                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                    JOIN covid19.area_reference AS ar ON ar.id = tsutla.area_id
+        )
+        UNION
+        (
+            SELECT *
+            FROM covid19.time_series_p{partition}_ltla AS tsltla
+                    JOIN covid19.release_reference AS rr ON rr.id = release_id
+                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                    JOIN covid19.area_reference AS ar ON ar.id = tsltla.area_id
+        )
+    ) AS tsltla
+WHERE metric = 'vaccinationsAgeDemographics'
+AND date > ( DATE(NOW()) - INTERVAL '20 days' )
+ORDER BY date DESC;\
 """
 
 
