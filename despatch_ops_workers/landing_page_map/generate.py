@@ -119,6 +119,9 @@ def plot_map(data):
         10000
     ]
 
+    max_value = max(data['newCasesBySpecimenDateRollingRate'])
+    colour_scale_binning = list(filter(lambda x: x < max_value, colour_scale_binning))
+
     data = data.assign(
         categories=cut(
             data["newCasesBySpecimenDateRollingRate"],
@@ -187,9 +190,9 @@ def get_data(timestamp: datetime):
 
 def generate_landing_page_map(payload):
     timestamp = datetime.fromisoformat(payload["timestamp"])
-    data = get_data(timestamp)
-    image = plot_map(data)
-    store_image(image)
+    # data = get_data(timestamp)
+    # image = plot_map(data)
+    # store_image(image)
 
     return f"DONE: landing page map at '{payload['timestamp']}'"
 
