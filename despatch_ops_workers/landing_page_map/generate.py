@@ -103,7 +103,7 @@ def store_image(image: bytes):
         client.upload(image)
 
 
-def plot_map(data):
+def plot_map(data: DataFrame):
     geojson = get_geojson()
     geo_style = get_style()
 
@@ -191,6 +191,14 @@ def get_data(timestamp: datetime):
 def generate_landing_page_map(payload):
     timestamp = datetime.fromisoformat(payload["timestamp"])
     data = get_data(timestamp)
+
+    # if dataframe is empty, then nothing will be stored in the blob storage
+    if data.empty:
+        return (
+            f"ERROR: landing page map at '{payload['timestamp']}' "
+            "has not been generated"
+        )
+
     image = plot_map(data)
     store_image(image)
 
