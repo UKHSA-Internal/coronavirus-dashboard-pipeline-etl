@@ -1,0 +1,42 @@
+name: Deploy ETL Functions to Azure Sandbox Environment..
+
+on:
+ push:
+  branches:
+   - sandbox
+
+env:
+  AZURE_FUNCTIONAPP_NAME: 'c19dashsbuketlfunc' 
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' 
+  PYTHON_VERSION: '3.8'                
+
+
+jobs:
+ build-and-deploy:
+  runs-on: ubuntu-latest
+  name:  Deploy ETL Functions to Sandbox Environment
+  environment: sandbox
+  
+  steps:
+  - name: 'Checkout GitHub action'
+    uses: actions/checkout@v2
+
+  - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+    uses: actions/setup-python@v1
+    with:
+     python-version: ${{ env.PYTHON_VERSION }}
+
+  - name: 'Resolve Project Dependencies Using Pip'
+    shell: bash
+    run: |
+     pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+     python -m pip install --upgrade pip
+     pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+     popd
+
+  - name: 'Run Azure Functions action'
+    uses: Azure/functions-action@v1
+    with:
+     app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+     package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+     publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}

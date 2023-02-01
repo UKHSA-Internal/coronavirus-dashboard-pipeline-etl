@@ -103,7 +103,7 @@ def store_image(image: bytes):
         client.upload(image)
 
 
-def plot_map(data):
+def plot_map(data: DataFrame):
     geojson = get_geojson()
     geo_style = get_style()
 
@@ -118,6 +118,9 @@ def plot_map(data):
         1600,
         10000
     ]
+
+    max_value = max(data['newCasesBySpecimenDateRollingRate'])
+    colour_scale_binning = list(filter(lambda x: x < max_value, colour_scale_binning))
 
     data = data.assign(
         categories=cut(
@@ -187,9 +190,17 @@ def get_data(timestamp: datetime):
 
 def generate_landing_page_map(payload):
     timestamp = datetime.fromisoformat(payload["timestamp"])
-    # data = get_data(timestamp)
-    # image = plot_map(data)
-    # store_image(image)
+    data = get_data(timestamp)
+
+    # if dataframe is empty, then nothing will be stored in the blob storage
+    if data.empty:
+        return (
+            f"ERROR: landing page map at '{payload['timestamp']}' "
+            "has not been generated"
+        )
+
+    image = plot_map(data)
+    store_image(image)
 
     return f"DONE: landing page map at '{payload['timestamp']}'"
 
