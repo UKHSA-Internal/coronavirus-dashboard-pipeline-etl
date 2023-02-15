@@ -120,7 +120,12 @@ def plot_map(data: DataFrame):
     ]
 
     max_value = max(data['newCasesBySpecimenDateRollingRate'])
-    colour_scale_binning = list(filter(lambda x: x < max_value, colour_scale_binning))
+    # filtered_items contains elements of colour_scale_binning
+    # that are smaller than max_value
+    filtered_items = list(filter(lambda x: x < max_value, colour_scale_binning))
+    # filtered_items number + 1 as the next value of colour_scale_binning greater
+    # than max_value also has to be included for correct colours for all areas
+    colour_scale_binning = colour_scale_binning[:len(filtered_items) + 1]
 
     data = data.assign(
         categories=cut(
