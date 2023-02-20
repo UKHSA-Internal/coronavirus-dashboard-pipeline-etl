@@ -20,7 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, NUMERIC
 
-# Internal: 
+# Internal:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,8 +52,7 @@ DB_URL = getenv("DB_URL")
 engine = create_engine(
     DB_URL,
     poolclass=NullPool,
-    encoding="UTF-8",
-    client_encoding="utf8"
+    connect_args={'charset':'utf8'},
 )
 
 Session = sessionmaker(bind=engine, autocommit=True)
