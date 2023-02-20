@@ -103,10 +103,17 @@ def store_image(image: bytes):
         client.upload(image)
 
 
-def plot_map(data: DataFrame):
-    geojson = get_geojson()
-    geo_style = get_style()
+def get_colour_scale_binning(df: DataFrame):
+    """
+    This reduces the original colour_scale_binning list according to the data (df).
 
+    param df: pandas dataframe with all the values from DB - needed to calculate
+              the max of all vlues
+    return: colour_scale_binning sliced list
+    rtype: list
+    """
+
+    # original list of colour_scale_binning values
     colour_scale_binning = [
         0,
         10,
@@ -119,13 +126,22 @@ def plot_map(data: DataFrame):
         10000
     ]
 
-    max_value = max(data['newCasesBySpecimenDateRollingRate'])
+    max_value = max(df['newCasesBySpecimenDateRollingRate'])
+
     # filtered_items contains elements of colour_scale_binning
     # that are smaller than max_value
     filtered_items = list(filter(lambda x: x < max_value, colour_scale_binning))
-    # filtered_items number + 1 as the next value of colour_scale_binning greater
-    # than max_value also has to be included for correct colours for all areas
-    colour_scale_binning = colour_scale_binning[:len(filtered_items) + 1]
+
+    # use filtered_items number + 1 as the next value of colour_scale_binning
+    # greater than max_value also has to be included for correct colours for all areas
+    return colour_scale_binning[:len(filtered_items) + 1]
+
+
+def plot_map(data: DataFrame):
+    geojson = get_geojson()
+    geo_style = get_style()
+
+    colour_scale_binning = get_colour_scale_binning(data)
 
     data = data.assign(
         categories=cut(
