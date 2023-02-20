@@ -53,7 +53,10 @@ WEBSITE_TIMESTAMP_KWS = dict(
     compressed=False
 )
 
-engine = create_engine(DB_URL, connect_args={'charset':'utf8'}, pool_size=30, max_overflow=-1)
+engine = create_engine(
+    DB_URL,
+    connect_args={'charset':'utf8', 'pool_size':30, 'max_overflow':-1}
+)
 Session = sessionmaker(bind=engine)
 
 
