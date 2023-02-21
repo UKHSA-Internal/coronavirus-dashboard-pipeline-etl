@@ -30,7 +30,9 @@ svglib==1.0.1
 lxml==4.9.2
 tables==3.6.1
 pyarrow==3.0.0
-sqlalchemy==2.0.4
+# in sqlalchemy 2 'autocommit' isn't supported
+# (might be some other breaking changes as well)
+sqlalchemy==1.4.47
 psycopg2-binary==2.9.4
 orjson==3.8.0
 asyncpg==0.26.0
@@ -39,6 +41,7 @@ opencensus-ext-logging
 opencensus-ext-requests==0.8.0
 matplotlib==3.6.0
 Markdown==3.4.1
+# protobuf has to be 3.20.x or lower for the azure framework
 protobuf==3.20.3
 python-dateutil>=2.8.2
 pytz==2022.5
