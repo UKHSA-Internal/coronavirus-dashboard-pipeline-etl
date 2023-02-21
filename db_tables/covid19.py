@@ -52,7 +52,8 @@ DB_URL = getenv("DB_URL")
 engine = create_engine(
     DB_URL,
     poolclass=NullPool,
-    connect_args={'charset':'utf8'},
+    encoding="UTF-8",
+    client_encoding="utf8"
 )
 
 Session = sessionmaker(bind=engine, autocommit=True)
