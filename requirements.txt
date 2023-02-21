@@ -32,7 +32,7 @@ tables==3.6.1
 pyarrow==3.0.0
 # in sqlalchemy 2 'autocommit' isn't supported
 # (might be some other breaking changes as well)
-sqlalchemy==1.4.47
+sqlalchemy==1.4.46
 psycopg2-binary==2.9.4
 orjson==3.8.0
 asyncpg==0.26.0
