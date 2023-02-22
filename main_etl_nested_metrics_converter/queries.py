@@ -11,7 +11,7 @@ FROM covid19.release_category
 WHERE process_name = 'AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE'
     AND released = true
 ORDER BY timestamp DESC
-LIMIT 1;\
+LIMIT 5;\
 """
 
 VACCINATIONS_QUERY = """\

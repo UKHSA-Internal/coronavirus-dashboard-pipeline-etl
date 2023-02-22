@@ -16,8 +16,13 @@ from os import getenv
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
 
-from db_tables.covid19 import MainData, MetricReference, Session
-from main_etl_nested_metrics_converter import queries
+# According to Azure docs it might be needed to import the modules using '__app__'
+try:
+    from __app__.db_tables.covid19 import MainData, MetricReference, Session
+    from __app__.main_etl_nested_metrics_converter import queries
+except ImportError:
+    from db_tables.covid19 import MainData, MetricReference, Session
+    from main_etl_nested_metrics_converter import queries
 
 
 __all__ = [
@@ -96,12 +101,12 @@ def to_sql(data: list):
         session.close()
 
 
-def from_sql(partition: str, date: date):
+def from_sql(partition: str, release_dates: list):
     """
     This gets all the vaccination data needed from the DB
 
     :param partition: it's a 'partition_id' used in the SQL query string
-    :param date: the earliest date we're intrested in
+    :param release_dates: the latest release dates
 
     :return: values from DB
     :rtype: list
@@ -109,13 +114,19 @@ def from_sql(partition: str, date: date):
     session = Session()
     connection = session.connection()
 
-    values_query = queries.VACCINATIONS_QUERY.format(partition=partition, date=date)
-
     try:
-        resp = connection.execute(
-            text(values_query),
-        )
-        values = [TimeSeriesData(*record) for record in resp.fetchall()]
+        for release_date in release_dates:
+            date = release_date.date - timedelta(days=1)
+            logging.info(f"Using this date for VACCINATIONS_QUERY: {str(date)}")
+            values_query = queries.VACCINATIONS_QUERY.format(partition=partition, date=date)
+
+            resp = connection.execute(
+                text(values_query),
+            )
+            values = [TimeSeriesData(*record) for record in resp.fetchall()]
+
+            if values:
+                break
     except Exception as err:
         session.rollback()
         raise err
@@ -281,13 +292,10 @@ def main(rawtimestamp: str) -> str:
     # Get previous release date --------------------------------------------------------
     # This is the datestamp for the lastest release of
     # 'AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE' (release_category -> process_name)
-    previous_release_datestamp = simple_db_query(queries.PREVIOUS_RELEASE_QUERY)[0].date
-    logging.info(
-        f"Fetched the previous release date for the metric: {previous_release_datestamp}"
-    )
+    release_dates = simple_db_query(queries.PREVIOUS_RELEASE_QUERY)
 
     # Retrieving data (since the previous release) ---------------------------------------
-    values = from_sql(partition, previous_release_datestamp - timedelta(days=1))
+    values = from_sql(partition, release_dates)
     logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
 
 
@@ -308,4 +316,4 @@ def main(rawtimestamp: str) -> str:
 
 # # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main("2023-01-19T16:15:14.123456")
+#     main("2023-02-21T16:15:14.123456")
