@@ -101,7 +101,7 @@ def to_sql(data: list):
         session.close()
 
 
-def from_sql(partition: str, release_dates: list):
+def from_sql(partition: str, cutoff_date: datetime):
     """
     This gets all the vaccination data needed from the DB
 
@@ -115,10 +115,15 @@ def from_sql(partition: str, release_dates: list):
     connection = session.connection()
 
     try:
-        for release_date in release_dates:
-            date = release_date.date - timedelta(days=1)
+        # extend time range (days) used in the query until the data has been retrieved
+        # with the limit to 42 days (35 + 7 of cutoff_day)
+        for days in range(0, 36, 7):
+            date = cutoff_date - timedelta(days=days)
             logging.info(f"Using this date for VACCINATIONS_QUERY: {str(date)}")
-            values_query = queries.VACCINATIONS_QUERY.format(partition=partition, date=date)
+            values_query = queries.VACCINATIONS_QUERY.format(
+                partition=partition,
+                date=date,
+            )
 
             resp = connection.execute(
                 text(values_query),
@@ -127,6 +132,8 @@ def from_sql(partition: str, release_dates: list):
 
             if values:
                 break
+
+            logging.info(f"No data retrieved when used {str(date)} date in the query")
     except Exception as err:
         session.rollback()
         raise err
@@ -235,7 +242,11 @@ def convert_values(data: list):
                 new_metric_data.append(new_metric)
 
     logging.info(f"Number of new hash keys: {len(new_hash_keys)}")
-    logging.info(f"These new metrics have been created: {new_metric_created}")
+
+    if new_metric_created:
+        logging.info(f"These new metrics have been created: {new_metric_created}")
+    else:
+        logging.info(f"No new metrics have been created")
 
     return new_metric_data
 
@@ -277,7 +288,9 @@ def main(rawtimestamp: str) -> str:
         :return: message that the function is completed
         :rtype: str
     """
-    logging.info(f"Starting working on the nested metrics, 'rawtimestamp': {rawtimestamp}")
+    logging.info(
+        f"Nested metrics function have been called with 'rawtimestamp': {rawtimestamp}"
+    )
 
     if not rawtimestamp:
         return "No timestamp was provided for the nested metrics converter"
@@ -289,14 +302,18 @@ def main(rawtimestamp: str) -> str:
     partition = f"{current_release_datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
 
-    # Get previous release date --------------------------------------------------------
-    # This is the datestamp for the lastest release of
-    # 'AGE-DEMOGRAPHICS: VACCINATION - EVENT DATE' (release_category -> process_name)
-    release_dates = simple_db_query(queries.PREVIOUS_RELEASE_QUERY)
+    # Set the 'cutoff_date' to define (with current_release_datestamp) the time range
+    # to use in the sql query. It will be dynamically extended in the from_sql() function,
+    # as it crucial to get the data that is then used in many other parts of the project.
+    cutoff_date = current_release_datestamp - timedelta(days=7)
 
     # Retrieving data (since the previous release) ---------------------------------------
-    values = from_sql(partition, release_dates)
-    logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
+    values = from_sql(partition, cutoff_date)
+
+    if values:
+        logging.info(f"Retrieved {len(values)} rows from DB for nested metrics converter")
+    else:
+        logging.info("NO DATA COULD BE RETRIEVED FOR NESTED METRICS CONVERTER FUNCTION!")
 
 
     # Preparing the data for saving back to the DB ---------------------------------------
@@ -316,4 +333,4 @@ def main(rawtimestamp: str) -> str:
 
 # # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main("2023-02-21T16:15:14.123456")
+#     main("2023-02-22T16:15:14.123456")
