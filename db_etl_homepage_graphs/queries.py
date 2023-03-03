@@ -6,7 +6,7 @@
 
 # 3rd party:
 
-# Internal: 
+# Internal:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -192,7 +192,7 @@ WHERE
       partition_id = :partition_id
   AND area_type = 'nation'
   AND area_name = 'England'
-  AND date BETWEEN ( DATE( :datestamp ) - INTERVAL '30 days' ) AND ( DATE(:datestamp) - INTERVAL '5 days' )
+  AND date BETWEEN ( DATE( :datestamp ) - INTERVAL '36 days' ) AND ( DATE(:datestamp) - INTERVAL '5 days' )
   AND metric = :metric
 ORDER BY date DESC
 OFFSET 0

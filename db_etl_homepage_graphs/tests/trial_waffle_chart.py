@@ -20,7 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 # It might be useful for local development.
 class TestWaffleCharts(unittest.TestCase):
     """
-    This started as a test, but it's a tool to manually generate waffle chart images now.
+    This started as a test (it mocks some functions),
+    but it's a tool to manually generate waffle chart images now.
     """
     def setUp(self) -> None:
         return super().setUp()
@@ -28,7 +29,7 @@ class TestWaffleCharts(unittest.TestCase):
     def tearDown(self) -> None:
         return super().tearDown()
 
-    def replacement_store_50_plus(date, metric, csv, area_type=None, area_code=None):
+    def file_upload_replacement(date, metric, csv, area_type=None, area_code=None):
         logging.debug(f" {date}, {metric}, {area_type}, {area_code}")
 
         if area_code is not None:
@@ -44,10 +45,10 @@ class TestWaffleCharts(unittest.TestCase):
                 fh.write(csv)
 
 
-    @patch('db_etl_homepage_graphs.grapher.store_data_50_plus', replacement_store_50_plus)
+    @patch('db_etl_homepage_graphs.grapher.upload_file', file_upload_replacement)
     def test_get_vaccinations_50_plus(self):
 
-        get_vaccinations_50_plus("2022-12-15")
+        get_vaccinations_50_plus("2023-01-12")
 
 
 if __name__ == '__main__':

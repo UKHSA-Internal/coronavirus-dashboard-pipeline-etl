@@ -549,6 +549,7 @@ SUM_CHANGE_DIRECTION = {
     'newPeopleVaccinatedThirdInjectionByPublishDate',
     'newCasesPillarOneBySpecimenDate',
     'newCasesPillarTwoBySpecimenDate',
+    'newDailyNsoDeathsByDeathDate',
 }
 
 
