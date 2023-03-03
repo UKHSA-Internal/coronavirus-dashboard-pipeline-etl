@@ -156,7 +156,7 @@ FROM (
         )
     ) AS tsltla
 WHERE metric = 'vaccinationsAgeDemographics'
-AND date > ( DATE(NOW()) - INTERVAL '20 days' )
+AND date > ( DATE(NOW()) - INTERVAL '30 days' )
 ORDER BY date DESC;\
 """
 

@@ -188,6 +188,17 @@ def main(context: DurableOrchestrationContext):
     logging.info(output or "main_etl_nested_metrics_converter has failed")
     logging.info("Done with latest main_etl_postprocessors.")
 
+    # Save some nested metrics as normal metrics
+    context.set_custom_status(
+        f"Extracting the nested metrics (timestamp: {retrieve_payload['timestamp']})"
+    )
+    output = yield context.call_activity_with_retry(
+        "main_etl_nested_metrics_converter",
+        input_=retrieve_payload['timestamp'],
+        retry_options=retry_twice_opts
+    )
+    logging.info(output or "main_etl_nested_metrics_converter has failed")
+
     # ====================================================================================
 
     tasks = list()

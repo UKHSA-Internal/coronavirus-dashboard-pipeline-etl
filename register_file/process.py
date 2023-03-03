@@ -12,6 +12,7 @@ from hashlib import blake2b
 from azure.functions import HttpRequest, HttpResponse
 from sqlalchemy.exc import IntegrityError
 
+
 # Internal: 
 try:
     from __app__.db_tables.covid19 import Session, ProcessedFile

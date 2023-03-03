@@ -52,7 +52,7 @@ FROM (
         )
         OR (
             -- Anything else that's available at nation, region, or NHS region levels.
-            metric = ANY('{newVirusTestsByPublishDate,newVirusTestsByPublishDateChange,newVirusTestsByPublishDateChangePercentage,newVirusTestsByPublishDateRollingSum,newVirusTestsByPublishDateDirection,newAdmissions,newAdmissionsChange,newAdmissionsChangePercentage,newAdmissionsRollingSum,newAdmissionsDirection,transmissionRateMin,transmissionRateMax}'::VARCHAR[])
+            metric = ANY('{newVirusTestsByPublishDate,newVirusTestsByPublishDateChange,newVirusTestsByPublishDateChangePercentage,newVirusTestsByPublishDateRollingSum,newVirusTestsByPublishDateDirection,newAdmissions,newAdmissionsChange,newAdmissionsChangePercentage,newAdmissionsRollingSum,newAdmissionsDirection,transmissionRateMin,transmissionRateMax,cumPeopleVaccinatedAutumn22ByVaccinationDate50+,cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+}'::VARCHAR[])
             OR (
                     LEFT(ref.area_code, 1) = 'W'  -- Welsh deaths only available at nation level.
                 AND metric = ANY ('{newDeaths28DaysByDeathDate,newDeaths28DaysByDeathDateChange,newDeaths28DaysByDeathDateChangePercentage,newDeaths28DaysByDeathDateRollingSum,newDeaths28DaysByDeathDateDirection,newDeaths28DaysByPublishDate,newDeaths28DaysByPublishDateChange,newDeaths28DaysByPublishDateChangePercentage,newDeaths28DaysByPublishDateRollingSum,newDeaths28DaysByPublishDateDirection,newDeaths28DaysByDeathDateRollingRate,newDailyNsoDeathsByDeathDate,newDailyNsoDeathsByRegistrationDate,newDailyNsoDeathsByDeathDateChangePercentage,newDailyNsoDeathsByDeathDateChange,newDailyNsoDeathsByDeathDateRollingSum,newDailyNsoDeathsByDeathDateDirection}'::VARCHAR[])
@@ -219,7 +219,7 @@ FROM (
             JOIN covid19.area_reference AS ref ON ref.id = area_id
             JOIN covid19.area_priorities AS ap ON ref.area_type = ap.area_type
         WHERE ts.date > (NOW() - INTERVAL '16 days')
-          AND metric = ANY ('{newAdmissions,newAdmissionsChange,newAdmissionsChangePercentage,newAdmissionsRollingSum,newAdmissionsDirection}'::VARCHAR[])
+          AND metric = ANY ('{newAdmissions,newAdmissionsChange,newAdmissionsChangePercentage,newAdmissionsRollingSum,newAdmissionsDirection,cumPeopleVaccinatedAutumn22ByVaccinationDate50+,cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+}'::VARCHAR[])
           AND (payload ->> 'value') NOTNULL
     )
     UNION
@@ -285,7 +285,7 @@ FROM (
             JOIN covid19.metric_reference AS mr ON mr.id = metric_id
             JOIN covid19.area_reference AS ref ON ref.id = area_id
         WHERE ts.date > (NOW() - INTERVAL '10 days')
-          AND mr.metric = ANY('{cumVaccinationFirstDoseUptakeByVaccinationDatePercentage,cumVaccinationSecondDoseUptakeByVaccinationDatePercentage,cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage}'::VARCHAR[])
+          AND mr.metric = ANY('{cumVaccinationFirstDoseUptakeByVaccinationDatePercentage,cumVaccinationSecondDoseUptakeByVaccinationDatePercentage,cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage,cumPeopleVaccinatedAutumn22ByVaccinationDate50+,cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+}'::VARCHAR[])
     )
 ) AS ts
 WHERE rank = 1
