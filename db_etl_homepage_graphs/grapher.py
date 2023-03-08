@@ -258,16 +258,15 @@ def main(payload):
         for metric in METRICS:
             get_timeseries(payload['date'], metric)
 
-    if payload.get("category") == "vaccination":
-        get_vaccinations(payload['date'])
+        # Necessary data to generate waffle chart images might not be present in DB
+        # when 'vaccination' category payload is run, but it should be available
+        # when the last file is uploaded (main).
         logging.info("Generating waffle chart images for '50+' age range.")
         get_vaccinations_50_plus(payload['date'])
         logging.info("Generating waffle chart images has finished.")
-    else:
-        logging.info(
-            "Category for the db_etl_homepage_graphs payload was: "
-            f"{payload.get('category')}"
-        )
+
+    if payload.get("category") == "vaccination":
+        get_vaccinations(payload['date'])
 
     return f'DONE: {payload["date"]}'
 
