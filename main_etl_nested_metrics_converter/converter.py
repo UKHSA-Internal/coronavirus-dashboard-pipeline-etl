@@ -228,27 +228,28 @@ def convert_values(data: list):
                 continue
 
             for metric in METRICS_TO_CONVERT:
-                metric_id = get_or_create_new_metric_id(metric + values['age'])
-                enc_string = (
-                    # The order here makes difference, as any change to it
-                    f"{str(row.release_id)}{str(row.area_id)}{str(metric_id)}"
-                    f"{str(row.partition_id)}{row.date.isoformat()}"
-                )
-                hash = blake2s(digest_size=12)
-                hash.update(enc_string.encode('UTF-8'))
-                hash_string = hash.hexdigest()
-                new_hash_keys.add(hash_string)
+                if values.get(metric):
+                    metric_id = get_or_create_new_metric_id(metric + values['age'])
+                    enc_string = (
+                        # The order here makes difference, as any change to it
+                        f"{str(row.release_id)}{str(row.area_id)}{str(metric_id)}"
+                        f"{str(row.partition_id)}{row.date.isoformat()}"
+                    )
+                    hash = blake2s(digest_size=12)
+                    hash.update(enc_string.encode('UTF-8'))
+                    hash_string = hash.hexdigest()
+                    new_hash_keys.add(hash_string)
 
-                new_metric = TimeSeriesDataToDB(
-                    hash_string,
-                    row.release_id,
-                    row.area_id,
-                    metric_id,
-                    row.partition_id,
-                    row.date,
-                    {'value': values[metric]}
-                )
-                new_metric_data.append(new_metric)
+                    new_metric = TimeSeriesDataToDB(
+                        hash_string,
+                        row.release_id,
+                        row.area_id,
+                        metric_id,
+                        row.partition_id,
+                        row.date,
+                        {'value': values[metric]}
+                    )
+                    new_metric_data.append(new_metric)
 
     logging.info(f"Number of new hash keys: {len(new_hash_keys)}")
     logging.info(f"These new metrics have been created: {new_metric_created}")
