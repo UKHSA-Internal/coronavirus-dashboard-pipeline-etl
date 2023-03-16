@@ -3,6 +3,7 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
+import logging
 from datetime import datetime
 
 # 3rd party:
@@ -77,11 +78,16 @@ def upload_file(date: str, metric: str, svg: str, area_type: str = None,
         compressed=False
     )
 
-    if area_code is not None:
+    if area_code and area_type:
         path = f"homepage/{date}/{metric}/{area_type}/{area_code}_50_plus_thumbnail.svg"
 
         with StorageClient(path=path, **kws) as cli:
             cli.upload(svg)
+    else:
+        logging.info(
+            "Waffle chart image couldn't be saved "
+            f"(date = {date}, area_type = {area_type}, area_code = {area_code})"
+        )
 
 
 def get_timeseries(date: str, metric: str):
@@ -146,6 +152,7 @@ def get_value_50_plus(item: dict):
             vaccination_date_percentage_dose = int(round(
                 obj.get('cumVaccinationAutumn22UptakeByVaccinationDatePercentage', 0), 1
             ))
+            break
 
     return {
         "area_type": item['area_type'],
@@ -218,6 +225,8 @@ def get_vaccinations_50_plus(date: str):
     # This is used to track the most recent value that will be used to generate the files
     saved_data = {}
 
+    logging.info(f"Waffle chart images to save: {len(values_50_plus)}")
+
     for item in values_50_plus:
         # Checking if it's the newest data for the region
         if (
@@ -249,9 +258,15 @@ def main(payload):
         for metric in METRICS:
             get_timeseries(payload['date'], metric)
 
+        # Necessary data to generate waffle chart images might not be present in DB
+        # when 'vaccination' category payload is run, but it should be available
+        # when the last file is uploaded (main).
+        logging.info("Generating waffle chart images for '50+' age range.")
+        get_vaccinations_50_plus(payload['date'])
+        logging.info("Generating waffle chart images has finished.")
+
     if payload.get("category") == "vaccination":
         get_vaccinations(payload['date'])
-        get_vaccinations_50_plus(payload['date'])
 
     return f'DONE: {payload["date"]}'
 

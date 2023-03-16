@@ -4,6 +4,7 @@ FROM covid19.metric_reference
 WHERE metric = ANY('{metrics_string}');\
 """
 
+# Not used at the moment, remove if obsolete
 PREVIOUS_RELEASE_QUERY = """\
 SELECT timestamp::DATE as date
 FROM covid19.release_category
