@@ -1,0 +1,169 @@
+,area_type,area_code,date,release_id,partition_id,metric,payload,metric_id
+0,nation,E92000001,2021-01-31,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 209447.0, 'newWeeklyPercentage': 4.81, 'variant': 'Other'}
+ {'cumWeeklySequenced': 209447.0, 'newWeeklyPercentage': 95.19, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+1,nation,E92000001,2021-02-07,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 222311.0, 'newWeeklyPercentage': 3.33, 'variant': 'Other'}
+ {'cumWeeklySequenced': 222311.0, 'newWeeklyPercentage': 96.67, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+2,nation,E92000001,2021-02-14,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 236135.0, 'newWeeklyPercentage': 2.69, 'variant': 'Other'}
+ {'cumWeeklySequenced': 236135.0, 'newWeeklyPercentage': 97.31, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+100,nation,E92000001,2023-01-01,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 4.8, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 24.13, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 8.73, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 50.07, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 5.41, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 0.02, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 0.08, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 5.58, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2368777.0, 'newWeeklyPercentage': 1.2, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+101,nation,E92000001,2023-01-08,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 4.77, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 24.68, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 6.55, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 50.27, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 7.57, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 0.04, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 4.55, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2371524.0, 'newWeeklyPercentage': 1.57, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+102,nation,E92000001,2023-01-15,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 5.93, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 25.68, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 5.52, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 43.76, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 12.47, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 4.96, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2373681.0, 'newWeeklyPercentage': 1.67, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+103,nation,E92000001,2023-01-22,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 5.58, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 30.44, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 4.78, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 37.34, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 15.99, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 3.98, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2376421.0, 'newWeeklyPercentage': 1.9, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+104,nation,E92000001,2023-01-29,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 6.72, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 26.42, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 2.96, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 34.8, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 24.13, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 3.32, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2380039.0, 'newWeeklyPercentage': 1.66, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+105,nation,E92000001,2023-02-05,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 11.0, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 27.23, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 2.84, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 22.05, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 32.69, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 0.08, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 2.34, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2383976.0, 'newWeeklyPercentage': 1.78, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+106,nation,E92000001,2023-02-12,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 11.25, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 23.53, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 2.69, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 22.69, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 36.88, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 1.62, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2388472.0, 'newWeeklyPercentage': 1.33, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+107,nation,E92000001,2023-02-19,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 13.94, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 22.04, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 1.63, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 16.12, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 43.64, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 1.15, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2392833.0, 'newWeeklyPercentage': 1.49, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+108,nation,E92000001,2023-02-26,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 19.92, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 21.57, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 0.98, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 10.8, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 44.21, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 1.05, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2397029.0, 'newWeeklyPercentage': 1.48, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+109,nation,E92000001,2023-03-05,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 23.48, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 15.02, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 1.52, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 9.55, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 47.55, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 0.64, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2400777.0, 'newWeeklyPercentage': 2.24, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758
+110,nation,E92000001,2023-03-12,229599,2023_3_23|other,variants,"[{'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 22.19, 'variant': 'Other'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-20DEC-01 (Alpha)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21APR-02 (Delta B.1.617.2)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'V-21OCT-01 (Delta AY 4.2)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 11.37, 'variant': 'V-22DEC-01 (Omicron CH.1.1)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 1.42, 'variant': 'V-22JUL-01 (Omicron BA.2.75)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 6.34, 'variant': 'V-22OCT-01 (Omicron BQ.1)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 50.38, 'variant': 'V-23JAN-01 (Omicron XBB.1.5)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-21NOV-01 (Omicron BA.1)'}
+ {'cumWeeklySequenced': 0.0, 'newWeeklyPercentage': 0.0, 'variant': 'VOC-22APR-03 (Omicron BA.4)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 0.33, 'variant': 'VOC-22APR-04 (Omicron BA.5)'}
+ {'cumWeeklySequenced': 2401692.0, 'newWeeklyPercentage': 7.98, 'variant': 'VOC-22JAN-01 (Omicron BA.2)'}]",1758

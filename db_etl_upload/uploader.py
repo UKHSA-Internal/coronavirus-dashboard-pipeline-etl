@@ -79,11 +79,13 @@ def trim_sides(data):
 
         last_valid = dm.payload.last_valid_index()
 
-        try:
-            dm.loc[last_valid - 1:, :] = NaN
-            data.loc[dm.index] = dm
-        except KeyError:
-            continue
+        # It prevents removing data from the dataframe (only for 'variants')
+        if metric != "variants":
+            try:
+                dm.loc[last_valid - 1:, :] = NaN
+                data.loc[dm.index] = dm
+            except KeyError:
+                continue
 
     return data.dropna(how="all", axis=0)
 
