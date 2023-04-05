@@ -58,19 +58,44 @@ env = Environment(loader=file_loader)
 England_structure = [
     [
         {
+            "name": "New positive cases (last 7 days)",
+            "label": "newCasesBySpecimenDateRollingSum",
+            "metric": "newCasesBySpecimenDateRollingSum"
+        },
+        {
+            "name": "Deaths with COVID-19 on death certificate (last 7 days)",
+            "label": "newDailyNsoDeathsByDeathDateRollingSum",
+            "metric": "newDailyNsoDeathsByDeathDateRollingSum"
+        },
+        {
+            "name": "Virus tests conducted (last 7 days)",
+            "label": "newVirusTestsByPublishDateRollingSum",
+            "metric": "newVirusTestsByPublishDateRollingSum"
+        },
+        {
             "name": "Patients admitted (last 7 days)",
-            "label": "newAdmissions",
-            "metric": "newAdmissionsRollingSum"
+            "label": "hospitalCases",
+            "metric": "hospitalCases"
         },
         {
             "name": "Patients in hospital",
-            "label": "hospitalCases",
-            "metric": "hospitalCases"
+            "label": "newAdmissions",
+            "metric": "newAdmissionsRollingSum"
         },
         {
             "name": "Patients in ventilator beds",
             "label": "covidOccupiedMVBeds",
             "metric": "covidOccupiedMVBeds"
+        },
+        {
+            "name": "Total people vaccinated — autumn booster age 50+",
+            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
+            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+"
+        },
+        {
+            "name": "Vaccination uptake - autumn booster age 50+ (%)",
+            "label": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+",
+            "metric": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+"
         }
     ],
 ]
@@ -79,39 +104,13 @@ England_structure = [
 UK_structure = [
     [
         {
-            "name": "New positive cases (last 7 days)",
-            "label": "newCases",
-            "metric": "newCasesByPublishDateRollingSum"
+            "name": "Deaths with COVID-19 on death certificate (last 7 days)",
+            "label": "newDailyNsoDeathsByDeathDateRollingSum",
+            "metric": "newDailyNsoDeathsByDeathDateRollingSum"
         },
-        {
-            "name": "Total positive cases",
-            "label": "totalCases",
-            "metric": "cumCasesByPublishDate"
-        },
-    ],
-    [
-        {
-            "name": "New deaths within 28 days of a positive test (last 7 days)",
-            "label": "newDeaths",
-            "metric": "newDeaths28DaysByPublishDateRollingSum"
-        },
-        {
-            "name": "Total deaths within 28 days of a positive test",
-            "label": "totalDeaths",
-            "metric": "cumDeaths28DaysByPublishDate"
-        },
-    ],
-    [
-        {
-            "name": "Virus tests conducted (last 7 days)",
-            "label": "newVirusTestsByPublishDate",
-            "metric": "newVirusTestsByPublishDateRollingSum"
-        },
-    ],
-    [
         {
             "name": "Patients admitted (last 7 days)",
-            "label": "newAdmissions",
+            "label": "newAdmissionsRollingSum",
             "metric": "newAdmissionsRollingSum"
         },
         {
@@ -123,69 +122,16 @@ UK_structure = [
             "name": "Patients in ventilator beds",
             "label": "covidOccupiedMVBeds",
             "metric": "covidOccupiedMVBeds"
-        }
-    ],
-    [
-        {
-            "name": "New people vaccinated &mdash; 1st dose (last 7 days)",
-            "label": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum"
         },
         {
-            "name": "Total people vaccinated &mdash; 1st dose",
-            "label": "cumPeopleVaccinatedFirstDoseByPublishDate",
-            "metric": "cumPeopleVaccinatedFirstDoseByPublishDate"
+            "name": "Total people vaccinated — autumn booster age 50+",
+            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
+            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+"
         },
         {
-            "name": "Vaccination uptake &mdash; 1st dose (%)",
-            "label": "cumVaccinationFirstDoseUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationFirstDoseUptakeByPublishDatePercentage"
-        },
-    ],
-    [
-        {
-            "name": "New people vaccinated &mdash; 2nd dose (last 7 days)",
-            "label": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
-        },
-        {
-            "name": "Total people vaccinated &mdash; 2nd dose",
-            "label": "cumPeopleVaccinatedSecondDoseByPublishDate",
-            "metric": "cumPeopleVaccinatedSecondDoseByPublishDate",
-        },
-        {
-            "name": "Vaccination uptake &mdash; 2nd dose (%)",
-            "label": "cumVaccinationSecondDoseUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationSecondDoseUptakeByPublishDatePercentage"
-        },
-    ],
-    [
-        {
-            "name": "New people vaccinated &mdash; 3rd dose and booster (last 7 days)",
-            "label": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
-        },
-        {
-            "name": "Total people vaccinated &mdash; 3rd dose and booster",
-            "label": "cumPeopleVaccinatedThirdInjectionByPublishDate",
-            "metric": "cumPeopleVaccinatedThirdInjectionByPublishDate",
-        },
-        {
-            "name": "Vaccination uptake &mdash; 3rd dose and booster (%)",
-            "label": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage"
-        },
-    ],
-    [
-        {
-            "name": "Daily vaccines given",
-            "label": "newVaccinesGivenByPublishDate",
-            "metric": "newVaccinesGivenByPublishDate",
-        },
-        {
-            "name": "Total vaccines given",
-            "label": "cumVaccinesGivenByPublishDate",
-            "metric": "cumVaccinesGivenByPublishDate",
+            "name": "Vaccination uptake - autumn booster age 50+ (%)",
+            "label": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+",
+            "metric": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+"
         }
     ]
 ]
@@ -195,6 +141,7 @@ test_emails = {
     "to": [
         # "Recipient's email"
         "pouria.hadjibagheri@phe.gov.uk",
+        "bea.goble@ukhsa.gov.uk",
         "COVID19.Dashboard.Data@phe.gov.uk"
     ],
     "cc": list(),
