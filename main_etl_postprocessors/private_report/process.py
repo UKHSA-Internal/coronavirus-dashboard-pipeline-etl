@@ -98,8 +98,8 @@ structure = [
     [
         {
             "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+",
-            "metric": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+"
+            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+",
+            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+"
         }
 
     ],

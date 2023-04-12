@@ -94,8 +94,8 @@ England_structure = [
         },
         {
             "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+",
-            "metric": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+"
+            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+",
+            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+"
         }
     ],
 ]
@@ -122,16 +122,6 @@ UK_structure = [
             "name": "Patients in ventilator beds",
             "label": "covidOccupiedMVBeds",
             "metric": "covidOccupiedMVBeds"
-        },
-        {
-            "name": "Total people vaccinated — autumn booster age 50+",
-            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
-            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+"
-        },
-        {
-            "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+",
-            "metric": "cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+"
         }
     ]
 ]
