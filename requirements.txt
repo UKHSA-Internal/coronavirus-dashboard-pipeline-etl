@@ -39,7 +39,7 @@ asyncpg==0.26.0
 opencensus-ext-azure==1.1.7
 opencensus-ext-logging
 opencensus-ext-requests==0.8.0
-matplotlib==3.6.0
+matplotlib==3.7.1
 Markdown==3.4.1
 # protobuf has to be 3.20.x or lower for the azure framework
 protobuf==3.20.3
