@@ -15,7 +15,7 @@ azure-storage-blob==12.13.1
 azure-storage-queue==12.4.0
 azure-servicebus==7.8.0
 azure-cosmos==4.3.0
-azure-mgmt-servicebus==8.1.0
+azure-mgmt-servicebus==8.2.0
 azure-functions-durable==1.1.6
 redis==3.5.3
 PyYAML==5.4.1
