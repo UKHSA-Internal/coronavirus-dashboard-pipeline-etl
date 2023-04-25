@@ -37,77 +37,39 @@ file_loader = FileSystemLoader(path.join(curr_dir, "templates"))
 env = Environment(loader=file_loader)
 
 METRICS = [
+    'newDailyNsoDeathsByDeathDateRollingSum',
     'newAdmissionsRollingSum',
-    'newAdmissionsChange',
-    'newAdmissionsChangePercentage',
     'hospitalCases',
     'covidOccupiedMVBeds',
-    'newCasesByPublishDateRollingSum',
-    'newCasesByPublishDateChange',
-    'newCasesByPublishDateChangePercentage',
-    'cumCasesByPublishDateRollingSum',
-    'newDeaths28DaysByPublishDate',
-    'cumDeaths28DaysByPublishDate',
+    'cumPeopleVaccinatedAutumn22ByVaccinationDate50+',
+    'cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+',
+    'newCasesBySpecimenDateRollingSum',
     'newVirusTestsByPublishDateRollingSum',
-    'newVirusTestsByPublishDateChange',
-    'newVirusTestsByPublishDateChangePercentage',
     'uniqueCasePositivityBySpecimenDateRollingSum',
-    'newPCRTestsByPublishDate',
-    'newAntibodyTestsByPublishDate',
-    'plannedPCRCapacityByPublishDate',
-    'plannedAntibodyCapacityByPublishDate',
-    'newAdmissions',
-    'hospitalCases',
-    'covidOccupiedMVBeds',
-    'newPeopleVaccinatedFirstDoseByPublishDateRollingSum',
-    'cumPeopleVaccinatedFirstDoseByPublishDate',
-    'cumVaccinationFirstDoseUptakeByPublishDatePercentage',
-    'newPeopleVaccinatedSecondDoseByPublishDateRollingSum',
-    'cumPeopleVaccinatedSecondDoseByPublishDate',
-    'cumVaccinationSecondDoseUptakeByPublishDatePercentage',
-    'newPeopleVaccinatedThirdInjectionByPublishDateRollingSum',
-    'cumPeopleVaccinatedThirdInjectionByPublishDate',
-    'cumVaccinationThirdInjectionUptakeByPublishDatePercentage',
-    'newVaccinesGivenByPublishDate',
     'cumVaccinesGivenByPublishDate'
 ]
 
 structure = [
     [
         {
-            "name": "New positive cases (last 7 days)",
-            "label": "newCases",
-            "metric": "newCasesByPublishDateRollingSum",
-        },
-        {
-            "name": "Total positive cases",
-            "label": "totalCases",
-            "metric": "cumCasesByPublishDate"
-        },
-    ],
-    [
-        {
-            "name": "New deaths within 28 days of a positive test (last 7 days)",
-            "label": "newDeaths",
-            "metric": "newDeaths28DaysByPublishDateRollingSum"
-        },
-        {
-            "name": "Total deaths within 28 days of a positive test",
-            "label": "totalDeaths",
-            "metric": "cumDeaths28DaysByPublishDate"
-        },
+            "name": "Deaths with COVID-19 on the death certificate (last 7 days)",
+            "label": "newDailyNsoDeathsByDeathDateRollingSum",
+            "metric": "newDailyNsoDeathsByDeathDateRollingSum"
+        }
     ],
     [
         {
             "name": "Virus tests conducted (last 7 days)",
-            "label": "newVirusTestsByPublishDate",
+            "label": "newVirusTestsByPublishDateRollingSum",
             "metric": "newVirusTestsByPublishDateRollingSum"
-        },
+        }
+    ],
+    [
         {
             "name": "Positivity ratio (%)",
             "label": "uniqueCasePositivityBySpecimenDateRollingSum",
             "metric": "uniqueCasePositivityBySpecimenDateRollingSum"
-        },
+        }
     ],
     [
         {
@@ -128,60 +90,24 @@ structure = [
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 1st dose (last 7 days)",
-            "label": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedFirstDoseByPublishDateRollingSum"
-        },
-        {
-            "name": "Total people vaccinated &mdash; 1st dose",
-            "label": "cumPeopleVaccinatedFirstDoseByPublishDate",
-            "metric": "cumPeopleVaccinatedFirstDoseByPublishDate"
-        },
-        {
-            "name": "Vaccination uptake &mdash; 1st dose (%)",
-            "label": "cumVaccinationFirstDoseUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationFirstDoseUptakeByPublishDatePercentage"
-        },
+            "name": "New positive cases (last 7 days)",
+            "label": "newCasesBySpecimenDateRollingSum",
+            "metric": "newCasesBySpecimenDateRollingSum"
+        }
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 2nd dose (last 7 days)",
-            "label": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedSecondDoseByPublishDateRollingSum",
-        },
-        {
-            "name": "Total people vaccinated &mdash; 2nd dose",
-            "label": "cumPeopleVaccinatedSecondDoseByPublishDate",
-            "metric": "cumPeopleVaccinatedSecondDoseByPublishDate",
-        },
-        {
-            "name": "Vaccination uptake &mdash; 2nd dose (%)",
-            "label": "cumVaccinationSecondDoseUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationSecondDoseUptakeByPublishDatePercentage"
-        },
+            "name": "Vaccination uptake - autumn booster age 50+ (%)",
+            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+",
+            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+"
+        }
+
     ],
     [
         {
-            "name": "New people vaccinated &mdash; 3rd dose + booster (last 7 days)",
-            "label": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
-            "metric": "newPeopleVaccinatedThirdInjectionByPublishDateRollingSum",
-        },
-        {
-            "name": "Total people vaccinated &mdash; 3rd dose + booster",
-            "label": "cumPeopleVaccinatedThirdInjectionByPublishDate",
-            "metric": "cumPeopleVaccinatedThirdInjectionByPublishDate",
-        },
-        {
-            "name": "Vaccination uptake &mdash; 3rd dose + booster (%)",
-            "label": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage",
-            "metric": "cumVaccinationThirdInjectionUptakeByPublishDatePercentage"
-        },
-    ],
-    [
-        {
-            "name": "Daily vaccines given",
-            "label": "newVaccinesGivenByPublishDate",
-            "metric": "newVaccinesGivenByPublishDate",
+            "name": "Total vaccines given — autumn booster age 50+",
+            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
+            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
         },
         {
             "name": "Total vaccines given",
