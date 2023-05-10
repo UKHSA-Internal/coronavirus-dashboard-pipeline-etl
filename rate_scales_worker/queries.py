@@ -6,7 +6,7 @@
 
 # 3rd party:
 
-# Internal: 
+# Internal:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -25,6 +25,8 @@ WHERE metric = :metric  -- Metric
       SELECT MAX(date)
       FROM covid19.time_series_p{date}_{area_type} AS ts
           JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id
+          JOIN covid19.area_reference   AS ar ON ar.id = ts.area_id
       WHERE metric = :metric
+        AND area_type = :area_type
     );\
 """
