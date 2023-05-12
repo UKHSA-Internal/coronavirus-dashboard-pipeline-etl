@@ -63,7 +63,7 @@ azure-mgmt-core==1.3.2
 furl==2.1.3
 aiohttp==3.8.3
 opencensus==0.11.0
-azure-identity==1.11.0
+azure-identity==1.13.0
 psutil==5.9.3
 wrapt==1.14.1
 fonttools==4.38.0
