@@ -41,8 +41,11 @@ METRICS = [
     'newAdmissionsRollingSum',
     'hospitalCases',
     'covidOccupiedMVBeds',
-    'cumPeopleVaccinatedAutumn22ByVaccinationDate50+',
-    'cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50+',
+    'cumPeopleVaccinatedAutumn22ByVaccinationDate50plus',
+    'cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50plus',
+    'newPeopleVaccinatedSpring23ByVaccinationDate75plus',
+    'cumPeopleVaccinatedSpring23ByVaccinationDate75plus',
+    'cumVaccinationSpring23UptakeByVaccinationDatePercentage75plus',
     'newCasesBySpecimenDateRollingSum',
     'newVirusTestsByPublishDateRollingSum',
     'uniqueCasePositivityBySpecimenDateRollingSum',
@@ -98,16 +101,16 @@ structure = [
     [
         {
             "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+",
-            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+"
+            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
+            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
         }
 
     ],
     [
         {
             "name": "Total vaccines given — autumn booster age 50+",
-            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
-            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
+            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
+            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
         },
         {
             "name": "Total vaccines given",

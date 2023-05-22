@@ -89,13 +89,13 @@ England_structure = [
         },
         {
             "name": "Total people vaccinated — autumn booster age 50+",
-            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+",
-            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50+"
+            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
+            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus"
         },
         {
             "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+",
-            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50+"
+            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
+            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
         }
     ],
 ]
