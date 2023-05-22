@@ -13,7 +13,7 @@ from sqlalchemy import text
 try:
     from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session
-    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_x_plus
+    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
     from . import queries
 except ImportError:
     from storage import StorageClient
