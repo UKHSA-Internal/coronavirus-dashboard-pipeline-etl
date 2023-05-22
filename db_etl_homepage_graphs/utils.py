@@ -237,7 +237,7 @@ def plot_vaccinations(data):
     return fig.to_image(format="svg").decode()
 
 
-def plot_vaccinations_50_plus(data: dict):
+def plot_vaccinations_waffle_chart(data: dict):
     """
     The function to generate SVG image based on the values in the 'data'
 

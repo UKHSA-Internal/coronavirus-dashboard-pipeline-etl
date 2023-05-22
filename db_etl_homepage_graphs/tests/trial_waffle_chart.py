@@ -10,7 +10,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from db_etl_homepage_graphs.grapher import get_vaccinations, get_vaccinations_50_plus
+from db_etl_homepage_graphs.grapher import get_vaccinations_75_plus
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -39,16 +39,16 @@ class TestWaffleCharts(unittest.TestCase):
             if not os.path.exists(downloads_dir):
                 os.makedirs(downloads_dir)
 
-            path = os.path.join(downloads_dir, f"{area_code}_50_plus_thumbnail.svg")
+            path = os.path.join(downloads_dir, f"{area_code}_75_plus_thumbnail.svg")
 
             with open(path, "w") as fh:
                 fh.write(csv)
 
 
     @patch('db_etl_homepage_graphs.grapher.upload_file', file_upload_replacement)
-    def test_get_vaccinations_50_plus(self):
+    def test_get_vaccinations_75_plus(self):
 
-        get_vaccinations_50_plus("2023-01-12")
+        get_vaccinations_75_plus("2023-05-18")
 
 
 if __name__ == '__main__':
