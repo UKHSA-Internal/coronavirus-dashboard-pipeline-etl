@@ -8,12 +8,13 @@
 # root_path = test_dir.parent
 # site.addsitedir(root_path)
 
+import json
 import logging
 from collections import namedtuple
 from datetime import date, datetime, timedelta
 from hashlib import blake2s
 from os import getenv
-from sqlalchemy import select, text
+from sqlalchemy import column, select, text
 from sqlalchemy.dialects.postgresql import insert
 
 # According to Azure docs it might be needed to import the modules using '__app__'
@@ -33,12 +34,6 @@ __all__ = [
 RECORD_KEY = getenv("RECORD_KEY", "").encode()
 
 
-# The list of nested metrics that should be converted to regular ones
-METRICS_TO_CONVERT = [
-    "cumPeopleVaccinatedAutumn22ByVaccinationDate",
-    "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
-]
-
 # The data that comes from the database is saved as a named tuple (1 DB row -> 1 tuple)
 TimeSeriesData = namedtuple(
     'TimeSeriesData',
@@ -49,9 +44,28 @@ TimeSeriesDataToDB = namedtuple(
     'TimeSeriesDataToDB',
     ['hash', 'release_id', 'area_id', 'metric_id', 'partition_id', 'date', 'payload']
 )
-# The list of data that we're intrested in.
-# The items are the age ranges used in the nested metrics.
-age_range_suffix = ['50+']
+# The data that we're intrested in.
+age_metric_mapping = {
+    '50+': [
+        "cumPeopleVaccinatedAutumn22ByVaccinationDate",
+        "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
+    ], 
+    '75+': [
+        "newPeopleVaccinatedSpring23ByVaccinationDate",
+        "cumPeopleVaccinatedSpring23ByVaccinationDate",
+        "cumVaccinationSpring23UptakeByVaccinationDatePercentage",
+    ],
+}
+# The list of nested metrics that should be converted to regular ones
+METRICS_TO_CONVERT = []
+list(map(METRICS_TO_CONVERT.extend, age_metric_mapping.values()))
+
+# This will be used to convert 'suffix' (it will be appended to a metric)
+# not to has any problematic characters 
+suffix_mapping = {
+    '50+': '50plus',
+    '75+': '75plus',
+}
 # The dict where the key is the metric, and its value is the metric ID
 # It's used to keep already fetched metric IDs so they can be reused
 # (no need to query the DB again)
@@ -75,6 +89,7 @@ def to_sql(data: list):
     all_rows = len(data)
 
     logging.info(f"Writing/updating nested metrics to DB ({all_rows} rows)")
+    dates = set()
 
     try:
         for row in data:
@@ -88,6 +103,7 @@ def to_sql(data: list):
             session.flush()
 
             count += 1
+            dates.add(str(row.date))
 
             if count >= all_rows / 10 * done_10th:
                 logging.info(f"Nested metrics, rows saved: {count} ({done_10th * 10}%)")
@@ -99,6 +115,8 @@ def to_sql(data: list):
 
     finally:
         session.close()
+
+    logging.info(f"The new data covers these dates: {dates}")
 
 
 def from_sql(partition: str, cutoff_date: datetime):
@@ -143,15 +161,18 @@ def from_sql(partition: str, cutoff_date: datetime):
     return values
 
 
-def get_or_create_new_metric_id(metric: str):
+def get_or_create_new_metric_id(metric: str, age: str):
     """
     Based on the metric provided it returns it's ID. It tries to get it from the DB
     It eventually creates a new metric in 'metric_references' table
 
     :params metric: the metric
+    :params age: age range
     :return: the metric ID
     :rtype: int
     """
+    # the metric is concatenation of nested metric and the age range 
+    metric += suffix_mapping[age]
     # if the metric ID is already known, then use it
     if metric_ids_collected.get(metric):
         return metric_ids_collected[metric]
@@ -174,16 +195,16 @@ def get_or_create_new_metric_id(metric: str):
         session.close()
 
     # If the metric doesn't exist in the DB, then create it
-    if not obj or (obj and not obj[0]):
+    if not obj or not hasattr(obj, 'id'):
         try:
-            # TODO: use sqlalchemy 'insert' with 'returning' statements here
-            INSERT_NEW_METRIC_QUERY = (
-                "INSERT INTO covid19.metric_reference(metric, released, source_metric) "
-                f"VALUES ('{metric}', false, false) "
-                "RETURNING id;"
+            statement = (
+                insert(MetricReference.__table__)
+                .returning(column('id'))
+                .values(metric=metric, released=True, source_metric=False)
+                # .on_conflict_do_nothing(index_elements=['metric'])
             )
 
-            id = connection.execute(INSERT_NEW_METRIC_QUERY).first()[0]
+            id = connection.execute(statement).scalar()
             session.flush()
             new_metric_created.append(metric)
         except Exception as err:
@@ -196,9 +217,9 @@ def get_or_create_new_metric_id(metric: str):
 
         return id
 
-    metric_ids_collected[metric] = obj[0]
+    metric_ids_collected[metric] = obj.id
 
-    return obj[0]
+    return obj.id
 
 
 def convert_values(data: list):
@@ -214,19 +235,29 @@ def convert_values(data: list):
 
     for row in data:
         for values in row.payload:
-            if values.get('age') is None or values['age'] not in age_range_suffix:
+            if values.get('age') is None or values['age'] not in age_metric_mapping:
                 continue
 
             for metric in METRICS_TO_CONVERT:
-                metric_id = get_or_create_new_metric_id(metric + values['age'])
+                if not metric in age_metric_mapping[values['age']]:
+                    continue
+
+                metric_id = get_or_create_new_metric_id(metric, values['age'])
+
+                if metric_id is None:
+                    raise TypeError(
+                        "Expected an integer as metric ID, but got 'None' "
+                        f"for metric: {metric}. "
+                        f"Fetched IDs: {json.loads(metric_ids_collected)}"
+                    )
+                
                 enc_string = (
-                    # The order here makes difference, as any change to it
+                    # The order here makes difference, as any other change to these
                     f"{str(row.release_id)}{str(row.area_id)}{str(metric_id)}"
                     f"{str(row.partition_id)}{row.date.isoformat()}"
                 )
                 hash = blake2s(digest_size=12)
                 hash = blake2s(enc_string.encode('UTF-8'), key=RECORD_KEY, digest_size=12)
-                # hash.update(enc_string.encode('UTF-8'))
                 hash_string = hash.hexdigest()
                 new_hash_keys.add(hash_string)
 
@@ -333,4 +364,4 @@ def main(rawtimestamp: str) -> str:
 
 # # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main("2023-02-22T16:15:14.123456")
+#     main("2023-05-18T16:15:14.123456")
