@@ -130,7 +130,7 @@ GROUP BY first.area_type, first.area_code;\
 """
 
 
-VACCINATIONS_QUERY_50_PLUS = """\
+VACCINATIONS_QUERY_PLUS = """\
 SELECT area_type, area_code, date, payload
 FROM (
         SELECT *

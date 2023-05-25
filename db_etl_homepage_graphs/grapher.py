@@ -13,13 +13,13 @@ from sqlalchemy import text
 try:
     from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session
-    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_50_plus
+    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
     from . import queries
 except ImportError:
     from storage import StorageClient
     from db_tables.covid19 import Session
     from db_etl_homepage_graphs.utils import (
-        plot_thumbnail, plot_vaccinations, plot_vaccinations_50_plus
+        plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
     )
     from db_etl_homepage_graphs import queries
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +62,7 @@ def upload_file(date: str, metric: str, svg: str, area_type: str = None,
                 area_code: str = None):
     """
     This is used to save svg files into Azure Data Storage. The images are waffle charts
-    used on the main page, and currently are related to people of age 50 and over.
+    used on the main page, and currently are related to people of age 75 and over.
     All the params, apart from 'svg', are used only to create the path to the file.
 
     :param date: date of the current release
@@ -79,7 +79,7 @@ def upload_file(date: str, metric: str, svg: str, area_type: str = None,
     )
 
     if area_code and area_type:
-        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_50_plus_thumbnail.svg"
+        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_75_plus_thumbnail.svg"
 
         with StorageClient(path=path, **kws) as cli:
             cli.upload(svg)
@@ -130,12 +130,12 @@ def get_timeseries(date: str, metric: str):
     return True
 
 
-def get_value_50_plus(item: dict):
+def get_value_75_plus(item: dict):
     """
-    Get the values for the item in a list where its key 'age' is '50+'
+    Get the values for the item in a list where its key 'age' is '75+'
     and put them in new dict. New keys:
-    - cumPeopleVaccinatedAutumn22ByVaccinationDate
-    - cumVaccinationAutumn22UptakeByVaccinationDatePercentage
+    - cumPeopleVaccinatedSpring23ByVaccinationDate,
+    - cumVaccinationSpring23UptakeByVaccinationDatePercentage
 
     :param item: data from DB (1 row)
     :return: a dictionary with all the data to generate a svg file and the path to it
@@ -145,12 +145,12 @@ def get_value_50_plus(item: dict):
     vaccination_date_percentage_dose = 0
 
     for obj in item['payload']:
-        if obj.get('age') == '50+':
+        if obj.get('age') == '75+':
             vaccination_date = int(round(
-                obj.get('cumPeopleVaccinatedAutumn22ByVaccinationDate', 0), 1
+                obj.get('cumPeopleVaccinatedSpring23ByVaccinationDate', 0), 1
             ))
             vaccination_date_percentage_dose = int(round(
-                obj.get('cumVaccinationAutumn22UptakeByVaccinationDatePercentage', 0), 1
+                obj.get('cumVaccinationSpring23UptakeByVaccinationDatePercentage', 0), 1
             ))
             break
 
@@ -196,7 +196,7 @@ def get_vaccinations(date):
     return True
 
 
-def get_vaccinations_50_plus(date: str):
+def get_vaccinations_75_plus(date: str):
     """
     The function to get the data from database. It will also call other functions
     to generate SVG images (waffle charts)
@@ -209,13 +209,13 @@ def get_vaccinations_50_plus(date: str):
     ts = datetime.strptime(date, "%Y-%m-%d")
     partition = f"{ts:%Y_%-m_%-d}"
 
-    vax_query_50_plus = queries.VACCINATIONS_QUERY_50_PLUS.format(partition=partition)
+    vax_query_75_plus = queries.VACCINATIONS_QUERY_PLUS.format(partition=partition)
 
     session = Session()
     conn = session.connection()
     try:
-        resp50 = conn.execute(text(vax_query_50_plus))
-        values_50_plus = resp50.fetchall()
+        resp = conn.execute(text(vax_query_75_plus))
+        values = resp.fetchall()
     except Exception as err:
         session.rollback()
         raise err
@@ -225,9 +225,9 @@ def get_vaccinations_50_plus(date: str):
     # This is used to track the most recent value that will be used to generate the files
     saved_data = {}
 
-    logging.info(f"Waffle chart images to save: {len(values_50_plus)}")
+    logging.info(f"Waffle chart images to save: {len(values)}")
 
-    for item in values_50_plus:
+    for item in values:
         # Checking if it's the newest data for the region
         if (
             item['area_type'] not in saved_data
@@ -243,7 +243,7 @@ def get_vaccinations_50_plus(date: str):
             upload_file(
                 date,
                 "vaccinations",
-                plot_vaccinations_50_plus(get_value_50_plus(item)),
+                plot_vaccinations_waffle_chart(get_value_75_plus(item)),
                 area_type=item["area_type"],
                 area_code=item["area_code"]
             )
@@ -261,8 +261,8 @@ def main(payload):
         # Necessary data to generate waffle chart images might not be present in DB
         # when 'vaccination' category payload is run, but it should be available
         # when the last file is uploaded (main).
-        logging.info("Generating waffle chart images for '50+' age range.")
-        get_vaccinations_50_plus(payload['date'])
+        logging.info("Generating waffle chart images for '75+' age range.")
+        get_vaccinations_75_plus(payload['date'])
         logging.info("Generating waffle chart images has finished.")
 
     if payload.get("category") == "vaccination":
