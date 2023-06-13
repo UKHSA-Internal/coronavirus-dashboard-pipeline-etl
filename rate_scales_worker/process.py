@@ -22,7 +22,7 @@ try:
     from .queries import RATES
 except ImportError:
     from storage import StorageClient
-    from despatch_ops_workers.rate_scales.queries import RATES
+    from rate_scales_worker.queries import RATES
     from db_tables.covid19 import Session
     from despatch_ops_workers.utils.variables import AREA_TYPE_PARTITION
 
