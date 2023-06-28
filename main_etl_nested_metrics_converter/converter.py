@@ -49,7 +49,7 @@ age_metric_mapping = {
     '50+': [
         "cumPeopleVaccinatedAutumn22ByVaccinationDate",
         "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
-    ], 
+    ],
     '75+': [
         "newPeopleVaccinatedSpring23ByVaccinationDate",
         "cumPeopleVaccinatedSpring23ByVaccinationDate",
@@ -61,7 +61,7 @@ METRICS_TO_CONVERT = []
 list(map(METRICS_TO_CONVERT.extend, age_metric_mapping.values()))
 
 # This will be used to convert 'suffix' (it will be appended to a metric)
-# not to has any problematic characters 
+# not to has any problematic characters
 suffix_mapping = {
     '50+': '50plus',
     '75+': '75plus',
@@ -171,7 +171,7 @@ def get_or_create_new_metric_id(metric: str, age: str):
     :return: the metric ID
     :rtype: int
     """
-    # the metric is concatenation of nested metric and the age range 
+    # the metric is concatenation of nested metric and the age range
     metric += suffix_mapping[age]
     # if the metric ID is already known, then use it
     if metric_ids_collected.get(metric):
@@ -250,7 +250,7 @@ def convert_values(data: list):
                         f"for metric: {metric}. "
                         f"Fetched IDs: {json.loads(metric_ids_collected)}"
                     )
-                
+
                 enc_string = (
                     # The order here makes difference, as any other change to these
                     f"{str(row.release_id)}{str(row.area_id)}{str(metric_id)}"
@@ -336,7 +336,7 @@ def main(rawtimestamp: str) -> str:
     # Set the 'cutoff_date' to define (with current_release_datestamp) the time range
     # to use in the sql query. It will be dynamically extended in the from_sql() function,
     # as it crucial to get the data that is then used in many other parts of the project.
-    cutoff_date = current_release_datestamp - timedelta(days=7)
+    cutoff_date = current_release_datestamp - timedelta(days=14)
 
     # Retrieving data (since the previous release) ---------------------------------------
     values = from_sql(partition, cutoff_date)
@@ -364,4 +364,4 @@ def main(rawtimestamp: str) -> str:
 
 # # This is not needed for prod, but useful for local development
 # if __name__ == '__main__':
-#     main("2023-05-18T16:15:14.123456")
+#     main("2023-06-22T16:15:14.123456")
