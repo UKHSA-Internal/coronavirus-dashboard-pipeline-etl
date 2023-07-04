@@ -1,17 +1,17 @@
 #!/usr/bin python3
 
-# # This commented out section was used in the local development
-# import pathlib
-# import site
+# This commented out section was used in the local development
+import pathlib
+import site
 
-# test_dir = pathlib.Path(__file__).resolve().parent
-# root_path = test_dir.parent
-# site.addsitedir(root_path)
+test_dir = pathlib.Path(__file__).resolve().parent
+root_path = test_dir.parent
+site.addsitedir(root_path)
 
 import json
 import logging
 from collections import namedtuple
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from hashlib import blake2s
 from os import getenv
 from sqlalchemy import column, select, text
@@ -323,10 +323,8 @@ def main(rawtimestamp: str) -> str:
     partition = f"{current_release_datestamp:%Y_%-m_%-d}"
     logging.info(f"The partition id (date related part): {partition}")
 
-    # Set the 'cutoff_date' to define (with current_release_datestamp) the time range
-    # to use in the sql query. It will be dynamically extended in the from_sql() function,
-    # as it crucial to get the data that is then used in many other parts of the project.
-    cutoff_date = current_release_datestamp - timedelta(days=60)
+    # Set 2023-05-04 as cut off date used in the SQL query
+    cutoff_date = date(year=2023, month=5, day=4)
 
     # Retrieving data (since the previous release) ---------------------------------------
     logging.info("Getting data from DB")
@@ -353,16 +351,16 @@ def main(rawtimestamp: str) -> str:
     )
 
 
-# # This is not needed for prod, but useful for local development
-# if __name__ == '__main__':
-#     from sys import stdout
+# This is not needed for prod, but useful for local development
+if __name__ == '__main__':
+    from sys import stdout
 
-#     root = logging.getLogger()
-#     root.setLevel(logging.DEBUG)
-#     handler = logging.StreamHandler(stdout)
-#     handler.setLevel(logging.DEBUG)
-#     formatter = logging.Formatter('[%(asctime)s] %(levelname)s | %(message)s')
-#     handler.setFormatter(formatter)
-#     root.addHandler(handler)
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s | %(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
 
-#     main("2023-06-29T16:15:14.123456")
+    main("2023-06-29T16:15:14.123456")
