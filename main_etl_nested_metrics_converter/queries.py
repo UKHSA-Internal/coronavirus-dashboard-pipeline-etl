@@ -16,35 +16,42 @@ LIMIT 5;\
 """
 
 VACCINATIONS_QUERY = """\
-SELECT partition_id, release_id, area_id, date, payload
-FROM (
-        SELECT *
-        FROM covid19.time_series_p{partition}_other AS tsother
-                JOIN covid19.release_reference AS rr ON rr.id = release_id
-                JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                JOIN covid19.area_reference AS ar ON ar.id = tsother.area_id
-        WHERE metric = 'vaccinationsAgeDemographics'
-        AND date > ( DATE('{date}'))
-        UNION
-        (
-            SELECT *
-            FROM covid19.time_series_p{partition}_utla AS tsutla
-                    JOIN covid19.release_reference AS rr ON rr.id = release_id
-                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                    JOIN covid19.area_reference AS ar ON ar.id = tsutla.area_id
-            WHERE metric = 'vaccinationsAgeDemographics'
-            AND date > ( DATE('{date}'))
-        )
-        UNION
-        (
-            SELECT *
-            FROM covid19.time_series_p{partition}_ltla AS tsltla
-                    JOIN covid19.release_reference AS rr ON rr.id = release_id
-                    JOIN covid19.metric_reference AS mr ON mr.id = metric_id
-                    JOIN covid19.area_reference AS ar ON ar.id = tsltla.area_id
-            WHERE metric = 'vaccinationsAgeDemographics'
-            AND date > ( DATE('{date}'))
-        )
-    ) AS tsltla
-ORDER BY date DESC;\
+SELECT partition_id, release_id, area_id, date, payload FROM (
+        SELECT partition_id, release_id, area_id, date, payload,
+                RANK() OVER (
+                        PARTITION BY area_id
+                        ORDER BY date DESC
+                ) AS area_latest
+        FROM (
+                SELECT *
+                FROM covid19.time_series_p{partition}_other AS tsother
+                        JOIN covid19.release_reference AS rr ON rr.id = release_id
+                        JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                        JOIN covid19.area_reference AS ar ON ar.id = tsother.area_id
+                WHERE metric = 'vaccinationsAgeDemographics'
+                AND date > ( DATE('{date}'))
+                UNION
+                (
+                SELECT *
+                FROM covid19.time_series_p{partition}_utla AS tsutla
+                        JOIN covid19.release_reference AS rr ON rr.id = release_id
+                        JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                        JOIN covid19.area_reference AS ar ON ar.id = tsutla.area_id
+                WHERE metric = 'vaccinationsAgeDemographics'
+                AND date > ( DATE('{date}'))
+                )
+                UNION
+                (
+                SELECT *
+                FROM covid19.time_series_p{partition}_ltla AS tsltla
+                        JOIN covid19.release_reference AS rr ON rr.id = release_id
+                        JOIN covid19.metric_reference AS mr ON mr.id = metric_id
+                        JOIN covid19.area_reference AS ar ON ar.id = tsltla.area_id
+                WHERE metric = 'vaccinationsAgeDemographics'
+                AND date > ( DATE('{date}'))
+                )
+        ) AS ts
+        ORDER BY area_id
+        ) AS foo
+WHERE area_latest < 4;
 """
