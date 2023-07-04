@@ -1,12 +1,12 @@
 #!/usr/bin python3
 
-# This commented out section was used in the local development
-import pathlib
-import site
+# # This commented out section was used in the local development
+# import pathlib
+# import site
 
-test_dir = pathlib.Path(__file__).resolve().parent
-root_path = test_dir.parent
-site.addsitedir(root_path)
+# test_dir = pathlib.Path(__file__).resolve().parent
+# root_path = test_dir.parent
+# site.addsitedir(root_path)
 
 import json
 import logging
@@ -351,16 +351,16 @@ def main(rawtimestamp: str) -> str:
     )
 
 
-# This is not needed for prod, but useful for local development
-if __name__ == '__main__':
-    from sys import stdout
+# # This is not needed for prod, but useful for local development
+# if __name__ == '__main__':
+#     from sys import stdout
 
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] %(levelname)s | %(message)s')
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
+#     root = logging.getLogger()
+#     root.setLevel(logging.DEBUG)
+#     handler = logging.StreamHandler(stdout)
+#     handler.setLevel(logging.DEBUG)
+#     formatter = logging.Formatter('[%(asctime)s] %(levelname)s | %(message)s')
+#     handler.setFormatter(formatter)
+#     root.addHandler(handler)
 
-    main("2023-06-29T16:15:14.123456")
+#     main("2023-06-29T16:15:14.123456")
