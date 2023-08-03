@@ -132,6 +132,11 @@ def from_sql(partition: str, cutoff_date: datetime):
     session = Session()
     connection = session.connection()
 
+    # Temporarily increase max_intermediate_result_size value from 1GB to 2GB
+    connection.execute(
+        text("set citus.max_intermediate_result_size to 2097152")
+    )
+
     try:
         query = queries.VACCINATIONS_QUERY.format(
             partition=partition,
@@ -363,4 +368,4 @@ def main(rawtimestamp: str) -> str:
 #     handler.setFormatter(formatter)
 #     root.addHandler(handler)
 
-#     main("2023-06-29T16:15:14.123456")
+#     main("2023-08-03T16:39:14.123456")
