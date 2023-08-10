@@ -121,7 +121,7 @@ def get_timeseries(date: str, metric: str):
     finally:
         session.close()
 
-    if not values:
+    if not (values and change):
         return
 
     store_data(
@@ -275,4 +275,4 @@ def main(payload):
 
 
 if __name__ == "__main__":
-    main({"date": "2023-07-27"})
+    main({"date": "2023-08-10"})
