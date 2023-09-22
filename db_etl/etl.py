@@ -550,6 +550,7 @@ SUM_CHANGE_DIRECTION = {
     'newCasesPillarOneBySpecimenDate',
     'newCasesPillarTwoBySpecimenDate',
     'newDailyNsoDeathsByDeathDate',
+    'newVirusTestsBySpecimenDate',
 }
 
 
