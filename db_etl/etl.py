@@ -4,74 +4,69 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
 import logging
-from typing import (
-    NamedTuple, Any, NoReturn,
-    Union, Dict, List, Tuple
-)
+from copy import deepcopy
+from datetime import datetime, timedelta
+from io import BytesIO
 from json import dumps, loads
 from os import getenv, makedirs
 from os.path import split as split_path
-from datetime import datetime, timedelta
-from copy import deepcopy
-from io import BytesIO
-from tempfile import TemporaryFile
 from pathlib import Path
+from tempfile import TemporaryFile
+from typing import Any, Dict, List, NamedTuple, NoReturn, Tuple, Union
 
 # 3rd party:
 from azure.storage.blob import BlobClient, BlobType, ContentSettings, StandardBlobTier
-
-from pandas import (
-    DataFrame, to_datetime, json_normalize,
-    read_feather, read_csv
-)
+from pandas import DataFrame, json_normalize, read_csv, read_feather, to_datetime
 
 # Internal
 try:
-    from __app__.utilities import (
-        func_logger, get_population_data
-    )
-    from __app__.utilities.generic_types import RawDataPayload, PopulationData
-    from .output import produce_json
     from __app__.storage import StorageClient
+    from __app__.utilities import func_logger, get_population_data
+    from __app__.utilities.generic_types import PopulationData, RawDataPayload
+
+    from .db_uploader.chunk_ops import save_chunk_feather, upload_chunk_feather
+    from .output import produce_json
     from .processors import (
-        homogenise_dates, normalise_records,
-        calculate_pair_summations, calculate_by_adjacent_column,
-        calculate_rates, generate_row_hash, change_by_sum,
-        ratio_to_percentage, trim_end, match_area_names,
-        normalise_demographics_records, homogenise_demographics_dates,
-        calculate_age_rates
-    )
-    from .db_uploader.chunk_ops import (
-        save_chunk_feather, upload_chunk_feather
+        calculate_age_rates,
+        calculate_by_adjacent_column,
+        calculate_pair_summations,
+        calculate_rates,
+        change_by_sum,
+        generate_row_hash,
+        homogenise_dates,
+        homogenise_demographics_dates,
+        match_area_names,
+        normalise_demographics_records,
+        normalise_records,
+        ratio_to_percentage,
+        trim_end,
     )
 except ImportError:
-    from utilities import (
-        func_logger, get_population_data
-    )
-    from utilities.generic_types import RawDataPayload, PopulationData
-    from storage import StorageClient
+    from db_etl.db_uploader.chunk_ops import save_chunk_feather, upload_chunk_feather
     from db_etl.output import produce_json
     from db_etl.processors import (
-        homogenise_dates, normalise_records,
-        calculate_pair_summations, calculate_by_adjacent_column,
-        calculate_rates, generate_row_hash, change_by_sum,
-        ratio_to_percentage, trim_end, match_area_names,
-        normalise_demographics_records, homogenise_demographics_dates,
-        calculate_age_rates
+        calculate_age_rates,
+        calculate_by_adjacent_column,
+        calculate_pair_summations,
+        calculate_rates,
+        change_by_sum,
+        generate_row_hash,
+        homogenise_dates,
+        homogenise_demographics_dates,
+        match_area_names,
+        normalise_demographics_records,
+        normalise_records,
+        ratio_to_percentage,
+        trim_end,
     )
-    from db_etl.db_uploader.chunk_ops import (
-        save_chunk_feather, upload_chunk_feather
-    )
+    from storage import StorageClient
+    from utilities import func_logger, get_population_data
+    from utilities.generic_types import PopulationData, RawDataPayload
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-__all__ = [
-    'run',
-    'run_direct',
-    'run_demographics',
-    'run_direct_msoas'
-]
+__all__ = ["run", "run_direct", "run_demographics", "run_direct_msoas"]
 
 
 ENVIRONMENT = getenv("API_ENV", "DEVELOPMENT")
@@ -117,27 +112,23 @@ VALUE_COLUMNS = (
     # "suspectedCovidOccupiedOtherBeds",  # Deprecated
     # "capacityPillarOneTwoFour",  # plannedPillarOneTwoFourCapacityByPublishDate
     # "newPillarOneTwoFourTestsByPublishDate",  # Deprecated
-
     # "femaleNegatives",  # Deprecated
     # "previouslyReportedCumCasesBySpecimenDate",  # Deprecated
     # "changeInCumCasesBySpecimenDate",  # Deprecated
     # "cumNegativesBySpecimenDate",  # Deprecated
     # "newNegativesBySpecimenDate",  # Deprecated
     # "maleNegatives",  # Deprecated
-
     "maleCases",
     "cumCasesByPublishDate",
     "newAdmissionsByAge",
     "cumPillarTwoTestsByPublishDate",
     "newCasesBySpecimenDate",
     "changeInNewCasesBySpecimenDate",
-
     "totalMVBeds",
     "unoccupiedMVBeds",
     "covidOccupiedMVBeds",
     "suspectedCovidOccupiedMVBeds",
     "nonCovidOccupiedMVBeds",
-
     "cumPillarThreeTestsByPublishDate",
     "cumTestsByPublishDate",
     "previouslyReportedNewCasesBySpecimenDate",
@@ -158,119 +149,90 @@ VALUE_COLUMNS = (
     "cumPeopleTestedByPublishDate",
     "cumPillarOneTestsByPublishDate",
     "hospitalCases",
-
     "newDeathsByPublishDate",
     "newDeathsByDeathDate",
     "cumDeathsByPublishDate",
     "cumDeathsByDeathDate",
     "maleDeaths",
     "femaleDeaths",
-
     "femaleDeaths28Days",
     "femaleDeaths60Days",
     "maleDeaths28Days",
     "maleDeaths60Days",
-
     "newDeathsByDeathDate",
     "cumDeathsByDeathDate",
-
     "newDeathsByPublishDate",
     "cumDeathsByPublishDate",
-
     "newDeaths28DaysByDeathDate",
     "cumDeaths28DaysByDeathDate",
-
     "newDeaths28DaysByPublishDate",
     "cumDeaths28DaysByPublishDate",
-
     "newDeaths60DaysByDeathDate",
     "cumDeaths60DaysByDeathDate",
-
     "newDeaths60DaysByPublishDate",
     "cumDeaths60DaysByPublishDate",
-
     "newOnsDeathsByRegistrationDate",
     "cumOnsDeathsByRegistrationDate",
-
     "newPillarOneTwoTestsByPublishDate",
     "capacityPillarOne",
     "capacityPillarTwo",
     "capacityPillarOneTwo",
     "capacityPillarThree",
     "capacityPillarFour",
-
     "cumPillarOneTwoTestsByPublishDate",
-
     "newPCRTestsByPublishDate",
     "cumPCRTestsByPublishDate",
     "plannedPCRCapacityByPublishDate",
     "plannedAntibodyCapacityByPublishDate",
     "newAntibodyTestsByPublishDate",
     "cumAntibodyTestsByPublishDate",
-
-    'transmissionRateMin',
-    'transmissionRateMax',
-    'transmissionRateGrowthRateMin',
-    'transmissionRateGrowthRateMax',
-
-    'alertLevel',
-
-    'newLFDTests',
-    'cumLFDTests',
-    'newVirusTestsByPublishDate',
-    'cumVirusTestsByPublishDate',
-
+    "transmissionRateMin",
+    "transmissionRateMax",
+    "transmissionRateGrowthRateMin",
+    "transmissionRateGrowthRateMax",
+    "alertLevel",
+    "newLFDTests",
+    "cumLFDTests",
+    "newVirusTestsByPublishDate",
+    "cumVirusTestsByPublishDate",
     "newOnsCareHomeDeathsByRegistrationDate",
     "cumOnsCareHomeDeathsByRegistrationDate",
-
     "uniqueCasePositivityBySpecimenDateRollingSum",
     "uniquePeopleTestedBySpecimenDateRollingSum",
-
-    'newPeopleReceivingFirstDose',
-    'cumPeopleReceivingFirstDose',
-    'newPeopleReceivingSecondDose',
-    'cumPeopleReceivingSecondDose',
-
-    'cumWeeklyNsoDeathsByRegDate',
-    'newWeeklyNsoDeathsByRegDate',
-    'cumWeeklyNsoCareHomeDeathsByRegDate',
-    'newWeeklyNsoCareHomeDeathsByRegDate',
-
-    'newDailyNsoDeathsByDeathDate',
-    'cumDailyNsoDeathsByDeathDate',
-
+    "newPeopleReceivingFirstDose",
+    "cumPeopleReceivingFirstDose",
+    "newPeopleReceivingSecondDose",
+    "cumPeopleReceivingSecondDose",
+    "cumWeeklyNsoDeathsByRegDate",
+    "newWeeklyNsoDeathsByRegDate",
+    "cumWeeklyNsoCareHomeDeathsByRegDate",
+    "newWeeklyNsoCareHomeDeathsByRegDate",
+    "newDailyNsoDeathsByDeathDate",
+    "cumDailyNsoDeathsByDeathDate",
     "newPeopleVaccinatedFirstDoseByPublishDate",
     "cumPeopleVaccinatedFirstDoseByPublishDate",
-
     "newPeopleVaccinatedSecondDoseByPublishDate",
     "cumPeopleVaccinatedSecondDoseByPublishDate",
-
     "newPeopleVaccinatedCompleteByPublishDate",
     "cumPeopleVaccinatedCompleteByPublishDate",
-
     "weeklyPeopleVaccinatedFirstDoseByVaccinationDate",  # Deprecated
     "weeklyPeopleVaccinatedSecondDoseByVaccinationDate",  # Deprecated
     "cumPeopleVaccinatedFirstDoseByVaccinationDate",
     "cumPeopleVaccinatedSecondDoseByVaccinationDate",
-
     "newCasesPCROnlyBySpecimenDate",
     "cumCasesPCROnlyBySpecimenDate",
     "newCasesLFDOnlyBySpecimenDate",
     "cumCasesLFDOnlyBySpecimenDate",
     "newCasesLFDConfirmedPCRBySpecimenDate",
     "cumCasesLFDConfirmedPCRBySpecimenDate",
-
     "newVaccinesGivenByPublishDate",
     "cumVaccinesGivenByPublishDate",
-
     "cumVaccinationFirstDoseUptakeByPublishDatePercentage",
     "cumVaccinationSecondDoseUptakeByPublishDatePercentage",
     "cumVaccinationCompleteCoverageByPublishDatePercentage",
-
     "cumPeopleVaccinatedThirdInjectionByVaccinationDate",
     "newPeopleVaccinatedThirdInjectionByVaccinationDate",
     "cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage",
-
     "newReinfectionsBySpecimenDate",
     "cumReinfectionsBySpecimenDate",
     "newFirstEpisodesBySpecimenDate",
@@ -284,15 +246,14 @@ WITH_CUMULATIVE = []
 FULL_VALUE_COLUMNS = {
     # Existing
     *VALUE_COLUMNS,
-
     # Calculated as a part of the ETL
     "cumPeopleTestedBySpecimenDate",
     "cumDeathsByPublishDateRate",
     "cumDeathsByDeathDateRate",
-    'newCasesBySpecimenDateRollingRate',
-    'newDeathsByDeathDateRollingRate',
-    'cumPeopleTestedBySpecimenDate',
-    'newPeopleTestedBySpecimenDate',
+    "newCasesBySpecimenDateRollingRate",
+    "newDeathsByDeathDateRollingRate",
+    "cumPeopleTestedBySpecimenDate",
+    "newPeopleTestedBySpecimenDate",
 }
 
 
@@ -303,14 +264,14 @@ CATEGORY_LABELS = (
     "nhsRegion",
     "nhsTrust",
     "utla",
-    "ltla"
+    "ltla",
 )
 
 DATE_COLUMN = "date"
 
 SORT_OUTPUT_BY = {
-    'by': ["areaType", "areaCode", "date"],
-    'ascending': [True, False, False]
+    "by": ["areaType", "areaCode", "date"],
+    "ascending": [True, False, False],
 }
 
 
@@ -325,7 +286,6 @@ NEGATIVE_TO_ZERO = [
     "newDeathsByPublishDate",
     "newDeaths28DaysByPublishDate",
     "newDeaths60DaysByPublishDate",
-
     "newPeopleVaccinatedFirstDoseByPublishDate",
     "newPeopleVaccinatedSecondDoseByPublishDate",
     "newPeopleVaccinatedCompleteByPublishDate",
@@ -335,8 +295,8 @@ NEGATIVE_TO_ZERO = [
 # Fields from which the population adjusted rates are
 # calculated using `PopulationData.ageSexBroadBreakdown`.
 POPULATION_ADJUSTED_RATES_BROAD = {
-    'newAdmissionsByAge',
-    'cumAdmissionsByAge',
+    "newAdmissionsByAge",
+    "cumAdmissionsByAge",
     # 'cumDischargesByAge'
 }
 
@@ -344,12 +304,12 @@ POPULATION_ADJUSTED_RATES_BROAD = {
 # Fields from which the population adjusted rates are
 # calculated using `PopulationData.ageSex5YearBreakdown`.
 POPULATION_ADJUSTED_RATES_5YEAR = {
-    'maleCases',
-    'femaleCases',
+    "maleCases",
+    "femaleCases",
     # 'maleNegatives',   # Deprecated
     # 'femaleNegatives',  # Deprecated
-    'maleDeaths',
-    'femaleDeaths',
+    "maleDeaths",
+    "femaleDeaths",
     "femaleDeaths28Days",
     "femaleDeaths60Days",
     "maleDeaths28Days",
@@ -366,26 +326,19 @@ INCIDENCE_RATE_FIELDS = {
     "cumPeopleTestedByPublishDate",
     "cumAdmissions",
     # "cumDischarges",
-
     "newDeathsByDeathDate",
     "newDeaths28DaysByDeathDate",
     "newDeaths60DaysByDeathDate",
-
     "cumDeathsByDeathDate",
     "cumDeathsByPublishDate",
-
     "cumDeaths28DaysByDeathDate",
     "cumDeaths28DaysByPublishDate",
-
     "cumDeaths60DaysByDeathDate",
     "cumDeaths60DaysByPublishDate",
-
     "cumOnsDeathsByRegistrationDate",
-
     "cumWeeklyNsoDeathsByRegDate",
-
-    'cumCasesPillarOneBySpecimenDate',
-    'cumCasesPillarTwoBySpecimenDate',
+    "cumCasesPillarOneBySpecimenDate",
+    "cumCasesPillarTwoBySpecimenDate",
 }
 
 
@@ -398,11 +351,11 @@ ROLLING_RATE = {
     "newDeaths28DaysByDeathDate",
     "newDeaths60DaysByDeathDate",
     "newAdmissions",
-    'newCasesPCROnlyBySpecimenDate',
-    'newCasesLFDOnlyBySpecimenDate',
-    'newCasesLFDConfirmedPCRBySpecimenDate',
-    'newCasesPillarOneBySpecimenDate',
-    'newCasesPillarTwoBySpecimenDate',
+    "newCasesPCROnlyBySpecimenDate",
+    "newCasesLFDOnlyBySpecimenDate",
+    "newCasesLFDConfirmedPCRBySpecimenDate",
+    "newCasesPillarOneBySpecimenDate",
+    "newCasesPillarTwoBySpecimenDate",
 }
 
 
@@ -431,86 +384,77 @@ DERIVED_BY_MAX_OF_ADJACENT_COLUMN = {
 
 FILL_WITH_ZEROS = {
     *ROLLING_RATE,
-    'newDeathsByPublishDate',
-    'newDeathsByDeathDate',
-    'newCasesBySpecimenDate',
+    "newDeathsByPublishDate",
+    "newDeathsByDeathDate",
+    "newCasesBySpecimenDate",
     # 'newNegativesBySpecimenDate',  # Deprecated
-    'newCasesBySpecimenDate',
-    'newReinfectionsBySpecimenDate',
-    'newFirstEpisodesBySpecimenDate',
-    'newLFDTests',
-    'newDailyNsoDeathsByDeathDate',
-    'newCasesPCROnlyBySpecimenDate',
-    'newCasesLFDOnlyBySpecimenDate',
-    'newCasesLFDConfirmedPCRBySpecimenDate',
-
+    "newCasesBySpecimenDate",
+    "newReinfectionsBySpecimenDate",
+    "newFirstEpisodesBySpecimenDate",
+    "newLFDTests",
+    "newDailyNsoDeathsByDeathDate",
+    "newCasesPCROnlyBySpecimenDate",
+    "newCasesLFDOnlyBySpecimenDate",
+    "newCasesLFDConfirmedPCRBySpecimenDate",
     # Variants
-    'cumWeeklySequenced',
-    'newWeeklyPercentage',
-
+    "cumWeeklySequenced",
+    "newWeeklyPercentage",
     # Vaccine demogs
-    'newPeopleVaccinatedFirstDoseByVaccinationDate',
-    'newPeopleVaccinatedSecondDoseByVaccinationDate',
-    'newPeopleVaccinatedCompleteByVaccinationDate',
-    'newPeopleVaccinatedThirdInjectionByVaccinationDate',
-
-    'newVirusTestsBySpecimenDate',
-    'newPCRTestsBySpecimenDate',
-
+    "newPeopleVaccinatedFirstDoseByVaccinationDate",
+    "newPeopleVaccinatedSecondDoseByVaccinationDate",
+    "newPeopleVaccinatedCompleteByVaccinationDate",
+    "newPeopleVaccinatedThirdInjectionByVaccinationDate",
+    "newVirusTestsBySpecimenDate",
+    "newPCRTestsBySpecimenDate",
     "newDeaths28DaysByPublishDate",
     "newDeaths60DaysByPublishDate",
-
     "changeInNewDeaths28DaysByDeathDate",
     "previouslyReportedNewDeaths28DaysByDeathDate",
-
-    'newPeopleVaccinatedFirstDoseByPublishDate',
-    'newPeopleVaccinatedSecondDoseByPublishDate',
-    'newPeopleVaccinatedThirdInjectionByPublishDate',
+    "newPeopleVaccinatedFirstDoseByPublishDate",
+    "newPeopleVaccinatedSecondDoseByPublishDate",
+    "newPeopleVaccinatedThirdInjectionByPublishDate",
 }
 
 
 START_WITH_ZERO = {
-    'cumDeathsByPublishDate',
-    'cumDeathsByDeathDate',
-    'cumCasesBySpecimenDate',
-    'cumReinfectionsBySpecimenDate',
-    'cumFirstEpisodesBySpecimenDate',
-    'cumNegativesBySpecimenDate',
-    'cumLFDTests',
-    'cumDeaths28DaysByDeathDate',
-    'cumDeaths60DaysByDeathDate',
-    'cumDailyNsoDeathsByDeathDate',
-    'cumCasesPCROnlyBySpecimenDate',
-    'cumCasesLFDOnlyBySpecimenDate',
-    'cumCasesLFDConfirmedPCRBySpecimenDate',
-
+    "cumDeathsByPublishDate",
+    "cumDeathsByDeathDate",
+    "cumCasesBySpecimenDate",
+    "cumReinfectionsBySpecimenDate",
+    "cumFirstEpisodesBySpecimenDate",
+    "cumNegativesBySpecimenDate",
+    "cumLFDTests",
+    "cumDeaths28DaysByDeathDate",
+    "cumDeaths60DaysByDeathDate",
+    "cumDailyNsoDeathsByDeathDate",
+    "cumCasesPCROnlyBySpecimenDate",
+    "cumCasesLFDOnlyBySpecimenDate",
+    "cumCasesLFDConfirmedPCRBySpecimenDate",
     # Vaccine demogs
-    'cumPeopleVaccinatedFirstDoseByVaccinationDate',
-    'cumPeopleVaccinatedSecondDoseByVaccinationDate',
-    'cumPeopleVaccinatedThirdInjectionByVaccinationDate',
-    'cumPeopleVaccinatedCompleteByVaccinationDate',
-    'cumVaccinationFirstDoseUptakeByVaccinationDatePercentage',
-    'cumVaccinationSecondDoseUptakeByVaccinationDatePercentage',
-    'cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage',
-    'cumVaccinationCompleteCoverageByVaccinationDatePercentage',
-    'VaccineRegisterPopulationByVaccinationDate',
-
-    'cumVirusTestsBySpecimenDate',
-    'cumPCRTestsBySpecimenDate',
-
-    'cumCasesPillarOneBySpecimenDate',
-    'cumCasesPillarTwoBySpecimenDate',
+    "cumPeopleVaccinatedFirstDoseByVaccinationDate",
+    "cumPeopleVaccinatedSecondDoseByVaccinationDate",
+    "cumPeopleVaccinatedThirdInjectionByVaccinationDate",
+    "cumPeopleVaccinatedCompleteByVaccinationDate",
+    "cumVaccinationFirstDoseUptakeByVaccinationDatePercentage",
+    "cumVaccinationSecondDoseUptakeByVaccinationDatePercentage",
+    "cumVaccinationThirdInjectionUptakeByVaccinationDatePercentage",
+    "cumVaccinationCompleteCoverageByVaccinationDatePercentage",
+    "VaccineRegisterPopulationByVaccinationDate",
+    "cumVirusTestsBySpecimenDate",
+    "cumPCRTestsBySpecimenDate",
+    "cumCasesPillarOneBySpecimenDate",
+    "cumCasesPillarTwoBySpecimenDate",
 }
 
 
 AREA_TYPE_NAMES = {
-    'nations': 'nation',
-    'nhsTrusts': 'nhsTrust',
-    'utlas': 'utla',
-    'ltlas': 'ltla',
-    'nhsRegions': 'nhsRegion',
-    'regions': 'region',
-    'uk': 'overview'
+    "nations": "nation",
+    "nhsTrusts": "nhsTrust",
+    "utlas": "utla",
+    "ltlas": "ltla",
+    "nhsRegions": "nhsRegion",
+    "regions": "region",
+    "uk": "overview",
 }
 
 
@@ -523,8 +467,8 @@ TRIM_END = {
     "days_to_trim": 5,
     "metrics": (
         "uniqueCasePositivityBySpecimenDateRollingSum",
-        "uniquePeopleTestedBySpecimenDateRollingSum"
-    )
+        "uniquePeopleTestedBySpecimenDateRollingSum",
+    ),
 }
 
 
@@ -535,35 +479,36 @@ RATE_PRECISION = 1  # Decimal places
 
 
 SUM_CHANGE_DIRECTION = {
-    'newCasesBySpecimenDate',
-    'newCasesByPublishDate',
-    'newReinfectionsBySpecimenDate',
-    'newFirstEpisodesBySpecimenDate',
-    'newAdmissions',
-    'newDeaths28DaysByPublishDate',
-    'newPCRTestsByPublishDate',
-    'newVirusTestsByPublishDate',
-    'newDeaths28DaysByDeathDate',
-    'newPeopleVaccinatedFirstDoseByPublishDate',
-    'newPeopleVaccinatedSecondDoseByPublishDate',
-    'newPeopleVaccinatedThirdInjectionByPublishDate',
-    'newCasesPillarOneBySpecimenDate',
-    'newCasesPillarTwoBySpecimenDate',
-    'newDailyNsoDeathsByDeathDate',
+    "newCasesBySpecimenDate",
+    "newCasesByPublishDate",
+    "newReinfectionsBySpecimenDate",
+    "newFirstEpisodesBySpecimenDate",
+    "newAdmissions",
+    "newDeaths28DaysByPublishDate",
+    "newPCRTestsByPublishDate",
+    "newVirusTestsByPublishDate",
+    "newDeaths28DaysByDeathDate",
+    "newPeopleVaccinatedFirstDoseByPublishDate",
+    "newPeopleVaccinatedSecondDoseByPublishDate",
+    "newPeopleVaccinatedThirdInjectionByPublishDate",
+    "newCasesPillarOneBySpecimenDate",
+    "newCasesPillarTwoBySpecimenDate",
+    "newDailyNsoDeathsByDeathDate",
+    "newVirusTestsBySpecimenDate",
 }
 
 
 # Get incidence rate calculated.
 OUTLIERS = [
-    'maleCases',
-    'femaleCases',
+    "maleCases",
+    "femaleCases",
     # 'maleNegatives',  # Deprecated
     # 'femaleNegatives',  # Deprecated
-    'newAdmissionsByAge',
-    'cumAdmissionsByAge',
+    "newAdmissionsByAge",
+    "cumAdmissionsByAge",
     # 'cumDischargesByAge',
-    'maleDeaths',
-    'femaleDeaths',
+    "maleDeaths",
+    "femaleDeaths",
     "femaleDeaths28Days",
     "femaleDeaths60Days",
     "maleDeaths28Days",
@@ -594,7 +539,7 @@ WELSH_LA = [
     "Monmouthshire",
     "Newport",
     "Powys",
-    "Merthyr Tydfil"
+    "Merthyr Tydfil",
 ]
 
 
@@ -621,9 +566,7 @@ class GeneralProcessor(NamedTuple):
 
 def download_file(container: str, path: str) -> bytes:
     client = BlobClient.from_connection_string(
-        conn_str=STORAGE_CONNECTION_STRING,
-        container_name=container,
-        blob_name=path
+        conn_str=STORAGE_CONNECTION_STRING, container_name=container, blob_name=path
     )
 
     data = client.download_blob()
@@ -637,8 +580,12 @@ class TestOutput:
         if DEBUG:
             self.path = f"test/v2/{path}"
 
-    def set(self, data: Union[str, bytes], content_type: str = "application/json",
-            cache: str = "no-store") -> NoReturn:
+    def set(
+        self,
+        data: Union[str, bytes],
+        content_type: str = "application/json",
+        cache: str = "no-store",
+    ) -> NoReturn:
         mode = "w" if isinstance(data, str) else "wb"
 
         dir_path, _ = split_path(self.path)
@@ -659,20 +606,23 @@ class MainOutput(TestOutput):
             conn_str=STORAGE_CONNECTION_STRING,
             container_name=CONTAINER_NAME,
             blob_name=self.path,
-            **kwargs
+            **kwargs,
         )
 
-    def set(self, data: Union[str, bytes], content_type: str = "application/json",
-            cache: str = "no-store") -> NoReturn:
+    def set(
+        self,
+        data: Union[str, bytes],
+        content_type: str = "application/json",
+        cache: str = "no-store",
+    ) -> NoReturn:
         self.client.upload_blob(
             data,
             blob_type=BlobType.BlockBlob,
             content_settings=ContentSettings(
-                content_type=content_type,
-                cache_control=cache
+                content_type=content_type, cache_control=cache
             ),
             overwrite=True,
-            standard_blob_tier=StandardBlobTier.Cool
+            standard_blob_tier=StandardBlobTier.Cool,
         )
 
 
@@ -739,11 +689,8 @@ def process_outlier(data, population_set):
     """
     content = list()
 
-    for date in set(map(lambda x: x['date'], data)):
-        tmp_item = {
-            "date": date,
-            "value": list()
-        }
+    for date in set(map(lambda x: x["date"], data)):
+        tmp_item = {"date": date, "value": list()}
 
         for value in filter(lambda d: d["date"] == date, data):
             tmp_value = deepcopy(value)
@@ -751,9 +698,10 @@ def process_outlier(data, population_set):
 
             if population_set:
                 tmp_value["rate"] = round(
-                    tmp_value["value"] / population_set[tmp_value["age"]] *
-                    RATE_PER_POPULATION_FACTOR,
-                    1
+                    tmp_value["value"]
+                    / population_set[tmp_value["age"]]
+                    * RATE_PER_POPULATION_FACTOR,
+                    1,
                 )
 
             tmp_item["value"].append(tmp_value)
@@ -765,7 +713,7 @@ def process_outlier(data, population_set):
 
 @func_logger("area type adjustment")
 def adjust_area_types(data, replacements: Dict[str, str]) -> DataFrame:
-    data.areaType = data.loc[:, ['areaType']].replace(replacements)
+    data.areaType = data.loc[:, ["areaType"]].replace(replacements)
 
     return data
 
@@ -780,25 +728,22 @@ def get_sample_json(data: DataFrame) -> str:
 
     non_integer = {
         # Contain floating point values
-        *{
-            item for item in data.columns
-            if "Rate" in item
-        },
+        *{item for item in data.columns if "Rate" in item},
         # Contain non-numeric values
         *POPULATION_ADJUSTED_RATES_BROAD,
-        *POPULATION_ADJUSTED_RATES_5YEAR
+        *POPULATION_ADJUSTED_RATES_5YEAR,
     }
 
     sample_row = produce_json(
         data.loc[
             (
-                (data.areaName == 'England') &
-                (data.date == sample_data.strftime("%Y-%m-%d"))
+                (data.areaName == "England")
+                & (data.date == sample_data.strftime("%Y-%m-%d"))
             ),
-            :
+            :,
         ],
         VALUE_COLUMNS,
-        *non_integer
+        *non_integer,
     )
 
     return dumps(loads(sample_row), indent=2)
@@ -823,39 +768,35 @@ def calculate_pair_tested(d, pair_item, population_data):
     label_a, label_b = pair_item
 
     result = d[label_a].copy()
-    item_a = sorted(d[label_a], key=lambda x: x['age'])
-    item_b = sorted(d[label_b], key=lambda x: x['age'])
+    item_a = sorted(d[label_a], key=lambda x: x["age"])
+    item_b = sorted(d[label_b], key=lambda x: x["age"])
 
     for index, (d1, d2) in enumerate(zip(item_a, item_b)):
-        age = d1['age']
-        new_value = d1['value'] + d2['value']
+        age = d1["age"]
+        new_value = d1["value"] + d2["value"]
         population = get_population_set(population_data, area_code, label_a)
         new_rate = new_value / population[age] * RATE_PER_POPULATION_FACTOR
 
-        result[index] = {
-            **d1,
-            "value": new_value,
-            "rate": round(new_rate, 1)
-        }
+        result[index] = {**d1, "value": new_value, "rate": round(new_rate, 1)}
 
     return result
 
 
 @func_logger("total sex tested calculator")
 def calculate_sex_people_tested(data, population_data, **pairs):
-    data = data.assign(**{
-        key: (
-            data
-            .loc[:, ['areaCode', 'areaType', *pair]]
-            .apply(
-                calculate_pair_tested,
-                axis=1,
-                pair_item=pair,
-                population_data=population_data
+    data = data.assign(
+        **{
+            key: (
+                data.loc[:, ["areaCode", "areaType", *pair]].apply(
+                    calculate_pair_tested,
+                    axis=1,
+                    pair_item=pair,
+                    population_data=population_data,
+                )
             )
-        )
-        for key, pair in pairs.items()
-    })
+            for key, pair in pairs.items()
+        }
+    )
 
     return data
 
@@ -865,7 +806,7 @@ def extract_category_data(data, columns, area_type, population_data):
     dt_label = DataFrame(columns=columns)
 
     for area_code in data[area_type]:
-        area_name = data[area_type][area_code]['name']['value']
+        area_name = data[area_type][area_code]["name"]["value"]
         df_code = DataFrame(columns=columns)
 
         for category in [*VALUE_COLUMNS, "transmissionRate"]:
@@ -873,14 +814,16 @@ def extract_category_data(data, columns, area_type, population_data):
                 continue
 
             if category == "transmissionRate":
-                for item in ['min', 'max', 'growthRateMin', 'growthRateMax']:
-                    df_value = DataFrame([
-                        {
-                            "date": row['date'],
-                            "value": float(row[item]) if row[item] else row[item]
-                        }
-                        for row in data[area_type][area_code][category]
-                    ])
+                for item in ["min", "max", "growthRateMin", "growthRateMax"]:
+                    df_value = DataFrame(
+                        [
+                            {
+                                "date": row["date"],
+                                "value": float(row[item]) if row[item] else row[item],
+                            }
+                            for row in data[area_type][area_code][category]
+                        ]
+                    )
                     df_value["category"] = f"transmissionRate{item[0].upper()}{item[1:]}"
                     df_value["areaCode"] = area_code
                     df_value["areaType"] = area_type
@@ -897,7 +840,7 @@ def extract_category_data(data, columns, area_type, population_data):
                     df_value = {
                         category: process_outlier(
                             data=data[area_type][area_code][category],
-                            population_set=population
+                            population_set=population,
                         )
                     }
                 except KeyError as e:
@@ -952,19 +895,15 @@ def get_pivoted_data(data, population_data):
     logging.info(">> Dates were converted to datetime object")
 
     dt_pivot = dt_final.pivot_table(
-        values='value',
+        values="value",
         index=["areaType", "date", "areaName", "areaCode"],
-        columns=['category'],
-        aggfunc=lambda x: x.max()
+        columns=["category"],
+        aggfunc=lambda x: x.max(),
     )
 
     logging.info(">> Pivot table created")
 
-    dt_pivot.sort_values(
-        ["date", "areaName"],
-        ascending=[False, True],
-        inplace=True
-    )
+    dt_pivot.sort_values(["date", "areaName"], ascending=[False, True], inplace=True)
     dt_pivot.reset_index(inplace=True)
 
     logging.info(">> Data table was sorted by date and areaName")
@@ -975,7 +914,7 @@ def get_pivoted_data(data, population_data):
         "date",
         "areaName",
         "areaCode",
-        *dt_pivot.columns[4:]
+        *dt_pivot.columns[4:],
     ]
 
     logging.info(">> New column names were set")
@@ -999,38 +938,33 @@ def negative_to_zero(d: DataFrame):
 @func_logger("cumulative calculation")
 def calculate_cumulative(data: DataFrame, metrics):
     data.sort_values(
-        ["areaType", "areaCode", "date"],
-        ascending=[True, True, True],
-        inplace=True
+        ["areaType", "areaCode", "date"], ascending=[True, True, True], inplace=True
     )
 
-    cumulative_names = [
-        metric.replace("new", "cum")
-        for metric in metrics
-    ]
+    cumulative_names = [metric.replace("new", "cum") for metric in metrics]
 
     data[metrics] = data[metrics].astype(float)
 
     data[cumulative_names] = (
-        data
-        .loc[:, ["areaType", "areaCode", *metrics]]
+        data.loc[:, ["areaType", "areaCode", *metrics]]
         .groupby(["areaType", "areaCode"])[metrics]
         .cumsum()
     )
 
     data.sort_values(
-        ["areaType", "areaName", "date"],
-        ascending=[True, True, False],
-        inplace=True
+        ["areaType", "areaName", "date"], ascending=[True, True, False], inplace=True
     )
 
     return data
 
 
 @func_logger("main processor")
-def process(data: DataFrame,
-            population_data: PopulationData,
-            payload: RawDataPayload, is_direct=False) -> DataFrame:
+def process(
+    data: DataFrame,
+    population_data: PopulationData,
+    payload: RawDataPayload,
+    is_direct=False,
+) -> DataFrame:
     """
     Process the data and structure them in a 2D table.
 
@@ -1056,12 +990,11 @@ def process(data: DataFrame,
 
     columns = set(dt_pivot.columns)
 
-    release_date = payload.timestamp.split('T')[0]
+    release_date = payload.timestamp.split("T")[0]
 
     # These must be done in a specific order.
     dt_pivot = (
-        dt_pivot
-        .pipe(homogenise_dates)
+        dt_pivot.pipe(homogenise_dates)
         .pipe(normalise_records, zero_filled=FILL_WITH_ZEROS, cumulative=START_WITH_ZERO)
         .pipe(negative_to_zero)
         .pipe(calculate_pair_summations, **DERIVED_BY_SUMMATION)
@@ -1070,7 +1003,7 @@ def process(data: DataFrame,
             calculate_rates,
             population_data=population_data,
             rolling_rate=ROLLING_RATE,
-            incidence_rate=INCIDENCE_RATE_FIELDS
+            incidence_rate=INCIDENCE_RATE_FIELDS,
         )  # Must be after norm
         .pipe(change_by_sum, metrics=SUM_CHANGE_DIRECTION)
         # .pipe(calculate_cumulative, WITH_CUMULATIVE)
@@ -1094,11 +1027,11 @@ def process(data: DataFrame,
 def run_direct(payload_dict: dict):
     logging.info(f"run_direct:: {payload_dict}")
     payload = RawDataPayload(**payload_dict["base"])
-    category = payload_dict['category']
-    subcategory = payload_dict.get('subcategory')
-    area_type = payload_dict['area_type']
-    area_code = payload_dict['area_code']
-    date = payload_dict['date']
+    category = payload_dict["category"]
+    subcategory = payload_dict.get("subcategory")
+    area_type = payload_dict["area_type"]
+    area_code = payload_dict["area_code"]
+    date = payload_dict["date"]
 
     if category == "vaccination" and subcategory == "age_demographics":
         return run_demographics(payload_dict)
@@ -1108,7 +1041,7 @@ def run_direct(payload_dict: dict):
         content_type="application/octet-stream",
         cache_control="no-cache, max-age=0, must-revalidate",
         compressed=False,
-        tier='Cool'
+        tier="Cool",
     )
 
     # Retrieve data chunk
@@ -1143,7 +1076,7 @@ def run_direct(payload_dict: dict):
         "date": date,
         "environment": payload.environment,
         "category": category,
-        "subcategory": subcategory
+        "subcategory": subcategory,
     }
 
     logging.info(response_payload)
@@ -1154,11 +1087,11 @@ def run_direct(payload_dict: dict):
 def run_direct_msoas(payload_dict: dict):
     logging.info(f"run_direct:: {payload_dict}")
     payload = RawDataPayload(**payload_dict["base"])
-    category = payload_dict['category']
-    subcategory = payload_dict.get('subcategory')
-    area_type = payload_dict['area_type']
-    area_code = payload_dict['area_code']
-    date = payload_dict['date']
+    category = payload_dict["category"]
+    subcategory = payload_dict.get("subcategory")
+    area_type = payload_dict["area_type"]
+    area_code = payload_dict["area_code"]
+    date = payload_dict["date"]
 
     if category == "vaccination" and subcategory == "age_demographics":
         return run_demographics(payload_dict)
@@ -1168,7 +1101,7 @@ def run_direct_msoas(payload_dict: dict):
         content_type="application/octet-stream",
         cache_control="no-cache, max-age=0, must-revalidate",
         compressed=False,
-        tier='Cool'
+        tier="Cool",
     )
 
     # Retrieve data chunk
@@ -1182,10 +1115,8 @@ def run_direct_msoas(payload_dict: dict):
 
     # Process chunk
     # These must be done in a specific order.
-    result = (
-        data
-        .pipe(homogenise_dates)
-        .pipe(normalise_records, zero_filled=FILL_WITH_ZEROS, cumulative=START_WITH_ZERO)
+    result = data.pipe(homogenise_dates).pipe(
+        normalise_records, zero_filled=FILL_WITH_ZEROS, cumulative=START_WITH_ZERO
     )
 
     # Store chunk for deployment to DB
@@ -1204,7 +1135,7 @@ def run_direct_msoas(payload_dict: dict):
         "date": date,
         "environment": payload.environment,
         "category": category,
-        "subcategory": subcategory
+        "subcategory": subcategory,
     }
 
     logging.info(response_payload)
@@ -1213,7 +1144,9 @@ def run_direct_msoas(payload_dict: dict):
 
 
 def get_prepped_age_breakdown_population():
-    path = CURRENT_PATH.joinpath("assets", "prepped_demographics_population.csv").resolve()
+    path = CURRENT_PATH.joinpath(
+        "assets", "prepped_demographics_population.csv"
+    ).resolve()
 
     return read_csv(path, index_col=["areaCode", "age"])
 
@@ -1222,41 +1155,34 @@ def metric_specific_processes(df, base_metric, db_payload_metric):
     if base_metric is None:
         return df
 
-    df = (
-        df
-        .pipe(
-            calculate_age_rates,
-            population_data=get_prepped_age_breakdown_population(),
-            max_date=df.date.max(),
-            rolling_rate=[base_metric]
-        )
+    df = df.pipe(
+        calculate_age_rates,
+        population_data=get_prepped_age_breakdown_population(),
+        max_date=df.date.max(),
+        rolling_rate=[base_metric],
     )
 
     new_names = {
         col: col.replace(base_metric, "")
-        for col in df.columns if col.startswith(base_metric) and base_metric != col
+        for col in df.columns
+        if col.startswith(base_metric) and base_metric != col
     }
 
     new_names = {
-        col: new_col[0].lower() + new_col[1:]
-        for col, new_col in new_names.items()
+        col: new_col[0].lower() + new_col[1:] for col, new_col in new_names.items()
     }
 
     cutoff_date = f"{datetime.now() - timedelta(days=5):%Y-%m-%d}"
 
-    df = (
-        df
-        .rename(columns={**new_names, base_metric: db_payload_metric})
-        .loc[df.date <= cutoff_date, :]  # Drop the last 5 days (event date data)
-    )
+    df = df.rename(columns={**new_names, base_metric: db_payload_metric}).loc[
+        df.date <= cutoff_date, :
+    ]  # Drop the last 5 days (event date data)
 
     # Convert non-decimal columns to integer type
     # to prevent `.0` in JSON payloads.
-    df.loc[:, [db_payload_metric, "rollingSum"]] = (
-        df
-        .loc[:, [db_payload_metric, "rollingSum"]]
-        .astype("Int64")
-    )
+    df.loc[:, [db_payload_metric, "rollingSum"]] = df.loc[
+        :, [db_payload_metric, "rollingSum"]
+    ].astype("Int64")
 
     return df
 
@@ -1268,10 +1194,10 @@ def run_demographics(payload_dict):
         "vaccinations-by-vaccination-date": {
             "age-demographics": {
                 "metric_name": "vaccinationsAgeDemographics",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "age"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
                 "frequency": "D",
-                "nesting_param": "age"
+                "nesting_param": "age",
             }
         },
         "cases-by-specimen-date": {
@@ -1279,10 +1205,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newCasesBySpecimenDateAgeDemographics",
                 "base_metric": "newCasesBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "age"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
                 "frequency": "D",
-                "nesting_param": "age"
+                "nesting_param": "age",
             }
         },
         "deaths28days-by-death-date": {
@@ -1290,10 +1216,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newDeaths28DaysByDeathDateAgeDemographics",
                 "base_metric": "newDeaths28DaysByDeathDate",
                 "db_payload_metric": "deaths",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "age"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
                 "frequency": "D",
-                "nesting_param": "age"
+                "nesting_param": "age",
             }
         },
         "first-episodes-by-specimen-date": {
@@ -1301,10 +1227,10 @@ def run_demographics(payload_dict):
                 "metric_name": "newFirstEpisodesBySpecimenDateAgeDemographics",
                 "base_metric": "newFirstEpisodesBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "age"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
                 "frequency": "D",
-                "nesting_param": "age"
+                "nesting_param": "age",
             }
         },
         "reinfections-by-specimen-date": {
@@ -1312,29 +1238,29 @@ def run_demographics(payload_dict):
                 "metric_name": "newReinfectionsBySpecimenDateAgeDemographics",
                 "base_metric": "newReinfectionsBySpecimenDate",
                 "db_payload_metric": "cases",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'age'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "age"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "age"],
                 "frequency": "D",
-                "nesting_param": "age"
+                "nesting_param": "age",
             }
         },
         "variants": {
             "episodes": {
                 "metric_name": "variants",
-                "main_metrics": ['areaType', 'areaCode', 'areaName', 'date', 'variant'],
+                "main_metrics": ["areaType", "areaCode", "areaName", "date", "variant"],
                 "homogenisation_metrics": ["areaType", "areaCode", "date", "variant"],
                 "frequency": "W",
-                "nesting_param": "variant"
+                "nesting_param": "variant",
             }
-        }
+        },
     }
 
     payload = RawDataPayload(**payload_dict["base"])
-    category = payload_dict['category']
-    subcategory = payload_dict['subcategory']
-    area_type = payload_dict['area_type']
-    area_code = payload_dict['area_code']
-    date = payload_dict['date']
+    category = payload_dict["category"]
+    subcategory = payload_dict["subcategory"]
+    area_type = payload_dict["area_type"]
+    area_code = payload_dict["area_code"]
+    date = payload_dict["date"]
 
     metadata = metric_names_ref[category][subcategory]
     metric_name = metadata["metric_name"]
@@ -1344,7 +1270,7 @@ def run_demographics(payload_dict):
         content_type="application/octet-stream",
         cache_control="no-cache, max-age=0, must-revalidate",
         compressed=False,
-        tier='Cool'
+        tier="Cool",
     )
 
     # Retrieve data chunk
@@ -1367,12 +1293,11 @@ def run_demographics(payload_dict):
         logging.info(metrics)
 
     result = (
-        data
-        .pipe(
+        data.pipe(
             homogenise_demographics_dates,
             base_metrics=metadata.get("homogenisation_metrics"),
             frequency=metadata.get("frequency"),
-            nesting_param=metadata.get("nesting_param")
+            nesting_param=metadata.get("nesting_param"),
         )
         .set_index(main_metrics)
         .pipe(
@@ -1380,21 +1305,25 @@ def run_demographics(payload_dict):
             zero_filled=FILL_WITH_ZEROS,
             cumulative=START_WITH_ZERO,
             base_metrics=metadata.get("homogenisation_metrics"),
-            nesting_param=metadata.get("nesting_param")
+            nesting_param=metadata.get("nesting_param"),
         )
         .pipe(
             metric_specific_processes,
             base_metric=metadata.get("base_metric"),
-            db_payload_metric=db_payload_metric
+            db_payload_metric=db_payload_metric,
         )
         .groupby(main_metrics[:-1])
-        .apply(lambda x: x.loc[:, [main_metrics[-1], *metrics]].to_dict(orient="records"))
+        .apply(
+            lambda x: x.loc[:, [main_metrics[-1], *metrics]].to_dict(orient="records")
+        )
         .reset_index()
         .rename(columns={0: metric_name})
     )
 
     # Store chunk for deployment to DB
-    result_path = f"daily_chunks/{category}/{subcategory}/{date}/{area_type}_{area_code}.ft"
+    result_path = (
+        f"daily_chunks/{category}/{subcategory}/{date}/{area_type}_{area_code}.ft"
+    )
     with TemporaryFile() as fp:
         result.reset_index(drop=True).to_feather(fp)
         fp.seek(0)
@@ -1409,7 +1338,7 @@ def run_demographics(payload_dict):
         "date": date,
         "environment": payload.environment,
         "category": category,
-        "subcategory": subcategory
+        "subcategory": subcategory,
     }
 
     return response_payload
@@ -1434,7 +1363,7 @@ def run(payload_dict: dict):
         content_type="application/json; charset=utf-8",
         cache_control="no-cache, max-age=0",
         compressed=False,
-        tier='Cool'
+        tier="Cool",
     )
 
     # Demographics
@@ -1475,20 +1404,18 @@ def run(payload_dict: dict):
             #     )
 
             save_chunk_feather(
-                data=result,
-                dir_path=dir_path,
-                filename=f'main_{area_code}.ft'
+                data=result, dir_path=dir_path, filename=f"main_{area_code}.ft"
             )
 
         else:
             chunk: DataFrame
             # for area_type, area_code, chunk in iter_column_chunks(result):
-            file_path = f'daily_chunks/main/{max_date}'
+            file_path = f"daily_chunks/main/{max_date}"
             upload_chunk_feather(
                 data=result,
                 container="pipeline",
                 dir_path=file_path,
-                filename=f"{area_type}_{area_code}.ft"
+                filename=f"{area_type}_{area_code}.ft",
             )
 
             processed_data_kws = dict(
@@ -1496,7 +1423,7 @@ def run(payload_dict: dict):
                 content_type="application/octet-stream",
                 compressed=False,
                 cache_control="no-cache, max-age=0",
-                tier='Cool'
+                tier="Cool",
             )
 
             path = f"etl/processed/{dir_timestamp}/{area_type}_{area_code}.ft"
@@ -1521,7 +1448,7 @@ def run(payload_dict: dict):
                 "area_code": area_code,
                 "area_type": area_type,
                 "date": max_date,
-                "environment": payload.environment
+                "environment": payload.environment,
             }
 
 
@@ -1529,8 +1456,7 @@ def iter_column_chunks(data: DataFrame) -> Tuple[str, str, DataFrame]:
     for area_type in data.areaType.unique():
         for area_code in data.loc[data.areaType == area_type, "areaCode"].unique():
             chunk = data.loc[
-                ((data.areaType == area_type) & (data.areaCode == area_code)),
-                :
+                ((data.areaType == area_type) & (data.areaCode == area_code)), :
             ]
 
             yield area_type, area_code, chunk
@@ -1541,7 +1467,6 @@ def iter_chunks(data: List[dict]) -> Tuple[int, str]:
     counter = 1
 
     for index in range(0, len(data), chunk_size):
-        yield counter, dumps(data[index: index + chunk_size], separators=(",", ":"))
+        yield counter, dumps(data[index : index + chunk_size], separators=(",", ":"))
         counter += 1
         logging.info(f"\t Chunk { counter } was uploaded.")
-

@@ -11,42 +11,45 @@ from sqlalchemy import text
 
 # Internal:
 try:
-    from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session
-    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
+    from __app__.storage import StorageClient
+
     from . import queries
+    from .utils import plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
 except ImportError:
-    from storage import StorageClient
-    from db_tables.covid19 import Session
-    from db_etl_homepage_graphs.utils import (
-        plot_thumbnail, plot_vaccinations, plot_vaccinations_waffle_chart
-    )
     from db_etl_homepage_graphs import queries
+    from db_etl_homepage_graphs.utils import (
+        plot_thumbnail,
+        plot_vaccinations,
+        plot_vaccinations_waffle_chart,
+    )
+    from db_tables.covid19 import Session
+    from storage import StorageClient
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-__all__ = [
-    'main'
-]
+__all__ = ["main"]
 
 
 METRICS = [
-    'newAdmissions',
-    'newCasesByPublishDate',
-    'newDeaths28DaysByPublishDate',
-    'newCasesBySpecimenDate',
-    'newDeaths28DaysByDeathDate',
-    'newVirusTestsByPublishDate',
-    'newDailyNsoDeathsByDeathDate',
+    "newAdmissions",
+    "newCasesByPublishDate",
+    "newDeaths28DaysByPublishDate",
+    "newCasesBySpecimenDate",
+    "newDeaths28DaysByDeathDate",
+    # 'newVirusTestsByPublishDate',
+    "newDailyNsoDeathsByDeathDate",
+    "newVirusTestsBySpecimenDate",
 ]
 
 
-def store_data(date: str, metric: str, svg: str, area_type: str = None,
-               area_code: str = None):
+def store_data(
+    date: str, metric: str, svg: str, area_type: str = None, area_code: str = None
+):
     kws = dict(
         container="downloads",
         content_type="image/svg+xml",
         cache_control="public, max-age=30, s-maxage=90, must-revalidate",
-        compressed=False
+        compressed=False,
     )
 
     path = f"homepage/{date}/thumbnail_{metric}.svg"
@@ -58,8 +61,9 @@ def store_data(date: str, metric: str, svg: str, area_type: str = None,
         cli.upload(svg)
 
 
-def upload_file(date: str, metric: str, svg: str, area_type: str = None,
-                area_code: str = None):
+def upload_file(
+    date: str, metric: str, svg: str, area_type: str = None, area_code: str = None
+):
     """
     This is used to save svg files into Azure Data Storage. The images are waffle charts
     used on the main page, and currently are related to people of age 75 and over.
@@ -75,7 +79,7 @@ def upload_file(date: str, metric: str, svg: str, area_type: str = None,
         container="downloads",
         content_type="image/svg+xml",
         cache_control="public, max-age=30, s-maxage=90, must-revalidate",
-        compressed=False
+        compressed=False,
     )
 
     if area_code and area_type:
@@ -101,10 +105,7 @@ def get_timeseries(date: str, metric: str):
     conn = session.connection()
     try:
         resp = conn.execute(
-            text(values_query),
-            partition_id=partition_id,
-            metric=metric,
-            datestamp=ts
+            text(values_query), partition_id=partition_id, metric=metric, datestamp=ts
         )
         values = resp.fetchall()
 
@@ -112,7 +113,7 @@ def get_timeseries(date: str, metric: str):
             text(change_query),
             partition_id=partition_id,
             datestamp=ts,
-            metric=metric + "Change"
+            metric=metric + "Change",
         )
         change = resp.fetchone()
     except Exception as err:
@@ -124,11 +125,7 @@ def get_timeseries(date: str, metric: str):
     if not (values and change):
         return
 
-    store_data(
-        date,
-        metric,
-        plot_thumbnail(values, metric_name=metric, change=change)
-    )
+    store_data(date, metric, plot_thumbnail(values, metric_name=metric, change=change))
 
     return True
 
@@ -147,23 +144,28 @@ def get_value_75_plus(item: dict):
     vaccination_date = 0
     vaccination_date_percentage_dose = 0
 
-    for obj in item['payload']:
-        if obj.get('age') == '75+':
-            vaccination_date = int(round(
-                obj.get('cumPeopleVaccinatedSpring23ByVaccinationDate', 0), 1
-            ))
-            vaccination_date_percentage_dose = int(round(
-                obj.get('cumVaccinationSpring23UptakeByVaccinationDatePercentage', 0), 1
-            ))
+    for obj in item["payload"]:
+        if obj.get("age") == "75+":
+            vaccination_date = int(
+                round(obj.get("cumPeopleVaccinatedSpring23ByVaccinationDate", 0), 1)
+            )
+            vaccination_date_percentage_dose = int(
+                round(
+                    obj.get(
+                        "cumVaccinationSpring23UptakeByVaccinationDatePercentage", 0
+                    ),
+                    1,
+                )
+            )
             break
 
     return {
-        "area_type": item['area_type'],
-        "area_code": item['area_code'],
-        "date": item['date'],
+        "area_type": item["area_type"],
+        "area_code": item["area_code"],
+        "date": item["date"],
         # These are the new keys/values that have to be provided to generate the image
         "vaccination_date": vaccination_date,
-        "vaccination_date_percentage_dose": vaccination_date_percentage_dose
+        "vaccination_date_percentage_dose": vaccination_date_percentage_dose,
     }
 
 
@@ -176,10 +178,7 @@ def get_vaccinations(date):
     session = Session()
     conn = session.connection()
     try:
-        resp = conn.execute(
-            text(vax_query),
-            datestamp=ts
-        )
+        resp = conn.execute(text(vax_query), datestamp=ts)
         values = resp.fetchall()
     except Exception as err:
         session.rollback()
@@ -193,7 +192,7 @@ def get_vaccinations(date):
             "vaccinations",
             plot_vaccinations(item),
             area_type=item["area_type"],
-            area_code=item["area_code"]
+            area_code=item["area_code"],
         )
 
     return True
@@ -233,22 +232,22 @@ def get_vaccinations_75_plus(date: str):
     for item in values:
         # Checking if it's the newest data for the region
         if (
-            item['area_type'] not in saved_data
-            or item['area_code'] not in saved_data[item['area_type']]
-            or item['date'] > saved_data[item['area_type']][item['area_code']]
+            item["area_type"] not in saved_data
+            or item["area_code"] not in saved_data[item["area_type"]]
+            or item["date"] > saved_data[item["area_type"]][item["area_code"]]
         ):
             # Updating the existing data or creating a new entry
-            if item['area_type'] not in saved_data:
-                saved_data[item['area_type']] = {item['area_code']: item['date']}
-            elif item['area_code'] not in saved_data[item['area_type']]:
-                saved_data[item['area_type']][item['area_code']] = item['date']
+            if item["area_type"] not in saved_data:
+                saved_data[item["area_type"]] = {item["area_code"]: item["date"]}
+            elif item["area_code"] not in saved_data[item["area_type"]]:
+                saved_data[item["area_type"]][item["area_code"]] = item["date"]
 
             upload_file(
                 date,
                 "vaccinations",
                 plot_vaccinations_waffle_chart(get_value_75_plus(item)),
                 area_type=item["area_type"],
-                area_code=item["area_code"]
+                area_code=item["area_code"],
             )
 
     return True
@@ -259,17 +258,17 @@ def main(payload):
 
     if category == "main":
         for metric in METRICS:
-            get_timeseries(payload['date'], metric)
+            get_timeseries(payload["date"], metric)
 
         # Necessary data to generate waffle chart images might not be present in DB
         # when 'vaccination' category payload is run, but it should be available
         # when the last file is uploaded (main).
         logging.info("Generating waffle chart images for '75+' age range.")
-        get_vaccinations_75_plus(payload['date'])
+        get_vaccinations_75_plus(payload["date"])
         logging.info("Generating waffle chart images has finished.")
 
     if payload.get("category") == "vaccination":
-        get_vaccinations(payload['date'])
+        get_vaccinations(payload["date"])
 
     return f'DONE: {payload["date"]}'
 
