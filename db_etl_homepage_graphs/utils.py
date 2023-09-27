@@ -3,19 +3,18 @@
 # Imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Python:
-from typing import Dict, Callable, Union
 from operator import itemgetter
+from typing import Callable, Dict, Union
+
+from numpy import NaN, zeros
+from pandas import Series
 
 # 3rd party:
 from plotly import graph_objects as go
-from numpy import zeros, NaN
-from pandas import Series
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-__all__ = [
-    'plot_thumbnail',
-    'plot_vaccinations'
-]
+__all__ = ["plot_thumbnail", "plot_vaccinations"]
 
 
 IsImproving: Dict[str, Callable[[Union[int, float]], bool]] = {
@@ -23,20 +22,20 @@ IsImproving: Dict[str, Callable[[Union[int, float]], bool]] = {
     "newCasesBySpecimenDate": lambda x: x < 0,
     "newDeaths28DaysByPublishDate": lambda x: x < 0,
     "newDeaths28DaysByDeathDate": lambda x: x < 0,
-    "newVirusTestsByPublishDate": lambda x: 0,
+    "newVirusTestsBySpecimenDate": lambda x: 0,
     "newAdmissions": lambda x: x < 0,
     "newDailyNsoDeathsByDeathDate": lambda x: x < 0,
 }
 
 
 TIMESERIES_LAYOUT = go.Layout(
-    paper_bgcolor='rgba(0,0,0,0)',
-    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
     margin={
-        'l': 0,
-        'r': 0,
-        'b': 4,
-        't': 0,
+        "l": 0,
+        "r": 0,
+        "b": 4,
+        "t": 0,
     },
     showlegend=False,
     height=350,
@@ -48,32 +47,23 @@ TIMESERIES_LAYOUT = go.Layout(
         "ticks": "outside",
         "tickson": "boundaries",
         "type": "date",
-        "tickformat": '%b',
+        "tickformat": "%b",
         # "tickvals": x[::30],
         # "tickmode": 'array',
         "tickfont": {
             "family": '"GDS Transport", Arial, sans-serif',
             "size": 20,
-            "color": "#6B7276"
-        }
-    }
+            "color": "#6B7276",
+        },
+    },
 )
 
 WAFFLE_LAYOUT = dict(
-    margin=dict(
-        l=0,
-        r=0,
-        t=0,
-        b=0
-    ),
+    margin=dict(l=0, r=0, t=0, b=0),
     showlegend=False,
     plot_bgcolor="rgba(231,231,231,0)",
     paper_bgcolor="rgba(255,255,255,0)",
-    xaxis=dict(
-        showgrid=False,
-        ticks=None,
-        showticklabels=False
-    ),
+    xaxis=dict(showgrid=False, ticks=None, showticklabels=False),
     yaxis=dict(
         showgrid=False,
         ticks=None,
@@ -84,18 +74,9 @@ WAFFLE_LAYOUT = dict(
 )
 
 COLOURS = {
-    "good": {
-        "line": "rgba(0,90,48,1)",
-        "fill": "rgba(204,226,216,1)"
-    },
-    "bad": {
-        "line": "rgba(148,37,20,1)",
-        "fill": "rgba(246,215,210,1)"
-    },
-    "neutral": {
-        "line": "rgba(56,63,67,1)",
-        "fill": "rgba(235,233,231,1)"
-    }
+    "good": {"line": "rgba(0,90,48,1)", "fill": "rgba(204,226,216,1)"},
+    "bad": {"line": "rgba(148,37,20,1)", "fill": "rgba(246,215,210,1)"},
+    "neutral": {"line": "rgba(56,63,67,1)", "fill": "rgba(235,233,231,1)"},
 }
 
 
@@ -124,29 +105,22 @@ def plot_thumbnail(timeseries, change, metric_name: str) -> str:
     y = Series(list(map(get_value, timeseries))).rolling(7, center=True).mean()
     fig = go.Figure(
         go.Scatter(
-            x=x[13:],
-            y=y[13:],
-            line={
-                "width": 2,
-                "color": COLOURS['neutral']['line']
-            }
+            x=x[13:], y=y[13:], line={"width": 2, "color": COLOURS["neutral"]["line"]}
         ),
-        layout=TIMESERIES_LAYOUT
+        layout=TIMESERIES_LAYOUT,
     )
 
     fig.add_trace(
         go.Scatter(
             x=x[:14],
             y=y[:14],
-            line={
-                "width": 2
-            },
-            mode='lines',
-            fill='tozeroy',
-            hoveron='points',
-            opacity=.5,
-            line_color=trend_colour['line'],
-            fillcolor=trend_colour['fill'],
+            line={"width": 2},
+            mode="lines",
+            fill="tozeroy",
+            hoveron="points",
+            opacity=0.5,
+            line_color=trend_colour["line"],
+            fillcolor=trend_colour["fill"],
         )
     )
 
@@ -154,7 +128,7 @@ def plot_thumbnail(timeseries, change, metric_name: str) -> str:
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
 
-    return fig.to_image(format="svg", height='150px').decode()
+    return fig.to_image(format="svg", height="150px").decode()
 
 
 def get_vaccination_matrices(threshold, identifier):
@@ -189,10 +163,10 @@ def plot_vaccinations(data):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(119,196,191,1)"],
-                [.9, "rgba(119,196,191,1)"],
+                [0.5, "rgba(119,196,191,1)"],
+                [0.9, "rgba(119,196,191,1)"],
                 [1, "rgba(119,196,191,1)"],
-            ]
+            ],
         )
     )
 
@@ -205,10 +179,10 @@ def plot_vaccinations(data):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(0,156,145,1)"],
-                [.9, "rgba(0,156,145,1)"],
+                [0.5, "rgba(0,156,145,1)"],
+                [0.9, "rgba(0,156,145,1)"],
                 [1, "rgba(0,156,145,1)"],
-            ]
+            ],
         )
     )
 
@@ -221,18 +195,14 @@ def plot_vaccinations(data):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(0,65,61,1)"],
-                [.9, "rgba(0,65,61,1)"],
+                [0.5, "rgba(0,65,61,1)"],
+                [0.9, "rgba(0,65,61,1)"],
                 [1, "rgba(0,65,61,1)"],
-            ]
+            ],
         )
     )
 
-    fig.update_layout(
-        width=400,
-        height=400,
-        **WAFFLE_LAYOUT
-    )
+    fig.update_layout(width=400, height=400, **WAFFLE_LAYOUT)
 
     return fig.to_image(format="svg").decode()
 
@@ -249,7 +219,9 @@ def plot_vaccinations_waffle_chart(data: dict):
     vaccination_date_percentage_dose = data["vaccination_date_percentage_dose"]
 
     vaccination_date_matrix = get_vaccination_matrices(vaccination_date, 1)
-    vaccination_date_percentage_dose_matrix = get_vaccination_matrices(vaccination_date_percentage_dose, 2)
+    vaccination_date_percentage_dose_matrix = get_vaccination_matrices(
+        vaccination_date_percentage_dose, 2
+    )
 
     fig = go.Figure()
 
@@ -262,10 +234,10 @@ def plot_vaccinations_waffle_chart(data: dict):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(216,216,216,1)"],
-                [.9, "rgba(119,196,191,1)"],
+                [0.5, "rgba(216,216,216,1)"],
+                [0.9, "rgba(119,196,191,1)"],
                 [1, "rgba(119,196,191,1)"],
-            ]
+            ],
         )
     )
 
@@ -278,17 +250,13 @@ def plot_vaccinations_waffle_chart(data: dict):
             xgap=3,
             colorscale=[
                 [0, "rgba(216,216,216,1)"],
-                [.5, "rgba(0,156,145,1)"],
-                [.9, "rgba(0,156,145,1)"],
+                [0.5, "rgba(0,156,145,1)"],
+                [0.9, "rgba(0,156,145,1)"],
                 [1, "rgba(0,156,145,1)"],
-            ]
+            ],
         )
     )
 
-    fig.update_layout(
-        width=400,
-        height=400,
-        **WAFFLE_LAYOUT
-    )
+    fig.update_layout(width=400, height=400, **WAFFLE_LAYOUT)
 
     return fig.to_image(format="svg").decode()
