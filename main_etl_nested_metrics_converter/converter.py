@@ -134,7 +134,7 @@ def from_sql(partition: str, cutoff_date: datetime):
 
     # Temporarily increase max_intermediate_result_size value from 1GB to 2GB
     connection.execute(
-        text("set citus.max_intermediate_result_size to 2097152")
+        text("set citus.max_intermediate_result_size to 4194304")
     )
 
     try:
