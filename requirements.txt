@@ -1,7 +1,7 @@
 cython==0.29.33
 pandas==1.0.5
 certifi==2022.12.7
-cryptography==39.0.1
+cryptography==41.0.1
 chardet==3.0.4
 idna==2.10
 msrest==0.6.21
