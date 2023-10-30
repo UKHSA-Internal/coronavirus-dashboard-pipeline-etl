@@ -17,7 +17,7 @@ azure-servicebus==7.8.0
 azure-cosmos==4.3.0
 azure-mgmt-servicebus==8.1.0
 azure-functions-durable==1.1.6
-redis==3.5.3
+redis==4.6.0
 PyYAML==5.4.1
 jinja2==3.0.3
 requests==2.28.2
