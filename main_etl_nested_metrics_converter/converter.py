@@ -53,7 +53,7 @@ age_metric_mapping = {
     '65+': [
         "newPeopleVaccinatedAutumn23ByVaccinationDate",
         "cumPeopleVaccinatedAutumn23ByVaccinationDate",
-        "cumPeopleVaccinatedAutumn23UptakeByVaccinationDate",
+        "cumPeopleVaccinatedAutumn23UptakeByVaccinationDatePercentage",
     ],
     '75+': [
         "newPeopleVaccinatedSpring23ByVaccinationDate",
