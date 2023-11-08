@@ -50,6 +50,11 @@ age_metric_mapping = {
         "cumPeopleVaccinatedAutumn22ByVaccinationDate",
         "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
     ],
+    '65+': [
+        "newPeopleVaccinatedAutumn23ByVaccinationDate",
+        "cumPeopleVaccinatedAutumn23ByVaccinationDate",
+        "cumPeopleVaccinatedAutumn23UptakeByVaccinationDatePercentage",
+    ],
     '75+': [
         "newPeopleVaccinatedSpring23ByVaccinationDate",
         "cumPeopleVaccinatedSpring23ByVaccinationDate",
@@ -64,6 +69,7 @@ list(map(METRICS_TO_CONVERT.extend, age_metric_mapping.values()))
 # not to has any problematic characters
 suffix_mapping = {
     '50+': '50plus',
+    '65+': '65plus',
     '75+': '75plus',
 }
 # The dict where the key is the metric, and its value is the metric ID
@@ -132,7 +138,7 @@ def from_sql(partition: str, cutoff_date: datetime):
     session = Session()
     connection = session.connection()
 
-    # Temporarily increase max_intermediate_result_size value from 1GB to 2GB
+    # Temporarily increase max_intermediate_result_size value from 2GB to 4GB
     connection.execute(
         text("set citus.max_intermediate_result_size to 4194304")
     )
