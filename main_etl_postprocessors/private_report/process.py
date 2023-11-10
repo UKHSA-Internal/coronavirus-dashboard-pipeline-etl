@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import insert
 from jinja2 import FileSystemLoader, Environment
 
-# Internal: 
+# Internal:
 try:
     from __app__.storage import StorageClient
     from __app__.db_tables.covid19 import Session, PrivateReport
@@ -41,8 +41,8 @@ METRICS = [
     'newAdmissionsRollingSum',
     'hospitalCases',
     'covidOccupiedMVBeds',
-    'cumPeopleVaccinatedAutumn22ByVaccinationDate50plus',
-    'cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50plus',
+    # 'cumPeopleVaccinatedAutumn22ByVaccinationDate50plus',
+    # 'cumVaccinationsAutumn22UptakeByVaccinationDatePercentage50plus',
     'newPeopleVaccinatedSpring23ByVaccinationDate75plus',
     'cumPeopleVaccinatedSpring23ByVaccinationDate75plus',
     'cumVaccinationSpring23UptakeByVaccinationDatePercentage75plus',
@@ -98,20 +98,20 @@ structure = [
             "metric": "newCasesBySpecimenDateRollingSum"
         }
     ],
-    [
-        {
-            "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
-            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
-        }
+    # [
+    #     {
+    #         "name": "Vaccination uptake - autumn booster age 50+ (%)",
+    #         "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
+    #         "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
+    #     }
 
-    ],
+    # ],
     [
-        {
-            "name": "Total vaccines given — autumn booster age 50+",
-            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
-            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
-        },
+        # {
+        #     "name": "Total vaccines given — autumn booster age 50+",
+        #     "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
+        #     "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
+        # },
         {
             "name": "Total vaccines given",
             "label": "cumVaccinesGivenByPublishDate",
