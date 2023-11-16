@@ -87,16 +87,16 @@ England_structure = [
             "label": "covidOccupiedMVBeds",
             "metric": "covidOccupiedMVBeds"
         },
-        {
-            "name": "Total people vaccinated — autumn booster age 50+",
-            "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
-            "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus"
-        },
-        {
-            "name": "Vaccination uptake - autumn booster age 50+ (%)",
-            "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
-            "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
-        }
+        # {
+        #     "name": "Total people vaccinated — autumn booster age 50+",
+        #     "label": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus",
+        #     "metric": "cumPeopleVaccinatedAutumn22ByVaccinationDate50plus"
+        # },
+        # {
+        #     "name": "Vaccination uptake - autumn booster age 50+ (%)",
+        #     "label": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus",
+        #     "metric": "cumVaccinationAutumn22UptakeByVaccinationDatePercentage50plus"
+        # }
     ],
 ]
 
@@ -141,8 +141,8 @@ test_emails = {
 QUERY = """\
 SELECT MAX(date)::TEXT AS date, metric, (payload -> 'value')::FLOAT AS value
 FROM covid19.time_series_p{datestamp}_other AS ts
-JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id 
-JOIN covid19.area_reference AS ar ON ar.id = ts.area_id 
+JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id
+JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
 WHERE area_name = '{area_name}'
   AND metric = ANY('{metric}'::VARCHAR[])
   AND (payload ->> 'value') NOTNULL

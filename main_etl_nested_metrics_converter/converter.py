@@ -46,9 +46,14 @@ TimeSeriesDataToDB = namedtuple(
 )
 # The data that we're intrested in.
 age_metric_mapping = {
-    '50+': [
-        "cumPeopleVaccinatedAutumn22ByVaccinationDate",
-        "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
+    # '50+': [
+    #     "cumPeopleVaccinatedAutumn22ByVaccinationDate",
+    #     "cumVaccinationAutumn22UptakeByVaccinationDatePercentage",
+    # ],
+    '65+': [
+        "newPeopleVaccinatedAutumn23ByVaccinationDate",
+        "cumPeopleVaccinatedAutumn23ByVaccinationDate",
+        "cumVaccinationAutumn23UptakeByVaccinationDatePercentage",
     ],
     '75+': [
         "newPeopleVaccinatedSpring23ByVaccinationDate",
@@ -63,7 +68,8 @@ list(map(METRICS_TO_CONVERT.extend, age_metric_mapping.values()))
 # This will be used to convert 'suffix' (it will be appended to a metric)
 # not to has any problematic characters
 suffix_mapping = {
-    '50+': '50plus',
+    # '50+': '50plus',
+    '65+': '65plus',
     '75+': '75plus',
 }
 # The dict where the key is the metric, and its value is the metric ID
@@ -132,7 +138,7 @@ def from_sql(partition: str, cutoff_date: datetime):
     session = Session()
     connection = session.connection()
 
-    # Temporarily increase max_intermediate_result_size value from 1GB to 2GB
+    # Temporarily increase max_intermediate_result_size value from 2GB to 4GB
     connection.execute(
         text("set citus.max_intermediate_result_size to 4194304")
     )
@@ -229,16 +235,26 @@ def convert_values(data: list):
     new_hash_keys = set()
 
     for row in data:
-        for values in row.payload:
-            if values.get('age') is None or values['age'] not in age_metric_mapping:
+        # payload is a list of dictionaries, each of them contains metrics as keys,
+        # and 'age' key, which can have values like these examples: 45_49 or 50+
+        for age_range_values in row.payload:
+            if (
+                age_range_values.get('age') is None
+                or age_range_values['age'] not in age_metric_mapping
+            ):
+                # just ignore the values if 'age' is not what we want
                 continue
 
-            for metric in METRICS_TO_CONVERT:
-                if not metric in age_metric_mapping[values['age']]:
-                    continue
+            # checking only the required metrics
+            for metric in age_metric_mapping[age_range_values['age']]:
+                if metric not in age_range_values:
+                    raise AttributeError(
+                        f"Expected metric {metric} is missing int the DB data"
+                    )
 
-                metric_id = get_or_create_new_metric_id(metric, values['age'])
+                metric_id = get_or_create_new_metric_id(metric, age_range_values['age'])
 
+                # if for some reasons metric can't be created...
                 if metric_id is None:
                     raise TypeError(
                         "Expected an integer as metric ID, but got 'None' "
@@ -263,7 +279,7 @@ def convert_values(data: list):
                     metric_id,
                     row.partition_id,
                     row.date,
-                    {'value': values[metric]}
+                    {'value': age_range_values[metric]}
                 )
                 new_metric_data.append(new_metric)
 
@@ -368,4 +384,4 @@ def main(rawtimestamp: str) -> str:
 #     handler.setFormatter(formatter)
 #     root.addHandler(handler)
 
-#     main("2023-08-03T16:39:14.123456")
+#     main("2023-11-09T16:39:14.123456")
