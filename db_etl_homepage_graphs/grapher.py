@@ -66,7 +66,7 @@ def upload_file(
 ):
     """
     This is used to save svg files into Azure Data Storage. The images are waffle charts
-    used on the main page, and currently are related to people of age 75 and over.
+    used on the main page, and currently are related to people of age 65 and over.
     All the params, apart from 'svg', are used only to create the path to the file.
 
     :param date: date of the current release
@@ -83,7 +83,7 @@ def upload_file(
     )
 
     if area_code and area_type:
-        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_75_plus_thumbnail.svg"
+        path = f"homepage/{date}/{metric}/{area_type}/{area_code}_65_plus_thumbnail.svg"
 
         with StorageClient(path=path, **kws) as cli:
             cli.upload(svg)
@@ -130,12 +130,12 @@ def get_timeseries(date: str, metric: str):
     return True
 
 
-def get_value_75_plus(item: dict):
+def get_value_65_plus(item: dict):
     """
     Get the values for the item in a list where its key 'age' is '75+'
     and put them in new dict. New keys:
-    - cumPeopleVaccinatedSpring23ByVaccinationDate,
-    - cumVaccinationSpring23UptakeByVaccinationDatePercentage
+    - cumPeopleVaccinatedAutumn23ByVaccinationDate,
+    - cumVaccinationAutumn23UptakeByVaccinationDatePercentage
 
     :param item: data from DB (1 row)
     :return: a dictionary with all the data to generate a svg file and the path to it
@@ -145,14 +145,14 @@ def get_value_75_plus(item: dict):
     vaccination_date_percentage_dose = 0
 
     for obj in item["payload"]:
-        if obj.get("age") == "75+":
+        if obj.get("age") == "65+":
             vaccination_date = int(
-                round(obj.get("cumPeopleVaccinatedSpring23ByVaccinationDate", 0), 1)
+                round(obj.get("cumPeopleVaccinatedAutumn23ByVaccinationDate", 0), 1)
             )
             vaccination_date_percentage_dose = int(
                 round(
                     obj.get(
-                        "cumVaccinationSpring23UptakeByVaccinationDatePercentage", 0
+                        "cumVaccinationAutumn23UptakeByVaccinationDatePercentage", 0
                     ),
                     1,
                 )
@@ -198,7 +198,7 @@ def get_vaccinations(date):
     return True
 
 
-def get_vaccinations_75_plus(date: str):
+def get_vaccinations_65_plus(date: str):
     """
     The function to get the data from database. It will also call other functions
     to generate SVG images (waffle charts)
@@ -211,12 +211,12 @@ def get_vaccinations_75_plus(date: str):
     ts = datetime.strptime(date, "%Y-%m-%d")
     partition = f"{ts:%Y_%-m_%-d}"
 
-    vax_query_75_plus = queries.VACCINATIONS_QUERY_PLUS.format(partition=partition)
+    vax_query_65_plus = queries.VACCINATIONS_QUERY_PLUS.format(partition=partition)
 
     session = Session()
     conn = session.connection()
     try:
-        resp = conn.execute(text(vax_query_75_plus))
+        resp = conn.execute(text(vax_query_65_plus))
         values = resp.fetchall()
     except Exception as err:
         session.rollback()
@@ -245,7 +245,7 @@ def get_vaccinations_75_plus(date: str):
             upload_file(
                 date,
                 "vaccinations",
-                plot_vaccinations_waffle_chart(get_value_75_plus(item)),
+                plot_vaccinations_waffle_chart(get_value_65_plus(item)),
                 area_type=item["area_type"],
                 area_code=item["area_code"],
             )
@@ -263,8 +263,8 @@ def main(payload):
         # Necessary data to generate waffle chart images might not be present in DB
         # when 'vaccination' category payload is run, but it should be available
         # when the last file is uploaded (main).
-        logging.info("Generating waffle chart images for '75+' age range.")
-        get_vaccinations_75_plus(payload["date"])
+        logging.info("Generating waffle chart images for '65+' age range.")
+        get_vaccinations_65_plus(payload["date"])
         logging.info("Generating waffle chart images has finished.")
 
     if payload.get("category") == "vaccination":
